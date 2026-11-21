@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const {
     dataSourceState,
@@ -87,6 +87,15 @@ describe('installation middleware state probe', () => {
         vi.clearAllMocks()
         runtimeCache.clear()
         dataSourceState.isInitialized = false
+        delete process.env.MOMEI_INSTALLED
+        // 该中间件通过 Nuxt auto-import 使用 sendRedirect；直接导入模块时没有
+        // Nuxt 的 import 注入，需要显式挂到全局，才能断言重定向分支。
+        vi.stubGlobal('sendRedirect', sendRedirect)
+    })
+
+    afterEach(() => {
+        delete process.env.MOMEI_INSTALLED
+        vi.unstubAllGlobals()
     })
 
     it('should only initialize the database connection for the homepage installation probe', async () => {
@@ -114,5 +123,29 @@ describe('installation middleware state probe', () => {
 
         expect(initializeDatabaseConnection).toHaveBeenCalledTimes(1)
         expect(initializeDB).not.toHaveBeenCalled()
+    })
+
+    it('should redirect installed sites away from the installation page', async () => {
+        getInstallationProbeStatus.mockResolvedValueOnce({ installed: true, databaseConnected: true })
+
+        await installationMiddleware(createEvent('/installation'))
+
+        expect(sendRedirect).toHaveBeenCalledWith(expect.anything(), '/', 302)
+    })
+
+    it('should redirect uninstalled page requests to the installation page', async () => {
+        getInstallationProbeStatus.mockResolvedValueOnce({ installed: false, databaseConnected: true })
+
+        await installationMiddleware(createEvent('/posts'))
+
+        expect(sendRedirect).toHaveBeenCalledWith(expect.anything(), '/installation', 302)
+    })
+
+    it('should redirect non-api page requests when the installation probe fails', async () => {
+        getInstallationProbeStatus.mockRejectedValueOnce(new Error('database unavailable'))
+
+        await installationMiddleware(createEvent('/posts'))
+
+        expect(sendRedirect).toHaveBeenCalledWith(expect.anything(), '/installation', 302)
     })
 })

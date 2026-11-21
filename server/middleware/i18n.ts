@@ -24,7 +24,7 @@ export default defineEventHandler((event) => {
 
     // AsyncLocalStorage 让不显式接收 locale 参数的深层 helper 也能读取本次请求语境，
     // 并且不同请求间不会互相污染。
-    return i18nStorage.run(appLocale, () => {
+    i18nStorage.run(appLocale, () => {
         // 继续执行后续 Handler
     })
 })

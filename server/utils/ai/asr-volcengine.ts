@@ -292,10 +292,12 @@ export class VolcengineASRProvider implements Partial<AIProvider> {
                 const packet = parseVolcengineServerPacket(data)
 
                 if (packet.type === 'error') {
-                    settle(() => reject(createError({
-                        statusCode: 502,
-                        message: `Volcengine ASR Error(${packet.code}): ${packet.message}`,
-                    })))
+                    settle(() => {
+                        reject(createError({
+                            statusCode: 502,
+                            message: `Volcengine ASR Error(${packet.code}): ${packet.message}`,
+                        }))
+                    })
                     return
                 }
 
@@ -328,10 +330,12 @@ export class VolcengineASRProvider implements Partial<AIProvider> {
             })
 
             ws.on('error', (error) => {
-                settle(() => reject(createError({
-                    statusCode: 502,
-                    message: `Volcengine ASR websocket error: ${error.message}`,
-                })))
+                settle(() => {
+                    reject(createError({
+                        statusCode: 502,
+                        message: `Volcengine ASR websocket error: ${error.message}`,
+                    }))
+                })
             })
 
             ws.on('close', () => {

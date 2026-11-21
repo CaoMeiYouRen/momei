@@ -18,7 +18,9 @@ function createExternalFeedFetchError(message: string, category: ExternalFeedFai
 
 export async function fetchExternalFeedSource(source: ExternalFeedSourceConfig) {
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), source.timeoutMs ?? 5000)
+    const timeoutId = setTimeout(() => {
+        controller.abort()
+    }, source.timeoutMs ?? 5000)
 
     try {
         const response = await fetchWithoutBrotli(source.sourceUrl, {

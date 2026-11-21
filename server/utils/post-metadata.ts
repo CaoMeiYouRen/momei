@@ -53,7 +53,9 @@ export function applyPostReadModelFromMetadata(post?: unknown) {
     }
 
     if (Array.isArray(post.translations)) {
-        post.translations.forEach((translation) => applyPostReadModelFromMetadata(translation))
+        post.translations.forEach((translation) => {
+            applyPostReadModelFromMetadata(translation)
+        })
     }
 }
 
@@ -62,7 +64,9 @@ export function applyPostsReadModelFromMetadata(posts?: unknown[]) {
         return
     }
 
-    posts.forEach((post) => applyPostReadModelFromMetadata(post))
+    posts.forEach((post) => {
+        applyPostReadModelFromMetadata(post)
+    })
 }
 
 export function resolvePostPublishIntent(post: PostIntentCarrier): PublishIntent {

@@ -43,7 +43,9 @@ import {
 
 async function maybeProbeUrl(value: string) {
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 3000)
+    const timeout = setTimeout(() => {
+        controller.abort()
+    }, 3000)
 
     try {
         const response = await fetch(value, {

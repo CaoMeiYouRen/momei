@@ -37,7 +37,9 @@ interface AtomFeed {
 
 async function fetchXml(url: string): Promise<string | null> {
     const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
+    const timer = setTimeout(() => {
+        controller.abort()
+    }, FETCH_TIMEOUT_MS)
     try {
         const response = await fetchWithoutBrotli(url, {
             signal: controller.signal,

@@ -271,7 +271,9 @@ function applyPublicFriendLinkSelect(qb: SelectQueryBuilder<FriendLink>) {
 
 async function probeFriendLink(url: string): Promise<FriendLinkHealthCheckResult> {
     const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), getHealthCheckTimeoutMs())
+    const timer = setTimeout(() => {
+        controller.abort()
+    }, getHealthCheckTimeoutMs())
 
     try {
         let response = await fetch(url, {

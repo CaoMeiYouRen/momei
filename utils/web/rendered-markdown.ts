@@ -48,8 +48,12 @@ export function initRenderedMarkdownCodeGroups(container: ParentNode | null | un
             }
 
             button.addEventListener('click', () => {
-                tabsContainer.querySelectorAll('button').forEach((tab) => tab.classList.remove('active'))
-                contentContainer.querySelectorAll('pre').forEach((codeBlock) => codeBlock.classList.remove('active'))
+                tabsContainer.querySelectorAll('button').forEach((tab) => {
+                    tab.classList.remove('active')
+                })
+                contentContainer.querySelectorAll('pre').forEach((codeBlock) => {
+                    codeBlock.classList.remove('active')
+                })
                 button.classList.add('active')
                 pre.classList.add('active')
             })
