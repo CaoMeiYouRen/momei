@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-15
+last_sync: 2026-11-21
 ---
 
 # Momei Development Standards
@@ -131,6 +131,7 @@ AI must follow these conventions:
 Follow [Conventional Commits](https://www.conventionalcommits.org/). Provide clear descriptions:
 
 -   `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `ci`, `build`, `chore`.
+-   **Breaking-change human review**: Commits with a `!` header or a `BREAKING CHANGE:` footer must be confirmed by the project owner or an explicitly authorized person before entering local history, and must record `Breaking-Review: <reviewer> <YYYY-MM-DD> <approved|approved-with-migration>` **before** the `BREAKING CHANGE:` footer. A `!` header alone is non-compliant, and any amend or message change requires re-confirmation (newly added record lines are excluded; changing the reviewer, date, or conclusion on an existing record requires re-confirmation). `approved-with-migration` must include a migration path (affected surface and alternatives) in the commit body or in a topic document under `docs/design/governance/`. The merger must keep the record in the squashed message; reverts keep the record and history is not backfilled. The machine check for this record is not wired into `commit-msg` yet (the existing hook only runs commitlint); see [development standards § 2.7](../../../standards/development.md) for the full rule.
 
 ### 2.7 Atomic Changes
 

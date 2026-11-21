@@ -48,6 +48,7 @@
 
 ## 文档、规范与流程治理
 
+- **[破坏性提交人工审查](./2026-11-21-breaking-change-human-review)**: 记录 `!` / `BREAKING CHANGE:` 提交的人工确认门、`Breaking-Review:` 记录格式、squash 合并与机检节奏；规范本体见 [开发规范 §2.7](../../standards/development.md)。
 - **[规划文档模型 v1 落地说明](./2026-11-20-planning-document-model-v1)**: 定义阶段 / 大条目 / 小条目三级粒度、6 列进度表、4 列归档索引与 6 项归档块字段；规范本体见 [规划文档模型 v1](../../standards/planning-docs.md)。
 - **[docs:check:source-of-truth freshness 判定重构](./2026-08-29-docs-source-of-truth-freshness-redesign)**: 治理改动单点说明；规范本体见 [文档规范 §6.3](../../standards/documentation.md) 与 [翻译治理指南 §2.1](../../guide/translation-governance.md)。
 - **[VitePress 构建：`§3.5` 反例清单占位符被误识别为 HTML](./2026-08-29-vitepress-md-html-placeholder-fix)**: 治理改动单点说明；规范本体见 [文档规范 §3.5](../../standards/documentation.md)。

@@ -273,6 +273,15 @@ AI 在生成代码时应严格遵守以下约定：
 -   `build`: 构建相关
 -   `chore`: 构建/工具链变动
 
+**破坏性提交人工审查**：消息含 `!` 头部（`<type>(<scope>)!:`）或 `BREAKING CHANGE:` footer 的提交，在进入本地历史前必须完成以下审查（决策背景见 [破坏性提交人工审查决策](../design/governance/2026-11-21-breaking-change-human-review.md)）：
+
+1.  **确认时机与主体**：提交前由项目所有者或其明确授权的人确认最终 diff 与最终提交消息；AI 自检与 `@code-auditor` Review Gate 均不替代该确认。
+2.  **记录格式与位置**：在 `BREAKING CHANGE:` **之前**写入 `Breaking-Review: <确认人标识> <YYYY-MM-DD> <approved|approved-with-migration>`。确认人标识为单个 token（不含空格，默认 `owner`，也可使用 GitHub 用户名）；`approved-with-migration` 必须在提交正文或 `docs/design/governance/` 下的专题文档给出迁移路径（含受影响面与替代方案）。
+3.  **完整性**：只写 `!` 而不写 `BREAKING CHANGE:` footer 视为不合规；两者同时存在时，`BREAKING CHANGE:` 仍是发布语义的稳定标记。
+4.  **重确认**：确认后提交树或消息文本发生变化（含 amend）需重新确认；新增 `Breaking-Review:` 行不计入比较，已有记录行的确认人、日期或结论变更需重新确认。
+5.  **合并与回退**：squash 合并由合并者确保记录进入落库消息（见 [Git 工作流规范 §3](./git.md)）；revert 保留原记录，历史提交不回补。
+6.  **机检节奏**：当前以人工纪律为准，未接入针对 `Breaking-Review:` 的 `commit-msg` 机检（现有 `commit-msg` 钩子仅运行 commitlint）；本仓累计达到 3 笔破坏性提交或出现漏记时，再评估追加与其它项目同构的钩子检查。
+
 ### 2.8 提交规模与原子化改动 （Commit Scale & Atomic Changes）
 
 为了确保代码的可追溯性与审核效率，必须严格控制每次代码改动的规模：

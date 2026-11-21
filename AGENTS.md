@@ -151,9 +151,10 @@ AI 代理应具备"多分支意识"，根据任务属性在对应的工作树中
 
 1. **必须使用 `conventional-committer` skill**：任何代码、文档、配置或脚本的提交都必须通过 `conventional-committer` skill 执行。禁止直接使用 `git commit -m "..."` 裸提交。
 2. **格式要求**：提交消息必须符合 Conventional Commits 规范（`type(scope): description`），且 `description` 统一使用**中文或用户使用的语言**。
-3. **质量前置**：提交前必须确认 A 阶段（`@code-auditor`）已放行，且 `pnpm lint`、`pnpm typecheck` 和必要的定向测试均已通过。质量门禁未通过时不得提交。
-4. **原子粒度**：一个提交对应一个逻辑变更，关联且仅关联 `todo.md` 中的一个原子条目。
-5. **推送口径**：默认只提交不推送，授权例外与约束见 §7.3 与 [Git 工作流规范 §7](./docs/standards/git.md)；提交完成后应告知"已提交到本地，等待推送确认"。
+3. **破坏性提交**：消息含 `!` 头部或 `BREAKING CHANGE:` footer 的提交，进入本地历史前必须取得项目所有者或其授权人的确认，并按 [`conventional-committer`](./.github/skills/conventional-committer/SKILL.md) 的 `Breaking-Review:` 格式记录；AI 自检与 Review Gate 不替代人工确认。
+4. **质量前置**：提交前必须确认 A 阶段（`@code-auditor`）已放行，且 `pnpm lint`、`pnpm typecheck` 和必要的定向测试均已通过。质量门禁未通过时不得提交。
+5. **原子粒度**：一个提交对应一个逻辑变更，关联且仅关联 `todo.md` 中的一个原子条目。
+6. **推送口径**：默认只提交不推送，授权例外与约束见 §7.3 与 [Git 工作流规范 §7](./docs/standards/git.md)；提交完成后应告知"已提交到本地，等待推送确认"。
 
 ### 7.5 发布前安全告警门禁 (Release Security Alert Gate)
 

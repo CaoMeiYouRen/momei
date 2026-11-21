@@ -103,6 +103,7 @@
 
 ## 5. 验证与证据链
 
+- [ ] **破坏性提交人工审查**：审查范围内是否存在 `!` 头部或 `BREAKING CHANGE:` footer 的提交；若有，消息是否同时含 `Breaking-Review:`（位于 `BREAKING CHANGE:` 之前），且 `approved-with-migration` 给出迁移路径（判据见 [开发规范 §2.7](../../../../docs/standards/development.md)）。
 - [ ] 已执行验证是否达到最低验证矩阵要求。
 - [ ] 文档改动是否补了 `pnpm lint:md`。
 - [ ] 文档站点相关改动（含 `docs/reports/regression/**` 归档分片、规范条款）是否补了 `pnpm docs:check:markers`（块级 HTML 注释未闭合会直接中断 `docs:build`）。

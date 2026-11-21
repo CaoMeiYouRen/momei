@@ -20,6 +20,7 @@ Close #
 - [ ] 我已经更新了文档(如果适用) / I have updated the documentation (if applicable)
 - [ ] 我已经添加了测试用例(如果适用) / I have added test cases (if applicable)
 - [ ] 我已经检查了代码风格(lint) / I have checked the code style (lint)
+- [ ] 破坏性改动出现任一标记（`!` 头部或 `BREAKING CHANGE:` footer）时，提交消息已保留 `Breaking-Review:` 记录 / Breaking changes keep the `Breaking-Review:` record when either marker is present
 
 ## 其他信息 / Additional Information
 

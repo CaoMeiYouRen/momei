@@ -61,6 +61,7 @@ git worktree add ../momei-feature-search feature/search-improvements
 - **合并方向**：所有特性开发完成后，应基于当前协作策略向 `master` 或当前启用的集成分支发起合并请求（Pull Request / Merge Request）。
 - **合并门槛**：合并仅限可信提交者且 CI 通过；作者判定、issue / PR 处置与机器人 PR 口径见 §6。
 - **同步原则**：当 `master` 或当前集成分支发生重大更新后，其他活跃分支或工作树应及时同步、合并或重定位 (Rebase) 到最新基准点。
+- **破坏性改动与 squash 合并**：本仓 squash 合并取分支提交消息（`squash_merge_commit_message=COMMIT_MESSAGES`）。若分支包含破坏性提交，合并者必须在合并前核对 squash 消息预览，确认 `Breaking-Review:` 位于 `BREAKING CHANGE:` 之前且完整保留；缺失时手工补写后再合并。格式见 [conventional-committer](../../.github/skills/conventional-committer/SKILL.md)。
 
 ## 4. AI 智能体行为准则
 
