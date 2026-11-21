@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 /**
  * GitHub 官方源不可用时的 pnpm audit 回退路径。
@@ -43,6 +43,34 @@ function createFakeAuditProcess(payload: unknown) {
 
 const { collectAlerts, parseArgs } = await import('../../scripts/security/security-alert-gate-shared.mjs')
 
+// CI 的 Test job 自带 GITHUB_TOKEN，开发机常驻 GH_TOKEN：任一残留都会让「无 token」
+// 用例改走 GitHub API 分支。统一在模块级保存并清空三者，用例结束再还原，
+// 避免用例依赖宿主环境，也不污染同文件其他用例。
+const TOKEN_ENV_KEYS = ['SECURITY_ALERTS_TOKEN', 'GH_TOKEN', 'GITHUB_TOKEN'] as const
+const originalTokenEnv = new Map<string, string | undefined>()
+
+beforeEach(() => {
+    for (const key of TOKEN_ENV_KEYS) {
+        originalTokenEnv.set(key, process.env[key])
+        delete process.env[key]
+    }
+})
+
+afterEach(() => {
+    for (const key of TOKEN_ENV_KEYS) {
+        const original = originalTokenEnv.get(key)
+
+        if (original === undefined) {
+            delete process.env[key]
+            continue
+        }
+
+        process.env[key] = original
+    }
+
+    originalTokenEnv.clear()
+})
+
 const auditReportWithRisk = {
     vulnerabilities: {
         vite: {
@@ -74,12 +102,32 @@ function serverErrorResponse() {
     }
 }
 
+function okResponse() {
+    return {
+        headers: new Map() as unknown as Headers,
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify([]),
+    }
+}
+
 describe('security-alert-gate-shared - pnpm audit 回退', () => {
     afterEach(() => {
         vi.unstubAllGlobals()
         spawnMock.mockReset()
         delete process.env.GITHUB_REPOSITORY
-        delete process.env.SECURITY_ALERTS_TOKEN
+    })
+
+    it('专用 SECURITY_ALERTS_TOKEN 可访问官方源时标记 ok 且不触发 fallback', async () => {
+        process.env.GITHUB_REPOSITORY = 'CaoMeiYouRen/momei'
+        process.env.SECURITY_ALERTS_TOKEN = 'token-1'
+        vi.stubGlobal('fetch', vi.fn(async () => okResponse()))
+
+        const result = await collectAlerts(parseArgs([]), process.cwd())
+
+        expect(result.sourceStatuses.dependabot).toMatchObject({ kind: 'ok', sourceName: 'github-api' })
+        expect(result.sourceStatuses.codeScanning).toMatchObject({ kind: 'ok', sourceName: 'github-api' })
+        expect(spawnMock).not.toHaveBeenCalled()
     })
 
     it('官方源 403 时改用 pnpm audit 并标记 fallback', async () => {
@@ -130,7 +178,19 @@ describe('security-alert-gate-shared - 缺 token 时的 fallback', () => {
         vi.unstubAllGlobals()
         spawnMock.mockReset()
         delete process.env.GITHUB_REPOSITORY
-        delete process.env.SECURITY_ALERTS_TOKEN
+    })
+
+    it.each(['GITHUB_TOKEN', 'GH_TOKEN'])('仅 %s 时仍访问官方 API 并按 403 降级', async (tokenKey) => {
+        process.env.GITHUB_REPOSITORY = 'CaoMeiYouRen/momei'
+        process.env[tokenKey] = 'token-1'
+        spawnMock.mockReturnValue(createFakeAuditProcess(auditReportWithRisk))
+        vi.stubGlobal('fetch', vi.fn(async () => forbiddenResponse()))
+
+        const result = await collectAlerts(parseArgs([]), process.cwd())
+
+        expect(result.sourceStatuses.dependabot).toMatchObject({ kind: 'permission-denied', sourceName: 'github-api' })
+        expect(result.sourceStatuses.dependabot.detail).toContain('pnpm audit fallback supplied 1 open risks')
+        expect(result.dependabotAlerts).toHaveLength(1)
     })
 
     it('无 GitHub token 时用 pnpm audit 结果作为 Dependabot 来源', async () => {
