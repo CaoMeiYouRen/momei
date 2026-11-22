@@ -23,7 +23,7 @@
     margin-bottom: $spacing-xl;
 
     &__title {
-        font-size: 1.5rem;
+        font-size: var(--m-font-size-2xl);
         font-weight: 700;
         margin: 0;
     }
@@ -51,7 +51,7 @@
     user-select: none;
 
     label {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--caomei-color-text-muted);
         margin: 0;
     }

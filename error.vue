@@ -96,7 +96,7 @@ useHead({
     background-color: var(--m-primary-50);
     color: var(--m-primary-600);
     font-weight: 700;
-    font-size: 1.25rem;
+    font-size: var(--m-font-size-xl);
     border-radius: 9999px;
     margin-bottom: 1.5rem;
 
@@ -117,7 +117,7 @@ useHead({
     color: var(--caomei-color-text-muted);
     margin-bottom: 2.5rem;
     line-height: 1.6;
-    font-size: 1.125rem;
+    font-size: var(--m-font-size-lg);
 }
 
 .error-actions {

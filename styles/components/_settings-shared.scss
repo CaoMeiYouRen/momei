@@ -1,7 +1,7 @@
 @use "@/styles/variables" as *;
 
 .settings-section-title {
-    font-size: 1.25rem;
+    font-size: var(--m-font-size-xl);
     font-weight: 600;
     margin-bottom: 2rem;
     color: var(--caomei-color-text);

@@ -216,13 +216,13 @@ onUnmounted(() => {
     }
 
     .disclaimer {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--text-color-secondary);
         line-height: 1.5;
     }
 
     h2 {
-        font-size: 1.5rem;
+        font-size: var(--m-font-size-2xl);
         margin-bottom: 0.5rem;
     }
 }

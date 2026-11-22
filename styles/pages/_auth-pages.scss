@@ -14,7 +14,7 @@
 }
 
 %auth-card-title {
-    font-size: 1.5rem;
+    font-size: var(--m-font-size-2xl);
     font-weight: 600;
     color: var(--caomei-color-text);
     line-height: 1.5;
@@ -22,7 +22,7 @@
 
 %auth-card-footer {
     text-align: center;
-    font-size: 0.875rem;
+    font-size: var(--m-font-size-sm);
     margin-top: 1rem;
     line-height: 1.5;
 }

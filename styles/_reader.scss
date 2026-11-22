@@ -113,7 +113,7 @@
 
         label {
             display: block;
-            font-size: 0.875rem;
+            font-size: var(--m-font-size-sm);
             font-weight: 500;
             margin-bottom: 0.75rem;
         }
@@ -135,7 +135,7 @@
         justify-content: center;
         background-color: var(--bg);
         color: var(--text);
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         font-weight: bold;
         transition: all 0.2s;
 
