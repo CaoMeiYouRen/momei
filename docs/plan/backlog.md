@@ -27,9 +27,9 @@
 
 - **目标**: 压缩高频重复实现，补齐共享 helper / 纯函数抽象，并把零散类型与轻量响应壳层纳入受控复用；优先治理跨文件重复率高、适合稳定上收的候选，而不是把所有局部实现强行抽象。默认以 `pnpm duplicate-code:check` 作为事实源。
 - **状态**: 进行中。
-- **最近一次上收阶段**: 第八十二阶段（条目 4：结构复用切片，2026-11-22 立项：重复率 `0.38% → ≤0.35%`，处理 2-3 组同源热点）。上一阶段为第六十六阶段（theme 颜色 model 工厂 + 预设值取值抽取到 `composables/use-theme-color-models.ts`）。
-- **当前基线**: `duplicate-code` **0.38%**（44 clones / 656 行，2026-11-22 复跑；第六十六阶段记录的 0.30% 与 2026-11-10 的 0.39% 均已过期）。
-- **下一次可切片方向**: 本阶段切片按 0.38% 基线收敛到 `≤0.35%`——优先 `scripts/` 与 `composables/` 的纯函数 / 输出装配重复，其次是表单元数据与 `server/api/` 层请求上下文；仍未收敛的结构性重复候选留待下一轮。
+- **最近一次上收阶段**: 第八十二阶段（条目 4：结构复用切片，2026-11-22 **已完成**：重复率 `0.38% → 0.32%`，44 → 38 clones、656 → 561 行；设置字段归一 / ActivityPub actor 上下文 / AI 文本端点工厂三组同源重构，`duplicate-code:check:strict` Pass）。上一阶段为第六十六阶段（theme 颜色 model 工厂 + 预设值取值抽取到 `composables/use-theme-color-models.ts`）。
+- **当前基线**: `duplicate-code` **0.32%**（38 clones / 561 行，2026-11-22 第八十二阶段条目 4 收口复跑）。
+- **下一次可切片方向**: 按 0.32% 基线继续收敛——`login.vue` ↔ `register.vue` 认证页骨架（140 行模板 + 17 行脚本，需独立设计与 E2E 回归）、`post-distribution-button.vue` 与 composable 的返回面（51 行，需改模板绑定命名）、`packages/cli` 与 `server/services/post-export.ts` 的 markdown fence 解析（受包边界限制，先评估共享包归属）。
 
 ### 3. 存量代码注释治理与注释漂移收敛
 
