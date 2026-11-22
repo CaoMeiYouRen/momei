@@ -1,7 +1,6 @@
-import { defineEventHandler, getRouterParam, createError, setHeader, getHeader } from 'h3'
-import { dataSource } from '@/server/database'
-import { User } from '@/server/entities/user'
+import { defineEventHandler, setHeader, getHeader } from 'h3'
 import { userToActor } from '@/server/utils/fed/mapper'
+import { resolveFedActorContext } from '@/server/utils/fed/actor-context'
 
 /**
  * ActivityPub Actor 端点
@@ -11,31 +10,7 @@ import { userToActor } from '@/server/utils/fed/mapper'
  * @header Accept: application/activity+json
  */
 export default defineEventHandler(async (event) => {
-    const username = getRouterParam(event, 'username')
-
-    if (!username) {
-        throw createError({
-            statusCode: 400,
-            message: 'Username is required',
-        })
-    }
-
-    // 查找用户
-    const userRepo = dataSource.getRepository(User)
-    const user = await userRepo.findOne({
-        where: { username },
-    })
-
-    if (!user) {
-        throw createError({
-            statusCode: 404,
-            message: 'Actor not found',
-        })
-    }
-
-    // 获取站点 URL
-    const config = useRuntimeConfig()
-    const siteUrl = config.public.siteUrl
+    const { user, siteUrl } = await resolveFedActorContext(event)
 
     // 转换为 Actor
     const actor = await userToActor(user, siteUrl)

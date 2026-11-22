@@ -1,11 +1,11 @@
-import { defineEventHandler, getRouterParam, createError, setHeader, getQuery, getHeader } from 'h3'
+import { defineEventHandler, setHeader, getQuery, getHeader } from 'h3'
 import MarkdownIt from 'markdown-it'
 import { z } from 'zod'
 import { dataSource } from '@/server/database'
-import { User } from '@/server/entities/user'
 import { Post } from '@/server/entities/post'
 import { applyPostVisibilityFilter } from '@/server/utils/post-access'
 import { applyMarkdownLinkifyCompatibility } from '@/utils/shared/markdown-linkify'
+import { resolveFedActorContext } from '@/server/utils/fed/actor-context'
 
 /**
  * 分页参数校验 Schema
@@ -30,32 +30,8 @@ applyMarkdownLinkifyCompatibility(md)
  * @header Accept: application/activity+json
  */
 export default defineEventHandler(async (event) => {
-    const username = getRouterParam(event, 'username')
     const query = getQuery(event)
-
-    if (!username) {
-        throw createError({
-            statusCode: 400,
-            message: 'Username is required',
-        })
-    }
-
-    // 查找用户
-    const userRepo = dataSource.getRepository(User)
-    const user = await userRepo.findOne({
-        where: { username },
-    })
-
-    if (!user) {
-        throw createError({
-            statusCode: 404,
-            message: 'Actor not found',
-        })
-    }
-
-    // 获取站点 URL
-    const config = useRuntimeConfig()
-    const siteUrl = config.public.siteUrl
+    const { username, siteUrl } = await resolveFedActorContext(event)
     const outboxUrl = `${siteUrl}/fed/outbox/${username}`
 
     // 分页参数 (使用 Zod 校验)
