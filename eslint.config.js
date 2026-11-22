@@ -9,7 +9,6 @@ import { vueI18nNoUnusedKeyIgnores } from './scripts/i18n/dynamic-key-allowlist.
 import {
     NO_EXPLICIT_ANY_FILES,
     NO_INFERRABLE_TYPES_FILES,
-    NO_NON_NULL_ASSERTION_FILES,
     PRODUCTION_TS_IGNORES,
     PRODUCTION_TYPED_TS_IGNORES,
     RUNTIME_TS_IGNORES,
@@ -38,6 +37,18 @@ const lineRuleOverrides = [
 ]
 
 const strictTsRuleOverrides = [
+    createRuleOverride({
+        // ESLint 严格规则第五批：生产 TS 非空断言 24 处 / 14 文件清零后直接升 error；
+        // .vue 仍余 10 处（另立批次），测试 / 脚本 / 迁移文件维持既有豁免边界。
+        files: tsFiles,
+        ignores: [...PRODUCTION_TS_IGNORES],
+        plugins: {
+            '@typescript-eslint': tseslint.plugin,
+        },
+        rules: {
+            '@typescript-eslint/no-non-null-assertion': 'error',
+        },
+    }),
     createRuleOverride({
         // 仅针对生产环境的 TS 代码启用更严格的规则，测试与脚本范围继续维持部分豁免，以便逐步提升代码质量，同时避免一次性修复过多问题。
         files: tsFiles,
@@ -73,13 +84,6 @@ const strictTsRuleOverrides = [
         },
         rules: {
             '@typescript-eslint/no-explicit-any': [1],
-        },
-    }),
-    createRuleOverride({
-        // composables 子桶当前真实命中已收敛到单文件 frontmatter 导入链路，先按可回滚切片收紧非空断言。
-        files: NO_NON_NULL_ASSERTION_FILES,
-        rules: {
-            '@typescript-eslint/no-non-null-assertion': [1],
         },
     }),
     createRuleOverride({

@@ -114,16 +114,6 @@ export const NO_EXPLICIT_ANY_FILES = [
     'server/services/ai/tts.ts',
 ]
 
-export const NO_NON_NULL_ASSERTION_FILES = [
-    'composables/use-post-editor-io.ts',
-    'server/services/ad.ts',
-    'utils/shared/citable-content.ts',
-    'server/services/ai/text.ts',
-    'server/api/posts/index.get.ts',
-    'server/services/notification.ts',
-    'utils/shared/social-post-platforms.ts',
-]
-
 /**
  * 生产 TS / Vue 代码中已生效的 ban-ts-comment 切片。
  * 测试与脚本维持显式豁免边界，若扩到 tests / scripts 需单列条目。
@@ -181,9 +171,9 @@ export const ESLINT_DEBT_RULE_SLICES = [
         scope: 'no-explicit-any',
     },
     {
-        files: NO_NON_NULL_ASSERTION_FILES,
-        ignores: [],
-        rationale: '先维持 post editor IO 单文件的非空断言收敛切片，避免一次性扩散到全仓。',
+        files: ['**/*.{ts,tsx,mts,cts}'],
+        ignores: [...PRODUCTION_TS_IGNORES],
+        rationale: 'ESLint 严格规则第五批：生产 TS 非空断言已清零并升 error；.vue 余 10 处另立批次，测试 / 脚本 / 迁移维持豁免。',
         ruleId: '@typescript-eslint/no-non-null-assertion',
         scope: 'no-non-null-assertion',
     },
