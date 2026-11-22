@@ -1,10 +1,17 @@
-import { describe, expect, it } from 'vitest'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { describe, expect, it, vi } from 'vitest'
 import {
     buildFontSizeInventory,
+    collectFontSizeInventory,
     collectFontSizeScale,
     extractFontSizeDeclarations,
+    main as inventoryMain,
+    parseArgs,
     renderMarkdownReport,
     stripComments,
+    toPosixPath,
 } from '../../scripts/governance/inventory-font-sizes.mjs'
 
 const SCALE_FIXTURE = `
@@ -147,5 +154,126 @@ describe('inventory-font-sizes - stripComments', () => {
         )
 
         expect(declarations).toHaveLength(1)
+    })
+})
+
+describe('inventory-font-sizes - parseArgs / toPosixPath', () => {
+    it('缺省使用产物与字阶事实源的默认路径', () => {
+        expect(parseArgs(['node', 'script'])).toEqual({
+            output: 'artifacts/governance/font-sizes-inventory-latest.json',
+            scale: 'styles/main.scss',
+        })
+    })
+
+    it('支持 --output 与 --scale 覆盖', () => {
+        expect(parseArgs(['node', 'script', '--output=/tmp/inventory.json', '--scale=/tmp/main.scss'])).toEqual({
+            output: '/tmp/inventory.json',
+            scale: '/tmp/main.scss',
+        })
+    })
+
+    it('同一路径归一为 . 并保留正斜杠相对路径', () => {
+        expect(toPosixPath('/repo', '/repo')).toBe('.')
+        expect(toPosixPath('/repo/styles/a.scss', '/repo')).toBe('styles/a.scss')
+    })
+})
+
+describe('inventory-font-sizes - collectFontSizeInventory', () => {
+    it('递归扫描目录、跳过非样式扩展名与不存在的根', async () => {
+        const projectRoot = await mkdtemp(join(tmpdir(), 'momei-font-inventory-'))
+
+        try {
+            await mkdir(join(projectRoot, 'styles'), { recursive: true })
+            await mkdir(join(projectRoot, 'components', 'nested'), { recursive: true })
+            await mkdir(join(projectRoot, 'pages'), { recursive: true })
+            await writeFile(join(projectRoot, 'styles', 'main.scss'), ':root { --m-font-size-sm: 0.875rem; --m-font-size-md: 1rem; }', 'utf8')
+            await writeFile(join(projectRoot, 'components', 'a.vue'), '<style>.a { font-size: 0.875rem; }</style>', 'utf8')
+            await writeFile(join(projectRoot, 'components', 'nested', 'c.vue'), '<style>.c { font-size: 1rem; }</style>', 'utf8')
+            await writeFile(join(projectRoot, 'pages', 'b.scss'), '.b { font-size: 0.9rem; }', 'utf8')
+            await writeFile(join(projectRoot, 'pages', 'skip.txt'), '.x { font-size: 2rem; }', 'utf8')
+
+            const report = await collectFontSizeInventory({
+                projectRoot,
+                scanRoots: ['components', 'pages', 'missing-dir'],
+                scale: 'styles/main.scss',
+            })
+
+            expect(report.scalePath).toBe('styles/main.scss')
+            expect(report.scannedFileCount).toBe(3)
+            expect(report.summary.declarationCount).toBe(3)
+            expect(report.summary.scaleDeclarationCount).toBe(2)
+            expect(report.offScaleValues).toEqual([{ count: 1, value: '0.9rem' }])
+        } finally {
+            await rm(projectRoot, { force: true, recursive: true })
+        }
+    })
+
+    it('根为单文件时按扩展名判定，非样式文件返回空清单', async () => {
+        const projectRoot = await mkdtemp(join(tmpdir(), 'momei-font-inventory-'))
+
+        try {
+            await mkdir(join(projectRoot, 'styles'), { recursive: true })
+            await mkdir(join(projectRoot, 'pages'), { recursive: true })
+            await writeFile(join(projectRoot, 'styles', 'main.scss'), '.a { font-size: 1rem; }', 'utf8')
+            await writeFile(join(projectRoot, 'pages', 'b.scss'), '.b { font-size: 1rem; }', 'utf8')
+            await writeFile(join(projectRoot, 'pages', 'skip.txt'), '.x { font-size: 2rem; }', 'utf8')
+
+            const styleFile = await collectFontSizeInventory({
+                projectRoot,
+                scanRoots: ['pages/b.scss'],
+                scale: 'styles/main.scss',
+            })
+            const nonStyleFile = await collectFontSizeInventory({
+                projectRoot,
+                scanRoots: ['pages/skip.txt'],
+                scale: 'styles/main.scss',
+            })
+
+            expect(styleFile.scannedFileCount).toBe(1)
+            expect(styleFile.summary.declarationCount).toBe(1)
+            expect(nonStyleFile.scannedFileCount).toBe(0)
+            expect(nonStyleFile.summary.declarationCount).toBe(0)
+        } finally {
+            await rm(projectRoot, { force: true, recursive: true })
+        }
+    })
+})
+
+describe('inventory-font-sizes - renderMarkdownReport 空值分支', () => {
+    it('无产物路径与无非字阶取值时输出占位行', () => {
+        const report = {
+            generatedAt: '2026-11-22T00:00:00.000Z',
+            scanRoots: [],
+            scannedFileCount: 0,
+            scalePath: 'styles/main.scss',
+            ...buildFontSizeInventory([], []),
+        }
+        const markdown = renderMarkdownReport(report)
+
+        expect(markdown).not.toContain('- 产物路径:')
+        expect(markdown).toContain('| - | 0 |')
+    })
+})
+
+describe('inventory-font-sizes - main', () => {
+    it('写出 JSON 与 Markdown 产物并返回报告', async () => {
+        const projectRoot = await mkdtemp(join(tmpdir(), 'momei-font-inventory-'))
+        const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => undefined)
+
+        try {
+            const outputPath = join(projectRoot, 'nested', 'inventory.json')
+            const report = await inventoryMain(['node', 'script', `--output=${outputPath}`, '--scale=styles/main.scss'])
+
+            const json = JSON.parse(await readFile(outputPath, 'utf8'))
+            const markdown = await readFile(join(projectRoot, 'nested', 'inventory.md'), 'utf8')
+
+            expect(report.summary.declarationCount).toBeGreaterThan(0)
+            expect(json.summary.declarationCount).toBe(report.summary.declarationCount)
+            expect(markdown).toContain('# Font Size Inventory')
+            expect(infoSpy).toHaveBeenCalledWith('Font size inventory completed.')
+        } finally {
+            infoSpy.mockRestore()
+            await rm(projectRoot, { force: true, recursive: true })
+        }
     })
 })
