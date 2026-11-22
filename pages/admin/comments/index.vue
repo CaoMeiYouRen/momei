@@ -357,7 +357,9 @@ onMounted(() => {
     }
 
     // caomei Button 无「图标按钮」形态，按 caomei 文档化定制路径（`--caomei-*` token）收敛为方形图标按钮。
-    &__icon-button {
+
+    /* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+    :deep(.admin-comments__icon-button) {
         --caomei-button-padding-x: 0;
 
         width: var(--caomei-control-height-md);

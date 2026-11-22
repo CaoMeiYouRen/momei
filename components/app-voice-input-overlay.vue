@@ -284,12 +284,13 @@ defineExpose({
         }
     }
 
-    &__retry-btn {
+    /* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+    :deep(.voice-popover__retry-btn) {
         align-self: stretch;
         min-width: 2.75rem;
     }
 
-    &__action-btn {
+    :deep(.voice-popover__action-btn) {
         width: 100%;
     }
 }

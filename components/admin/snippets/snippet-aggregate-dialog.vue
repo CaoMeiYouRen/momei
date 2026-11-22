@@ -474,7 +474,8 @@ const renderMarkdown = (content: string) => md.render(content)
                         grid-column: span 2;
                     }
 
-                    .expand-action-btn {
+                    /* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+                    :deep(.expand-action-btn) {
                         margin-top: 0.5rem;
                         width: 100%;
                     }

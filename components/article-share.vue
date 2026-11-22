@@ -293,21 +293,22 @@ onMounted(() => {
         align-items: flex-start;
     }
 
-    &__action-btn,
-    &__platform-btn {
+    /* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+    :deep(.article-share__action-btn),
+    :deep(.article-share__platform-btn) {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: $spacing-sm;
     }
 
-    &__action-btn {
+    :deep(.article-share__action-btn) {
         :deep(.caomei-button__content) {
             font-weight: 600;
         }
     }
 
-    &__platform-btn {
+    :deep(.article-share__platform-btn) {
         --article-share-platform-color: var(--caomei-color-primary);
         --caomei-button-border: var(--caomei-color-border);
         --caomei-button-text: var(--caomei-color-text);
@@ -317,7 +318,7 @@ onMounted(() => {
         }
     }
 
-    &__secondary-btn {
+    :deep(.article-share__secondary-btn) {
         --caomei-button-border: var(--caomei-color-border);
         --caomei-button-text: var(--caomei-color-text);
     }

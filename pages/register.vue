@@ -384,8 +384,10 @@ definePageMeta({
         @extend %auth-form-input;
     }
 
-    &__submit-btn {
-        @extend %auth-form-submit;
+    /* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+    :deep(.register-form__submit-btn) {
+        width: 100%;
+        margin-top: 0.5rem;
     }
 
     &__agreement {

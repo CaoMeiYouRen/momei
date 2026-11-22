@@ -235,6 +235,15 @@
 `caomei-ui` 1.2.0 → 1.3.0 改了 Paginator（每页条数选择器 6rem → 5rem、新增 `__report`、字段高度钉 32px），`admin-posts-list` 明暗两态的分页器区域在 `test:visual` 层产生 1115px 差异（约占 1440×900 视口 0.09%），已按上游变更归因并重采两条基线（`4a6efc75`）。**parity 层未同步重采**：`tests/visual/parity/reference/admin-posts-list-{light,dark}.reference.png` 仍为 `ccd69454`（2026-11-13 CI 复采），该两条 `allowlist` 为空、`maxDiffPixels: 3000`，故只能断言「未归因差异在 admin 预算内通过」，不能断言具体像素值——属「预算内吸收」而非「已归因」，不计入允许清单。**重采与归因**随第七十九阶段条目 4 的 CI `visual-reference-refresh.yml` 流程一并处理；在此之前，parity 的 `admin-posts-list` 绿不代表已归因。证据指针：`4a6efc75` 提交说明与 `tests/visual/__screenshots__/admin-posts-list.visual.test.ts/` 下的两条重采基线。
 
 
+**2026-11-22 `caomei-ui` 1.4.0 按钮单行截断契约（`admin-theme-gallery-dialog`，已归因·重采基线）**
+
+| testName | tier | 预算（px / 比例） | `test:visual` 实测（元素截图） | 允许清单 | 处置 |
+|:---|:---|:---|:---|:---|:---|
+| admin-theme-gallery-dialog-light | admin | 0 逐像素（基线层） | 4906px（0.02% / 1000×384） | 不适用 | 已归因并重采基线 |
+| admin-theme-gallery-dialog-dark | admin | 0 逐像素（基线层） | 4903px（0.02% / 1000×384） | 不适用 | 已归因并重采基线 |
+
+`caomei-ui` 1.3.0 → 1.4.0 把 `CaomeiButton__content` 改为单行截断契约（`display: block` + `min-width: 0` + `max-width: 100%` + `white-space: nowrap` + `overflow: hidden`），按钮文本不再随 flex 收缩换行。主题画廊卡片页脚按钮的自然宽度成为网格列的最小内容宽，首张卡片 **188 → 200px**、按钮宽度 4px 递增，弹窗明暗两态的元素截图产生约 4.9k 像素差异。该变化属上游为「按钮文本截断 + 溢出提示」建立的有意契约，不做反向补偿；两条基线按实测重采，parity 路由不含主题画廊，不影响允许清单。同批 `CaomeiTooltipText` 基线对齐导致的表头 +3px 已由 `styles/main.scss` 的未分层 `vertical-align: top` 抵消，`admin-comments-list` 未重采。
+
 **2026-11-17 `AppAvatar` 生产构建尺寸缺陷修复（`user-settings`，2 个 testName）**
 
 | testName | tier | 预算（px / 比例） | 实测（px / 比例） | 允许清单扣减 | 未归因 | 结果 |

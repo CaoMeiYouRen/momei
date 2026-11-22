@@ -149,7 +149,8 @@ const statusIcon = computed<Component>(() => {
         max-width: min(100%, 34rem);
     }
 
-    &__button {
+    /* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+    :deep(.admin-floating-actions__button) {
         min-height: 2.75rem;
         white-space: nowrap;
     }
@@ -165,7 +166,7 @@ const statusIcon = computed<Component>(() => {
             justify-content: stretch;
         }
 
-        &__button {
+        :deep(.admin-floating-actions__button) {
             flex: 1 1 auto;
             justify-content: center;
         }

@@ -307,7 +307,8 @@ definePageMeta({
                 box-shadow: 0 2px 4px rgb(0 0 0 / 0.1);
             }
 
-            .remove-btn {
+            /* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+            :deep(.remove-btn) {
                 position: absolute;
                 top: -8px;
                 right: -8px;

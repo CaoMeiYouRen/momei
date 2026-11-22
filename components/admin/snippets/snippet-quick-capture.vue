@@ -267,7 +267,8 @@ const saveSnippet = async () => {
                         object-fit: cover;
                     }
 
-                    .remove-btn {
+                    /* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+                    :deep(.remove-btn) {
                         position: absolute;
                         top: 0;
                         right: 0;

@@ -28,7 +28,8 @@ const { openFeedbackEntry, shouldShowFeedbackEntry } = useFeedbackEntry()
     z-index: 90;
     pointer-events: none;
 
-    &__action {
+    /* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+    :deep(.feedback-entry-button__action) {
         pointer-events: auto;
         box-shadow: 0 18px 36px rgb(15 23 42 / 0.12);
         backdrop-filter: blur(12px);

@@ -900,7 +900,8 @@ onMounted(() => {
     min-width: 0;
 }
 
-.taxonomy-dialog__sync-ai {
+/* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+:deep(.taxonomy-dialog__sync-ai) {
     flex-shrink: 0;
 }
 

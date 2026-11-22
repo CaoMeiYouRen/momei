@@ -216,7 +216,7 @@
 ### 上游组件库反馈（caomei-ui）
 
 - **§2.1 `Avatar` 档位与透传残差**: `xlarge` 的首字母字号仍取 caomei `lg` 的 16px（几何已由 `AppAvatar` 包装元素修正到 64px）；`comment-item` 的 `loading` / `decoding` 现落在包装 `<span>` 上，对 `span` 无原生语义，评论头像的**原生懒加载仍未生效**。需上游把 attrs 透传到内部 `<img>` 或把根改为单元素。
-- **§2.6 `lazy` 只关分页、不关排序**: caomei-ui `1.3.0` 产物仍无 `manualSorting`（2026-11-18 复核），`/admin/users` 继续按「不绑定受控排序 prop」保持与迁移前一致的形态；若上游提供 `manualSorting` 或确认现状，须同步 `use-admin-list.ts` 的 `onSort` 口径与回归记录。
+- **§2.6 `lazy` 只关分页、不关排序**: caomei-ui `1.4.0` 产物仍无 `manualSorting`（2026-11-22 复核），`/admin/users` 继续按「不绑定受控排序 prop」保持与迁移前一致的形态；若上游提供 `manualSorting` 或确认现状，须同步 `use-admin-list.ts` 的 `onSort` 口径与回归记录。
 - **§2.7 `DataTable` 无「列最小宽」契约，且选择列宽度不可配置**: `DataTableColumn.width` 只落 `th` 且只有 `px` 宽度参与冻结偏移；PrimeVue 选择列 52px vs caomei 34px，使 `/admin/posts` 整表左移 18px。待上游提供选择列宽度钩子或列 `minWidth` 后重跑 parity 并重校准允许清单。
 - **§2.8 `DataTable` 缺 `#header` / `#footer` 插槽**: caomei 插槽面为 `cell-{key}` / `header-{key}` / `empty` / `groupheader` / `expansion`，表格容器内的工具条与汇总行无落点；任务列表的刷新按钮因此移到表格之上（已登记偏差处置表）。若上游不补，后续页面须走包装元素。
 

@@ -715,7 +715,8 @@ watch(currentAssetUsage, (usage, previousUsage) => {
         gap: 1rem; /* Increased gap for better clarity */
     }
 
-    &__btn-cancel {
+    /* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+    :deep(.ai-generator__btn-cancel) {
         transition: $transition-base;
         font-weight: 500;
         height: 40px;
@@ -730,7 +731,7 @@ watch(currentAssetUsage, (usage, previousUsage) => {
         }
     }
 
-    &__btn-generate {
+    :deep(.ai-generator__btn-generate) {
         background: linear-gradient(135deg, $color-primary 0%, #a855f7 100%);
         border: 1px solid transparent;
         color: white;
@@ -766,7 +767,7 @@ watch(currentAssetUsage, (usage, previousUsage) => {
         gap: 0.5rem;
     }
 
-    &__btn-retry {
+    :deep(.ai-generator__btn-retry) {
         font-weight: normal;
         opacity: 0.8;
         transition: $transition-fast;
@@ -780,7 +781,7 @@ watch(currentAssetUsage, (usage, previousUsage) => {
         }
     }
 
-    &__btn-apply {
+    :deep(.ai-generator__btn-apply) {
         font-weight: 600;
         height: 40px;
         padding: 0 1.5rem;

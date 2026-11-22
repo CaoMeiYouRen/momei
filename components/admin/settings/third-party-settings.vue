@@ -501,7 +501,8 @@ const hexoProviderOptions = computed(() => [
         color: var(--caomei-color-text-muted);
     }
 
-    &__refresh-button {
+    /* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+    :deep(.third-party-settings__refresh-button) {
         flex-shrink: 0;
     }
 }

@@ -126,7 +126,8 @@ const localePath = useLocalePath()
     }
 }
 
-.submit-btn {
+/* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+:deep(.submit-btn) {
     width: 100%;
 }
 

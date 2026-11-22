@@ -476,7 +476,8 @@ watch(compareTarget, () => {
         gap: 1rem;
     }
 
-    &__btn-restore {
+    /* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+    :deep(.history-panel__btn-restore) {
         flex: 1;
         background: linear-gradient(135deg, $color-primary 0%, #3b82f6 100%);
         border: 1px solid transparent;
@@ -505,7 +506,7 @@ watch(compareTarget, () => {
         }
     }
 
-    &__btn-close {
+    :deep(.history-panel__btn-close) {
         transition: $transition-base;
         font-weight: 500;
         height: 42px;

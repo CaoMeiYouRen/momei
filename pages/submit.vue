@@ -312,7 +312,8 @@ const handleSubmit = async () => {
     }
 }
 
-.submit-btn {
+/* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+:deep(.submit-btn) {
     padding: 0.75rem 3rem;
     font-size: 1.1rem;
     font-weight: 700;

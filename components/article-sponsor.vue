@@ -293,7 +293,8 @@ const showQR = (link: DonationLink | SocialLink, type: 'social' | 'donation') =>
     gap: $spacing-md;
   }
 
-  &__btn {
+  /* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+  :deep(.article-sponsor__btn) {
     --caomei-button-border: var(--caomei-color-border);
     --caomei-button-text: var(--caomei-color-text);
 

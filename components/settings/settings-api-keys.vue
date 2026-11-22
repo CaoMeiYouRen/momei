@@ -285,7 +285,8 @@ onMounted(() => {
         margin-left: 0.25rem;
     }
 
-    &__submit {
+    /* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+    :deep(.api-keys-form__submit) {
         padding-left: 1.5rem;
         padding-right: 1.5rem;
 

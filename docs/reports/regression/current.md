@@ -10,6 +10,18 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径（迁移期，已随路由择库机制退役）：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；PrimeVue 卸载后由 `tests/modules/primevue-residual-guard.test.ts` 以全仓零残留口径替代。
 
+<!-- regression-window:start:maintenance:caomei-ui-upgrade:2026-11-22 -->
+## 2026-11-22 caomei-ui 1.3.0 → 1.4.0 维护批次
+
+- 执行入口: 人工升级（按 §3.8 / §5.6 升级纪律）；上游 `1.4.0` 无 `BREAKING CHANGES`，exports 13 键不变
+- 证据 artifact: `../../../artifacts/review-gate/2026-11-22-caomei-ui-1.4.0.md`
+- 结果摘要: `Pass`；blocker=0，warning=2（`CaomeiButton` fragment 根导致父级 scoped 选择器失效，已全仓修复 22 处；主题画廊卡片宽度 +12px，已重采基线并登记）。
+- 已执行验证: typecheck=0 error、lint=0 error、lint:css=PASS、build=success、`test:visual`=32/32（画廊 2 条重采）、`test:visual:parity`=82/83（唯一失败 `user-settings-dark` 为本机 `TEST_MODE` 头像已知偏差，CI 为 83/83）、全量单测=638 文件通过 / 2 既有 flake / 1 跳过（6061 例通过；两例孤立复跑 28/28）、`test:e2e:critical`=19/19、admin + admin-workflow E2E=246 passed / 3 flaky、包体 `coreEntryJs` 291.63/335KB、`keyCss` 60.21/62KB、`maxAsyncChunkJs` 92.56/130KB、`prIncrementJs` 11.01/20KB。
+- 回归窗口: 代码侧修复 3 类上游形态变化——`CaomeiButton` fragment 根的 scoped 属性断链（25 文件 / 35 个 class 选择器 `:deep()`）、`CaomeiTooltipText` 行盒 +3px（`styles/main.scss` 未分层 `vertical-align: top`）、按钮单行截断契约导致的画廊卡片 +12px（重采基线）；新增能力本批不采纳。
+- Review Gate: `Pass`（standard 档）；上游 API 差分 0 个 prop / 导出移除，19 个新组件均为 `Caomei*` 前缀，无本地同名冲突。
+- 未覆盖边界: 受控列可见性 / 顺序 / 宽度、固定表头、`selectAllScope`、列宽拖拽、`allowEmptyValue` 与新组件族未采纳；悬停态内建提示未纳入静态基线；全量 E2E 未重跑，CI 为最终裁决。
+<!-- regression-window:end:maintenance:caomei-ui-upgrade:2026-11-22 -->
+
 <!-- regression-window:start:periodic-regression:phase-close:2026-11-21 -->
 ## 2026-11-21 阶段收口前周期性回归（自动回填）
 

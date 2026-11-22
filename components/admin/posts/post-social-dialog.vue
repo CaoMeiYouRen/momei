@@ -159,7 +159,8 @@ async function handleCopy() {
         }
     }
 
-    &__generate {
+    /* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+    :deep(.social-post-dialog__generate) {
         width: 100%;
         margin-bottom: $spacing-md;
     }

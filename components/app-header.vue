@@ -670,7 +670,8 @@ watch(
         flex-shrink: 0;
     }
 
-    &__compact-admin-posts {
+    /* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+    :deep(.app-header__compact-admin-posts) {
         @media (width >= 1440px) {
             display: none;
         }
@@ -687,7 +688,7 @@ watch(
     }
 }
 
-.mobile-only {
+:deep(.mobile-only) {
     display: none;
 
     @media (width <= 768px) {
@@ -738,13 +739,16 @@ watch(
     }
 }
 
-.mobile-user-button,
-.mobile-login-button {
-    &.caomei-button {
-        width: 100%;
-        justify-content: flex-start;
-        margin-top: $spacing-sm;
-    }
+/*
+ * caomei-ui 1.4.0 起 `CaomeiButton` 的根节点是 fragment（`CaomeiPassthrough`），
+ * 父组件的 scoped 属性不再落到 `<button>` 上，父级 scoped class 选择器会静默失效。
+ * 需要定制按钮自身时统一用 `:deep()` 以祖先 scope 属性作为锚点。
+ */
+:deep(.mobile-user-button.caomei-button),
+:deep(.mobile-login-button.caomei-button) {
+    width: 100%;
+    justify-content: flex-start;
+    margin-top: $spacing-sm;
 }
 
 </style>

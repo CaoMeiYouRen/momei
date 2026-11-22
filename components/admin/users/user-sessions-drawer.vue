@@ -235,7 +235,8 @@ const getDeviceIcon = (ua?: string | null) => {
     color: var(--caomei-color-text-muted);
 }
 
-.sessions-revoke-all {
+/* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+:deep(.sessions-revoke-all) {
     margin-top: 1rem;
     width: 100%;
 }

@@ -284,6 +284,43 @@ PrimeVue 于 2026-11-09 卸载后 `caomei-ui` 成为唯一组件库，迁移期�
 
 **未覆盖边界**：1.1.0 / 1.2.0 新增能力（Form 组合层、DatePicker range、Toast 逐语气钩子、`data-density`）本批只做升级、不做采纳，按需另立切片；`caomei-hit-target` 引入的 `position: relative` 对「子元素绝对定位依赖外层定位上下文」的页面存在潜在影响，当前 83 条 parity 与 32 条基线未见差异。
 
+### 3.13 1.4.0 升级与三段视觉契约回归（2026-11-22）
+
+`caomei-ui@1.4.0` 于 2026-11-21 发布；本仓在维护批次内由 `^1.3.0` 升到 `^1.4.0`，按 §3.8 / §5.6 的升级纪律完成上游阅读、API 差分、包体与三段视觉回归。1.x 语义化策略下 `1.4.0` 无 `BREAKING CHANGES`，exports 面与 1.3.0 逐键一致（13 键），无导出 / prop 移除。
+
+**上游变更阅读（tarball 逐文件比对）**：
+
+| 面 | 1.3.0 → 1.4.0 变化 | 对本仓的影响 |
+| :--- | :--- | :--- |
+| 组件清单 | 自动导入组件 **97 → 116**（+19）：`ActionSheet` / `BackTop` / `Cell` / `CellGroup` / `Cascader` / `Descriptions` / `DescriptionsItem` / `Empty` / `InputOtp` / `Popconfirm` / `Rating` / `Result` / `Tabbar` / `TabbarItem` / `Timeline` / `TimelineItem` / `TimePicker` / `Transfer` / `TooltipText` | 均为 `Caomei*` 前缀，与本地组件无同名冲突；本批不采纳新组件 |
+| 依赖 | `@tanstack/vue-table` **9.2.4 → 9.3.1**；其余运行时依赖与 peer 不变 | 锁文件仅 `caomei-ui` / `table-core` / `vue-table` 三条变更，无无关漂移 |
+| 基础层 | `dist/styles/index.css` 23,086 → **23,906 B**（+820 B）；新增 4 个 `--caomei-safe-area-*` token，无删除 / 改义 | `keyCss` 60.21KB / 62KB，未越线 |
+| DataTable | 新增受控列可见性 / 列顺序 / 列宽、列宽拖拽手柄、固定表头与限高滚动、`selectAllScope`、`cellTooltips`；表头与默认单元格经 `CaomeiTooltipText` 包装 | 表头行高与逐格 DOM 有静态变化；本批不采纳受控列能力 |
+| 溢出提示 | 新增 `CaomeiTooltipText` 溢出检测；Button / Tag / Dialog 关闭按钮 / Paginator / SplitButton / Toolbar 接入内建提示；Button 新增 `tooltip` 选项 | 默认开启，图标按钮在悬停 / 键盘聚焦时出现提示；静态截图只在提示展开时变化 |
+| 浮层 a11y | Select / MultiSelect / AutoComplete / DropdownMenu / Popover / DatePicker / ColorPicker 展开态给背景兄弟节点补 `inert` + `aria-hidden` | 面板外元素在展开期间不可聚焦 / 不可点击；E2E 关键流与 admin 工作流已回归 |
+| i18n / 移动端 | 数字与文件体积跟随注入语言格式化、日期组件 locale 跟随；固定定位件接入安全区与 `dvh` 回退 | 本仓已接 `CaomeiConfigProvider`，内建数字格式随语言变化；移动端安全区为新能力 |
+
+**本仓必须修复的上游形态回归**：
+
+1. **`CaomeiButton` 根节点变为 fragment**：1.4.0 用内建 `CaomeiPassthrough` 承载「有 / 无提示」两态，组件根不再是单个 `<button>`。Vue 无法把父组件的 scoped 属性下传到 fragment 根，`<button>` 只保留 caomei 自身 `data-v-*`，导致父级 scoped class 选择器（如 `.mobile-only`、`.remove-btn`、`.submit-btn`）**静默失效**——实测表头 `mobile-only` / `compact-admin-posts` 按钮在桌面端全部显示。全仓扫描后共 **35 个 class 选择器 / 25 个文件**（含 SCSS `&__` 嵌套产物），统一改为 `:deep()` 锚定祖先 scope 属性；`docs/design/ui.md` 同步补充该约束。
+2. **`CaomeiTooltipText` 基线对齐改变行盒**：包装默认 `display: inline-block` + 基线对齐，表头行高 **32.59 → 35.69px**，表格与空态整体下推 3px。`styles/main.scss` 增加未分层 `.caomei-tooltip-text { vertical-align: top }`，保留 `scrollWidth` / `clientWidth` 溢出检测能力并把行高恢复为 1.3.0 值；`admin-comments-list` 明暗两态因此无需重采基线。
+3. **`CaomeiButton__content` 改为单行截断契约**：`display: block` + `min-width: 0` + `max-width: 100%` + `white-space: nowrap` + `overflow: hidden`，按钮文本不再随 flex 收缩换行。主题画廊卡片页脚按钮的自然宽度成为列最小内容宽，卡片宽度 **188 → 200px**（+12px），`admin-theme-gallery-dialog` 明暗两态按实测重采基线；其余 32 条 `test:visual` 用例零差异。该变化属上游为「按钮文本截断 + 溢出提示」建立的契约，不做反向补偿。
+
+**实测（本仓，Node 26.13.1）**：
+
+| 验证项 | 实测 | 结论 |
+| :--- | :--- | :--- |
+| 安装与锁文件 | `pnpm add caomei-ui@1.4.0` 后 `--frozen-lockfile` 通过；锁文件 13 行变更，仅 `caomei-ui` / `@tanstack/{table-core,vue-table}` | 通过 |
+| `typecheck` / `lint` / `lint:css` | 0 error（lint 10 + 3 既有 warning）；`lint:css` 通过 | 通过 |
+| `build` | success（2m52s） | 通过 |
+| 视觉基线层 | `pnpm test:visual` **32/32**（画廊 2 条按上述按钮契约重采） | 通过 |
+| 门禁层 parity | `pnpm test:visual:parity` **82/83**；唯一失败 `user-settings-dark` 3199px / 0.247%（区域 80×120，`/settings` 头像），与本机 `TEST_MODE` 数据态差异同源，CI 复跑 83/83 | 通过（本机已知偏差） |
+| 全量单测 | 638 文件通过 / 2 失败 / 1 跳过（共 641）、6061 例通过；2 例均为并发负载下的既有 flake（`marketing-campaign-list` loading 断言、`external-links` 统计弹窗 fetch 计数），逐文件孤立复跑 **28/28** 通过 | 通过（flake 已证伪） |
+| E2E | `test:e2e:critical` **19/19**；`admin` + `admin-workflow` **246 passed / 3 flaky**（既有 `Frame load interrupted` 等） | 通过 |
+| 包体 | `coreEntryJs` **291.63KB / 335KB**、`maxAsyncChunkJs` 92.56KB / 130KB、`keyCss` **60.21KB / 62KB**、`prIncrementJs` 11.01KB / 20KB | 通过 |
+
+**未覆盖边界**：1.4.0 新增能力（受控列可见性 / 顺序 / 宽度、固定表头、`selectAllScope`、列宽拖拽、`allowEmptyValue`、新组件族、内建提示文案）本批只做升级、不做采纳；`cellTooltips` / 表头提示的悬停态未纳入静态基线；全量 E2E 未重跑（仅关键流 + admin 工作流），CI 为最终裁决。证据见本地 `artifacts/review-gate/2026-11-22-caomei-ui-1.4.0.md`（按仓库约定不入库）。
+
 ## 4. 目标与非目标
 
 **目标**

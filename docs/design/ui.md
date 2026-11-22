@@ -62,11 +62,14 @@
 
 ## 3. 组件库与规范 (Component Library)
 
-使用 **caomei-ui** 作为唯一基础组件库（`^1.2.0`，迁移期结束后按常规依赖随 Dependabot 更新），配合 **SCSS** 进行布局和微调；PrimeVue 已于 2026-11-09 卸载。
+使用 **caomei-ui** 作为唯一基础组件库（`^1.4.0`，迁移期结束后按常规依赖随 Dependabot 更新），配合 **SCSS** 进行布局和微调；PrimeVue 已于 2026-11-09 卸载。
 
 ### 3.1 核心组件配置
 
 组件一律来自 `caomei-ui`；样式定制只走两条通道：**语义 token（`--caomei-*` / `--m-*`）** 或 **未分层覆盖**。caomei-ui 的组件样式未分层，写在 `@layer momei-base` 里的同名声明会被压制——需要改几何或品牌色时，改用上游文档化钩子（如 `--caomei-dialog-width`、`--caomei-badge-*`）或把规则移出 `@layer`。
+
+-   **`CaomeiButton` 的 scoped 定制（1.4.0 起）**：组件根为 fragment（`CaomeiPassthrough`），父组件的 scoped 属性不会落到 `<button>`。**禁止**用父级 scoped class 选择器定制按钮自身（如 `.submit-btn { … }`），否则规则静默失效；统一写 `:deep(.submit-btn)`。父级作用于后代的规则（`.parent :deep(.caomei-button)`）不受影响。
+-   **`CaomeiTooltipText` 行盒**：1.4.0 起表头 / 逐格 / 标签文本经该包装渲染，默认 `inline-block` 基线对齐会抬高行盒；`styles/main.scss` 已统一 `vertical-align: top`，保留溢出提示能力并维持 1.3.0 行高，新增覆盖时勿撤销。
 
 -   **Buttons (`CaomeiButton`)**:
     -   `variant="primary"`：墨色实底 + 白字，用于每屏唯一主操作。

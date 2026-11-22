@@ -142,7 +142,8 @@ const handleSubmit = async () => {
         flex: 1;
     }
 
-    &__submit {
+    /* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
+    :deep(.subscriber-form__submit) {
         font-weight: 600;
         white-space: nowrap;
         justify-content: center;
