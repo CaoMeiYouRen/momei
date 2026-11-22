@@ -132,12 +132,13 @@ async function resolveCandidate(candidate: LinkCandidate, runtime: GovernanceRun
     }
 
     const matchedSeeds = collectMatchingSeeds(candidate, runtime, request)
-    if (matchedSeeds.length > 1) {
+    const conflictSeed = matchedSeeds[0]
+    if (conflictSeed && matchedSeeds.length > 1) {
         const targets = Array.from(new Set(matchedSeeds.map((item) => resolveTargetPath(item.seed.targetType, item.seed.targetRef, runtime, item.matched.params.slug || item.seed.targetRef.slug)).filter(Boolean)))
         if (targets.length > 1) {
             return {
                 targetValue: null,
-                scope: matchedSeeds[0]!.seed.scope,
+                scope: conflictSeed.seed.scope,
                 status: 'needs-confirmation',
                 issues: [buildIssue('redirect-conflict', 'Multiple seeds resolved to different targets')],
                 domain,
@@ -145,8 +146,8 @@ async function resolveCandidate(candidate: LinkCandidate, runtime: GovernanceRun
         }
     }
 
-    if (matchedSeeds.length > 0) {
-        const first = matchedSeeds[0]!
+    const first = matchedSeeds[0]
+    if (first) {
         const fallbackSlug = first.matched.params.slug || first.seed.targetRef.slug || undefined
         const targetValue = resolveTargetPath(first.seed.targetType, first.seed.targetRef, runtime, fallbackSlug)
         if (!targetValue) {

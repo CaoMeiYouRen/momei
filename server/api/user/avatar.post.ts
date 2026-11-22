@@ -16,7 +16,12 @@ export default defineEventHandler(async (event) => {
         mustBeImage: true,
     })
 
-    const url = uploadedFiles[0]!.url
+    const uploadedFile = uploadedFiles[0]
+    if (!uploadedFile) {
+        throw createError({ statusCode: 400, statusMessage: 'avatar file is required' })
+    }
+
+    const url = uploadedFile.url
 
     // 3. 更新用户头像
     await auth.api.updateUser({

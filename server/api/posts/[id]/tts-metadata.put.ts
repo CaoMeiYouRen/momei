@@ -47,6 +47,14 @@ const TTSMetadataSchema = z.object({
     error: z.string().min(1).optional(),
 })
 
+function requireCompletedAudioUrl(audioUrl: string | undefined): string {
+    if (!audioUrl) {
+        throw createError({ statusCode: 400, statusMessage: 'audioUrl is required when settling a completed direct task' })
+    }
+
+    return audioUrl
+}
+
 function parseExistingTaskPayload(task: Pick<AITask, 'payload'>) {
     if (!task.payload) {
         return {}
@@ -147,8 +155,8 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'Direct taskId is required for failed settlements' })
     }
 
-    if (body.status === 'completed' && !body.audioUrl) {
-        throw createError({ statusCode: 400, statusMessage: 'audioUrl is required when settling a completed direct task' })
+    if (body.status === 'completed') {
+        requireCompletedAudioUrl(body.audioUrl)
     }
 
     if (existingTask?.status === 'completed' && body.status === 'failed') {
@@ -238,7 +246,7 @@ export default defineEventHandler(async (event) => {
         applyPostMetadataPatch(post, {
             metadata: buildTTSPostMetadata({
                 post,
-                audioUrl: body.audioUrl!,
+                audioUrl: requireCompletedAudioUrl(body.audioUrl),
                 audioSize: body.audioSize ?? null,
                 duration: body.duration ?? null,
                 mimeType: body.mimeType || 'audio/mpeg',

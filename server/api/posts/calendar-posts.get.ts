@@ -37,19 +37,27 @@ export default defineEventHandler(async (event) => {
     const map = new Map<string, CalendarPostItem[]>()
     for (const post of posts) {
         // publishedAt 非空由上方查询的 IS NOT NULL 保证
-        const publishedAt = post.publishedAt!
-        const dateKey = publishedAt.toISOString().slice(0, 10)
-        if (!map.has(dateKey)) {
-            map.set(dateKey, [])
+        const publishedAt = post.publishedAt
+        if (!publishedAt) {
+            continue
         }
-        map.get(dateKey)!.push({
+
+        const dateKey = publishedAt.toISOString().slice(0, 10)
+        const item: CalendarPostItem = {
             id: post.id,
             title: post.title,
             status: post.status,
             publishedAt: publishedAt.toISOString(),
             language: post.language,
             slug: post.slug,
-        })
+        }
+        const bucket = map.get(dateKey)
+
+        if (bucket) {
+            bucket.push(item)
+        } else {
+            map.set(dateKey, [item])
+        }
     }
 
     const groups: CalendarDayGroup[] = Array.from(map.entries())

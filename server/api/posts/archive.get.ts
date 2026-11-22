@@ -174,10 +174,12 @@ export default defineEventHandler(async (event) => {
                     const month = Number(r.month)
                     const count = Number(r.count)
 
-                    if (!yearsMap.has(year)) {
-                        yearsMap.set(year, [])
+                    const bucket = yearsMap.get(year)
+                    if (bucket) {
+                        bucket.push({ month, count })
+                    } else {
+                        yearsMap.set(year, [{ month, count }])
                     }
-                    yearsMap.get(year)!.push({ month, count })
                 }
 
                 const items = Array.from(yearsMap.entries()).map(([year, months]) => ({ year, months }))

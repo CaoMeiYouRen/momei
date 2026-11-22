@@ -430,9 +430,10 @@ export class PostAutomationService extends AIBaseService {
         try {
             await this.updateTaskProgress(task, 'processing', 5)
 
-            const previewContext = input.previewTaskId && confirmationMode === 'confirmed'
+            const previewTaskId = input.previewTaskId
+            const previewContext = previewTaskId && confirmationMode === 'confirmed'
                 ? async () => {
-                    const preview = await this.loadPreviewSnapshot(input.previewTaskId!, actor)
+                    const preview = await this.loadPreviewSnapshot(previewTaskId, actor)
                     const sourcePost = await this.getAccessiblePost(input.sourcePostId, actor)
                     const sourceLanguage = input.sourceLanguage || sourcePost.language
                     const targetPost = await this.findExistingTargetPost({

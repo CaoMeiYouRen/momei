@@ -21,11 +21,17 @@ export function applyDecorators(
                 (decorator as ClassDecorator)(target)
                 continue
             }
-            (decorator as MethodDecorator | PropertyDecorator)(
-                target,
-                propertyKey!,
-                descriptor!,
-            )
+            if (propertyKey === undefined) {
+                continue
+            }
+
+            // legacy 装饰器下属性装饰器的第三个参数恒为 undefined，必须按属性装饰器分派
+            if (descriptor === undefined) {
+                (decorator as PropertyDecorator)(target, propertyKey)
+                continue
+            }
+
+            (decorator as MethodDecorator)(target, propertyKey, descriptor)
         }
     }
 }
