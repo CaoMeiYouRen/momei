@@ -521,9 +521,11 @@ export function isValidAdminContentInsightsTimeZone(timezone?: string | null) {
 }
 
 export function resolveAdminContentInsightsTimeZone(timezone?: string | null) {
-    return isValidAdminContentInsightsTimeZone(timezone)
-        ? timezone!
-        : DEFAULT_ADMIN_CONTENT_INSIGHTS_TIMEZONE
+    if (!timezone || !isValidAdminContentInsightsTimeZone(timezone)) {
+        return DEFAULT_ADMIN_CONTENT_INSIGHTS_TIMEZONE
+    }
+
+    return timezone
 }
 
 export function buildAdminContentInsights(

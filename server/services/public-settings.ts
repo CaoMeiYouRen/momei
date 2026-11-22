@@ -119,10 +119,11 @@ function resolveLocalizedSettingFromValue<T extends LocalizedSettingScalar>(
         }
     }
 
-    if (hasMeaningfulLocalizedValue(value.legacyValue)) {
+    const legacyValue = value.legacyValue
+    if (legacyValue !== null && legacyValue !== undefined && hasMeaningfulLocalizedValue(legacyValue)) {
         return {
             key,
-            value: value.legacyValue!,
+            value: legacyValue,
             requestedLocale,
             resolvedLocale: 'legacy',
             fallbackChain,

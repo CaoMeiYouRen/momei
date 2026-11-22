@@ -169,7 +169,11 @@ export function mergeAudioBuffers(buffers: AudioBuffer[]): AudioBuffer | null {
         return buffers[0] ?? null
     }
 
-    const firstBuffer = buffers[0]!
+    const firstBuffer = buffers[0]
+    if (!firstBuffer) {
+        return null
+    }
+
     const sampleRate = firstBuffer.sampleRate
     const numberOfChannels = firstBuffer.numberOfChannels
 
@@ -218,7 +222,7 @@ export function getAudioBufferPcm(audioBuffer: AudioBuffer): Float32Array {
     const monoData = new Float32Array(leftChannel.length)
 
     for (let i = 0; i < leftChannel.length; i++) {
-        monoData[i] = (leftChannel[i]! + rightChannel[i]!) / 2
+        monoData[i] = ((leftChannel[i] ?? 0) + (rightChannel[i] ?? 0)) / 2
     }
 
     return monoData

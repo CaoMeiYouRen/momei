@@ -36,15 +36,20 @@ export class EmailI18nManager {
      * 加载指定语言的邮件配置
      */
     private loadLocale(locale: SupportedEmailLocale): EmailLocaleConfig {
-        if (!this.localeCache.has(locale)) {
-            const config = EMAIL_SUPPORTED_LOCALES[locale]
-            if (!config) {
-                logger.warn(`Email locale '${locale}' not found, using default '${this.defaultLocale}'`)
-                return EMAIL_SUPPORTED_LOCALES[this.defaultLocale]
-            }
-            this.localeCache.set(locale, config)
+        const cached = this.localeCache.get(locale)
+        if (cached) {
+            return cached
         }
-        return this.localeCache.get(locale)!
+
+        const config = EMAIL_SUPPORTED_LOCALES[locale]
+        if (!config) {
+            logger.warn(`Email locale '${locale}' not found, using default '${this.defaultLocale}'`)
+            return EMAIL_SUPPORTED_LOCALES[this.defaultLocale]
+        }
+
+        this.localeCache.set(locale, config)
+
+        return config
     }
 
     /**

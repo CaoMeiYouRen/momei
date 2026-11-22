@@ -48,8 +48,9 @@ function cloneMessages(messages: Record<string, any>): Record<string, any> {
  */
 export async function loadLocaleMessages(locale: string): Promise<Record<string, any>> {
     const resolvedLocale = resolveAppLocaleCode(mapAuthLocaleToAppLocale(locale))
-    if (localeCache.has(resolvedLocale)) {
-        return localeCache.get(resolvedLocale)!
+    const cachedMessages = localeCache.get(resolvedLocale)
+    if (cachedMessages) {
+        return cachedMessages
     }
 
     try {

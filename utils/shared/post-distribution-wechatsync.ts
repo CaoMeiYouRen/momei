@@ -15,8 +15,12 @@ export interface WechatSyncDispatchPayloadProfile {
 }
 
 export function shouldFinalizeWechatSyncStatus(status: WechatSyncTaskStatus) {
-    return Boolean(status.accounts?.length)
-        && status.accounts!.every((account) => account.status === 'done' || account.status === 'failed')
+    const accounts = status.accounts
+    if (!accounts?.length) {
+        return false
+    }
+
+    return accounts.every((account) => account.status === 'done' || account.status === 'failed')
 }
 
 export function resolveWechatSyncDispatchPayloadProfile(accounts: readonly WechatSyncAccount[]): WechatSyncDispatchPayloadProfile {

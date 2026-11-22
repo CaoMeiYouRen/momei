@@ -99,7 +99,12 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
     const manualConfig = typeof categoryOrConfig === 'object' ? categoryOrConfig : configOverride
 
     // 确定需要获取的设置键
-    const resolvedCategoryKeys = categorySettingKeys[category] ?? categorySettingKeys.text!
+    const textCategoryKeys = categorySettingKeys.text
+    if (!textCategoryKeys) {
+        throw new Error('[AI] text category setting keys are missing')
+    }
+
+    const resolvedCategoryKeys = categorySettingKeys[category] ?? textCategoryKeys
     const enabledKey = resolvedCategoryKeys.enabled
     const providerKey = resolvedCategoryKeys.provider
     const apiKeyKey = resolvedCategoryKeys.apiKey
@@ -255,11 +260,10 @@ export async function getAIProviderWithFallback(
         return primaryProvider
     }
 
+    const fallbackSettingKeys = [fbProviderKey, fbApiKeyKey, fbModelKey, fbEndpointKey]
+        .filter((key): key is SettingKey => Boolean(key))
     const dbSettings = await getSettings([
-        fbProviderKey,
-        fbApiKeyKey!,
-        fbModelKey!,
-        fbEndpointKey!,
+        ...fallbackSettingKeys,
         SettingKey.AI_ENABLED,
         SettingKey.AI_FALLBACK_PROVIDER,
         SettingKey.AI_FALLBACK_API_KEY,
@@ -290,13 +294,13 @@ export async function getAIProviderWithFallback(
     const fallbackConfig: AIConfig = {
         enabled: true,
         provider: fallbackProviderName,
-        apiKey: dbSettings[fbApiKeyKey!]
+        apiKey: (fbApiKeyKey ? dbSettings[fbApiKeyKey] : undefined)
             || dbSettings[SettingKey.AI_FALLBACK_API_KEY]
             || '',
-        model: dbSettings[fbModelKey!]
+        model: (fbModelKey ? dbSettings[fbModelKey] : undefined)
             || dbSettings[SettingKey.AI_FALLBACK_MODEL]
             || '',
-        endpoint: dbSettings[fbEndpointKey!]
+        endpoint: (fbEndpointKey ? dbSettings[fbEndpointKey] : undefined)
             || dbSettings[SettingKey.AI_FALLBACK_ENDPOINT]
             || '',
         maxTokens: AI_MAX_TOKENS,
