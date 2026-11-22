@@ -158,7 +158,7 @@ useHead({
         max-width: 50rem;
         color: var(--caomei-color-text-muted);
         line-height: 1.7;
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
     }
 
     &__grid {

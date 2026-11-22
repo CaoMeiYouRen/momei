@@ -100,7 +100,7 @@ usePageSeo({
     }
 
     &__title {
-        font-size: 2.25rem;
+        font-size: var(--m-font-size-4xl);
         font-weight: 800;
         margin-bottom: 0.5rem;
     }
@@ -153,7 +153,7 @@ usePageSeo({
     }
 
     &__count {
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         padding: 0.125rem 0.375rem;
         background-color: var(--m-surface-200);
         border-radius: 1rem;

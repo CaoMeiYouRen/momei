@@ -117,7 +117,7 @@ usePageSeo({
     padding: 2rem 1rem; // py-8 px-4
 
     &__title {
-        font-size: 1.875rem; // text-3xl
+        font-size: var(--m-font-size-3xl); // text-3xl
         font-weight: 700;
         margin-bottom: 2rem; // mb-8
         color: var(--caomei-color-text);

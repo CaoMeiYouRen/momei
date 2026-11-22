@@ -171,7 +171,7 @@ function formatMonthName(month: number) {
   }
 
   .year-title {
-    font-size: 1.5rem;
+    font-size: var(--m-font-size-2xl);
     margin-bottom: 0.5rem;
   }
 

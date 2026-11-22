@@ -99,7 +99,7 @@ const handleForgotPassword = async () => {
     gap: 0.5rem;
 
     label {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         font-weight: 500;
         color: var(--caomei-color-text);
     }
@@ -110,7 +110,7 @@ const handleForgotPassword = async () => {
     align-items: center;
     gap: 0.5rem;
     color: var(--m-green-500);
-    font-size: 0.875rem;
+    font-size: var(--m-font-size-sm);
     background-color: var(--m-green-50);
     padding: 0.75rem;
     border-radius: 0.5rem;

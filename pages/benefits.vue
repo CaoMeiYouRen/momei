@@ -558,7 +558,7 @@ $color-white: var(--caomei-color-bg);
     }
 
     &__icon {
-        font-size: 1.5rem;
+        font-size: var(--m-font-size-2xl);
         color: $color-plum;
     }
 

@@ -360,7 +360,7 @@ const externalFeedDegraded = computed(() => Boolean(externalFeedData.value?.data
   }
 
   &__subtitle {
-    font-size: 1.25rem;
+    font-size: var(--m-font-size-xl);
     color: var(--caomei-color-text-muted);
     margin-bottom: $spacing-lg;
     max-width: 600px;
@@ -456,7 +456,7 @@ const externalFeedDegraded = computed(() => Boolean(externalFeedData.value?.data
     text-align: center;
 
     p {
-      font-size: 1.125rem;
+      font-size: var(--m-font-size-lg);
       color: var(--caomei-color-text-muted);
       margin-bottom: $spacing-lg;
       line-height: 1.7;
