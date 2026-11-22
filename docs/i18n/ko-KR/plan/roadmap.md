@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-21
+last_sync: 2026-11-22
 ---
 
 # Momei 프로젝트 로드맵
@@ -97,3 +97,4 @@ last_sync: 2026-11-21
 - **제79단계는 감사 완료 후 아카이브되었습니다(2026-11-18)**: 품질 안정성과 게이트 신뢰성 — 관리자 6개 사례를 `settleUi` / `clickWhenReady` / `expectEventually`로 통일해 20/20회, 커버리지 3회 연속, 로컬 `regression:phase-close`를 통과했습니다. 빌드 산출물 치수 프로브는 주간 `required: false`로 상설화(64 / 48 / 32px), 의존성 대장 `reviewBy`는 일일 JSON/Markdown과 경고 출력에 추가(종료 코드 불변), 커버리지 20차로 `check-script-governance`를 74.90% → 95.69%로 올렸고, `@vite-pwa/nuxt` 2.0.1은 추적 평가 후 유지, `prune:parity-allowlist`로 재수집 후 정리를 스크립트화했습니다.
 - **제80단계 심사 및 아카이브 완료(2026-11-19)**: 기능과 경험 마무리 — CLI 가져오기 재개(로컬 상태 파일 + `--resume` / `--state-file` / `--clean-state`, 단위 테스트 24건), 홈페이지 캐시와 언어 감지 분리(`/`의 `Set-Cookie` 제거 후 `s-maxage` 반환, 선호는 명시적 전환 시에만 기록, E2E 7건 + `probe:i18n-cache`), 폰트 크기 통일 3차(15개 파일 37곳, `135 → 98`, 요소별 차이 0), 커버리지 21차(`check-line-count` 55/56, `probe-build-geometry` 193/208, 전체 **86.35%**), PWA 의존성 윈도우(`@vite-pwa/nuxt` ^2.0.2 + `generateSW` 전환, 산출물은 build id 외 동일), CI 재수집 후 parity 허용 목록 정리.
 - **제81단계는 감사 완료 후 아카이브되었습니다(2026-11-21)**: 품질 기준선과 부채 마무리 — Weekly Regression 보안 경고 게이트가 다시 통과했습니다(`dependabot source: ok (github-api)`, run 44847021795). 커버리지 22차는 동일 소스 statements를 86.35% → 86.69%(+0.34pp)로, 정적 규칙 부채 4차는 `no-confusing-void-expression`(80건 / 29개 파일)을 0건으로 정리하고 `error`로 승격했으며, 폰트 크기 통일 4차는 30건의 등가 리터럴을 교체했습니다(잔여 98 → 68, token 176 → 206). 기획 문서 모델 v1의 첫 완전 단계는 5행 진행 표, 17개 소항목, 회귀 윈도 삽입 수정을 완료했습니다. CI Test run 44867691632 / 44869703295 전부 통과(Visual 32/32, parity 83/83).
+- **제82단계가 기획에 들어갔습니다(2026-11-22)**: 품질 롤링 거버넌스 — 커버리지 23차(3개 모듈에서 동일 소스 `+0.3pp`), 폰트 크기 통일 5차(남은 65건의 등가 리터럴 중 30건 이상), 정적 규칙 6차(`no-non-null-assertion` 24건 / 14개 파일을 0건으로 정리하고 `error`로 승격), 구조 재사용 슬라이스(중복률 `0.38% → ≤0.35%`).

@@ -9,13 +9,13 @@
 - `docs/plan/backlog.md`: 只保留长期主线、待上收候选与待跟踪项；已上收 / 已闭合 / 已完成的短期候选整条迁入 `docs/plan/archive/backlog-resolved-candidates.md`，主文档不留历史摘要。
 - `docs/reports/regression/current.md`: 继续沿用独立活动窗口治理，不并回规划文档。
 
-## 2. 当前基线（2026-11-21）
+## 2. 当前基线（2026-11-22）
 
-- `roadmap.md`: `372` 行（`docs:check:line-count` 口径），处于健康窗口（第一至第五十三阶段与第五十四至第六十七阶段已迁入区间分片；第六十八至第八十一阶段分别迁入 `roadmap-phases-68.md` ~ `roadmap-phases-81.md`；当前无进行中阶段正文）。
+- `roadmap.md`: `437` 行（`docs:check:line-count` 口径），处于健康窗口（第一至第五十三阶段与第五十四至第六十七阶段已迁入区间分片；第六十八至第八十一阶段分别迁入 `roadmap-phases-68.md` ~ `roadmap-phases-81.md`；当前进行中阶段为第八十二阶段，正文位于「主窗口保留范围」之后、近线归档段之前）。
 - `todo-archive.md`: `387` 行（`docs:check:line-count` 口径），健康窗口（主窗口保留第七十至第八十一阶段共 12 个近线归档块；深度归档索引已改为 4 列表格，倒序覆盖 14 个 todo 分片；第六十五至第六十八阶段迁入 `todo-archive-phases-65-68.md`、第六十九阶段迁入 `todo-archive-phases-69.md`）。
-- `backlog.md`: `230` 行（`docs:check:line-count` 口径），处于健康窗口（长期主线 11 条 + 周期性回归验证层 + 跨主线待跟踪项；第八十阶段 6 条上收条目已完成并回填结果，已闭合条目统一迁入 `archive/backlog-resolved-candidates.md`；#1 覆盖率基线为第八十一阶段条目 2 出口（同源 86.69%，`34,068 / 39,299`））。
-- `todo.md`: `36` 行（`wc -l` 口径；该文件未纳入 `docs:check:line-count` 目标），当前无进行中阶段，进度表为占位行；下一阶段候选待准入。
-- `docs/reports/regression/current.md`: `52` 行（`docs:check:line-count` 口径），近线窗口（2026-11-18 / 2026-11-19 / 2026-11-21 三个阶段收口窗口；更早窗口迁入 `archive/2026-11-16-to-2026-11-17-phase77-78.md`；长度阈值以 `scripts/docs/check-line-count.mjs` 为单点，条数以 `LOG_WINDOW_LIMITS.maxEntries` 为单点）。
+- `backlog.md`: `230` 行（`docs:check:line-count` 口径），处于健康窗口（长期主线 11 条 + 周期性回归验证层 + 跨主线待跟踪项；第八十一 / 第八十二阶段上收条目已回填结果，已闭合条目统一迁入 `archive/backlog-resolved-candidates.md`；#1 覆盖率基线为第八十一阶段条目 2 出口（同源 86.69%，`34,068 / 39,299`））。
+- `todo.md`: `118` 行（`wc -l` 口径；该文件未纳入 `docs:check:line-count` 目标），当前进行中阶段为第八十二阶段（4 大条目 / 13 小条目），进度表 4 行。
+- `docs/reports/regression/current.md`: `64` 行（`docs:check:line-count` 口径），近线窗口（2026-11-18 / 2026-11-19 / 2026-11-21 三个阶段收口窗口；更早窗口迁入 `archive/2026-11-16-to-2026-11-17-phase77-78.md`；长度阈值以 `scripts/docs/check-line-count.mjs` 为单点，条数以 `LOG_WINDOW_LIMITS.maxEntries` 为单点）。
 
 ## 3. 阈值定义
 
@@ -61,9 +61,9 @@
 - 本轮（2026-11-08）完成第七十一阶段归档收口：`roadmap.md` 迁出第七十一阶段正文至 `roadmap-phases-71.md`（主窗口仅保留阶段摘要表 + 最近阶段归档结论）；`todo-archive.md` 收录第七十一阶段归档块，主窗口保留第六十五至第七十一阶段共 7 个近线窗口；`todo.md` 已清空已完成阶段正文（2026-11-08 快照：无进行中阶段，第七十二阶段待准入）；`backlog.md` 同步 #10 的 B4 完成状态、剩余面（46 处 / 14 类、图标 0、token 1,420）与 #1 的覆盖率基线（79.23%）。
 - 本轮（2026-11-09）完成第七十二阶段归档收口：`roadmap.md` 迁出第七十二阶段正文至 `roadmap-phases-72.md`（主窗口仅保留阶段摘要表 + 最近阶段归档结论）；`todo-archive.md` 收录第七十二阶段归档块，主窗口保留第六十五至第七十二阶段共 8 个近线窗口；`todo.md` 已清空已完成阶段正文（2026-11-09 快照：无进行中阶段）；`backlog.md` 同步 #10 迁移收口、#1 覆盖率第十三批基线（81.83%）与 #11 三处层序偏差待跟踪。
 - `docs/reports/regression/current.md` 本轮滚动归档：第七十阶段 6 个窗口（条目 5 覆盖率 / 1a / 1b-1c / 2c / 3 / 4）整体迁入 `reports/regression/archive/2026-11-05-phase70-close.md`；活动窗口保留阶段收口门禁窗口与第六十九阶段条目 2 / 3 两个窗口（`105` 行，健康窗口）。条目 2a / 2b 窗口已在阶段内分别归档。
-- `roadmap.md` 当前保留第一至第五十三阶段的索引 / 摘要、第五十四至第六十七阶段摘要表、第六十八至第八十一阶段摘要与归档结论（`docs:check:line-count` 口径 `372` 行，低于 800 行 warn 线）；当前无进行中阶段。
+- `roadmap.md` 当前保留第一至第五十三阶段的索引 / 摘要、第五十四至第六十七阶段摘要表、第六十八至第八十一阶段摘要与归档结论（`docs:check:line-count` 口径 `437` 行，低于 800 行 warn 线）；当前进行中阶段为第八十二阶段。
 - `todo-archive.md` 当前保留第七十至第八十一阶段共 12 个近线归档块（`docs:check:line-count` 口径 `387` 行，健康窗口）；第六十五至第六十八阶段与第六十九阶段已分别迁入 `todo-archive-phases-65-68.md`、`todo-archive-phases-69.md`。
-- 下一步：第八十一阶段已于 2026-11-21 审计归档，下一阶段待按规划规范 §4.5 Step 7 从 backlog 重新评估后立项；立项前按 §4.5 Step 8 复核工作区与归档一致性。
+- 后续：第八十一阶段已于 2026-11-21 审计归档；第八十二阶段已于 2026-11-22 按 §4.5 Step 7 完成候选确认（用户确认方案 A）并按 Step 8 复核工作区与归档一致性后立项，当前按 `todo.md` 的 4 个大条目推进。
 
 - 本轮（2026-11-14）完成第七十五阶段归档收口：`roadmap.md` 迁出第七十五阶段正文至 `roadmap-phases-75.md`（主窗口 `261` 行）；`todo-archive.md` 收录第七十五阶段归档块并把第六十九阶段迁入 `todo-archive-phases-69.md`，主窗口保留第七十至第七十五阶段共 6 个近线窗口（`234` 行）；`todo.md` 已清空当前阶段（无进行中阶段）；回归窗口保留 4 条（含说明节，3 个活动窗口，`51` 行）。
 

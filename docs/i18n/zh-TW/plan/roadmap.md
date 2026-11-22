@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-21
+last_sync: 2026-11-22
 ---
 
 # 墨梅專案路線圖
@@ -111,3 +111,4 @@ last_sync: 2026-11-21
 - **第七十九階段已審計歸檔（2026-11-18）**：品質穩定性與門禁可信度——管理端 6 件用例統一 `settleUi` / `clickWhenReady` / `expectEventually`，連跑 20/20 次、覆蓋率 3 次全綠、本機 `regression:phase-close` 一次通過；建置產物尺寸探針以 `required: false` 接入每週回歸（64 / 48 / 32px）；依賴台帳 `reviewBy` 進入每日 JSON / Markdown 與告警輸出（退出碼不變）；覆蓋率第二十批把 `check-script-governance` 由 74.90% 提升到 95.69%；`@vite-pwa/nuxt` 2.0.1 追溯評估結論為保留；`prune:parity-allowlist` 將重採後清零腳本化。
 - **第八十階段已審計歸檔（2026-11-19）**：功能與體驗收口——CLI 遷移斷點續傳（本地狀態檔 + `--resume` / `--state-file` / `--clean-state`，新增 24 例單測）、首頁快取與語言偵測解耦（`/` 去除 `Set-Cookie` 並回傳 `s-maxage`，偏好僅在顯式切換時寫入，新增 7 例 E2E 與 `probe:i18n-cache`）、字號歸一第三批（15 檔案 37 處，`135 → 98`，逐元素 0 差異）、覆蓋率第二十一批（`check-line-count` 55/56、`probe-build-geometry` 193/208，全倉 **86.35%**）、PWA 依賴視窗（`@vite-pwa/nuxt` ^2.0.2 + `generateSW` 遷移，產物除 build id 外一致）、CI 重採後 parity 允許清單清零。
 - **第八十一階段已審計歸檔（2026-11-21）**：品質底線與債務收口——Weekly Regression 安全告警門禁恢復綠燈（`dependabot source: ok (github-api)`，run 44847021795）；覆蓋率第二十二批同源 statements 86.35% → 86.69%（+0.34pp）；靜態規則債第四批 `no-confusing-void-expression` 80 處 / 29 檔案清零並升 `error`；字號歸一第四批 30 條等值替換（剩餘 98 → 68、token 176 → 206）；規劃文檔模型 v1 首個完整階段交付 5 行進度表、17 小條目與回歸窗口插入修復。CI Test run 44867691632 / 44869703295 全綠（Visual 32/32、parity 83/83）。
+- **第八十二階段已立項（2026-11-22）**：品質滾動治理——覆蓋率第二十三批（三模組，同源 `+0.3pp`）、字號歸一第五批（65 條等值字面量中處理 ≥30 條）、靜態規則第六批（`no-non-null-assertion` 24 處 / 14 檔案清零並升 `error`）、結構複用切片（重複率 `0.38% → ≤0.35%`）。
