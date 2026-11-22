@@ -8,6 +8,7 @@
 
 <script setup lang="ts">
 import type { SettingFormValue } from '@/types/setting'
+import { normalizeSettingFormValue } from '@/utils/shared/setting-form-value'
 
 /**
  * 设置表单的文本输入适配层。
@@ -23,13 +24,5 @@ defineOptions({ inheritAttrs: false })
 const props = defineProps<{ modelValue?: SettingFormValue }>()
 const emit = defineEmits<{ (e: 'update:modelValue', value: string): void }>()
 
-const normalizedValue = computed(() => {
-    const value = props.modelValue
-
-    if (value === null || value === undefined) {
-        return ''
-    }
-
-    return typeof value === 'string' ? value : String(value)
-})
+const normalizedValue = computed(() => normalizeSettingFormValue(props.modelValue))
 </script>
