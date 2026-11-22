@@ -109,7 +109,7 @@ const handleSubmit = async () => {
     margin: 0 auto;
 
     &__title {
-        font-size: 1.5rem;
+        font-size: var(--m-font-size-2xl);
         font-weight: 700;
         margin-bottom: $spacing-sm;
         color: var(--caomei-color-text);
@@ -118,7 +118,7 @@ const handleSubmit = async () => {
 
     &__desc {
         color: var(--caomei-color-text-muted);
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         margin-bottom: $spacing-xl;
         line-height: 1.6;
     }

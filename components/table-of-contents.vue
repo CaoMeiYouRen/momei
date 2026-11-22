@@ -91,7 +91,7 @@ const scrollToHeading = (id: string) => {
 <style lang="scss" scoped>
 .toc {
     &__title {
-        font-size: 1.125rem;
+        font-size: var(--m-font-size-lg);
         font-weight: 700;
         margin-bottom: 1rem;
         color: var(--caomei-color-text);
@@ -111,7 +111,7 @@ const scrollToHeading = (id: string) => {
 
     &__link {
         display: block;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         color: var(--caomei-color-text-muted);
         transition: color 0.2s;
         white-space: nowrap;

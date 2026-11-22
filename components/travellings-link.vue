@@ -113,7 +113,7 @@ const isVisible = computed(() => {
         align-items: center;
         justify-content: center;
         min-width: 1.1rem;
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         color: var(--caomei-color-text-muted);
         line-height: 1;
         flex-shrink: 0;

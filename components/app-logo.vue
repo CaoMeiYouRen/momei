@@ -56,7 +56,7 @@ const { siteLogo, currentTitle } = useMomeiConfig()
     }
 
     &__title {
-        font-size: 1.25rem;
+        font-size: var(--m-font-size-xl);
         font-weight: 600;
         color: var(--caomei-color-primary);
     }

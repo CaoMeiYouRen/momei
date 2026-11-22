@@ -134,7 +134,7 @@ async function loadAdapterScript(adapterId: string) {
     text-align: center;
 
     &__label {
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         color: var(--text-color-secondary);
         margin-bottom: 0.5rem;
     }

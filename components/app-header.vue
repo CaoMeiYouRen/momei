@@ -734,7 +734,7 @@ watch(
     gap: $spacing-xs;
 
     &__title {
-        font-size: 0.75rem; font-weight: 700; color: var(--caomei-color-text-muted);
+        font-size: var(--m-font-size-xs); font-weight: 700; color: var(--caomei-color-text-muted);
         padding: $spacing-sm 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
     }
 }

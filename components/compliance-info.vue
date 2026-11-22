@@ -80,7 +80,7 @@ const policeLink = computed(() => {
         gap: 0.25rem;
         color: var(--caomei-color-text-muted);
         text-decoration: none;
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         transition: color 0.2s;
 
         &:hover {

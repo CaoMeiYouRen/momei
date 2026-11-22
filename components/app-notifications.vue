@@ -215,7 +215,7 @@ const resolveNotificationTarget = (link: string | null) => {
 
     .title {
         font-weight: 600;
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
     }
 }
 
@@ -320,7 +320,7 @@ const resolveNotificationTarget = (link: string | null) => {
     }
 
     .item-time {
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         color: var(--caomei-color-text-muted);
     }
 }

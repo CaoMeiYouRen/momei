@@ -114,13 +114,13 @@ onMounted(() => {
   }
 
   &__title {
-    font-size: 1.5rem;
+    font-size: var(--m-font-size-2xl);
     font-weight: 700;
     margin: 0;
   }
 
   &__count {
-    font-size: 1rem;
+    font-size: var(--m-font-size-md);
     font-weight: 400;
     margin-left: 0.5rem;
   }
