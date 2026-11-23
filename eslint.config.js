@@ -233,6 +233,7 @@ export default withNuxt(
         'node_modules',
         '.husky',
         '.git',
+        '.session',
         '.nuxt',
         '.output',
         '.vercel',
