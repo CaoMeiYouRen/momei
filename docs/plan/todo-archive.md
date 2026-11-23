@@ -28,13 +28,25 @@
 
 ## 主窗口保留范围
 
-- 主文档当前保留第七十至第八十一阶段共 12 个近线归档块（`387` 行，`docs:check:line-count` 口径，低于 warning `500`，暂不迁出）；行数为唯一硬约束，归档块数量只作观察项。
+- 主文档当前保留第七十至第八十二阶段共 13 个近线归档块（`399` 行，`docs:check:line-count` 口径，低于 warning `500`，暂不迁出）；行数为唯一硬约束，归档块数量只作观察项。
 - 深度归档索引已改为 4 列表格（阶段 / 主题 / 归档文件 / 归档日期），倒序覆盖 14 个 todo 分片；新增分片必须同步更新本表。
 - 第六十五至第六十八阶段与第六十九阶段的完整待办归档正文分别见 [archive/todo-archive-phases-65-68.md](./archive/todo-archive-phases-65-68.md)、[archive/todo-archive-phases-69.md](./archive/todo-archive-phases-69.md)。
 - 第一至第六十四阶段的完整待办归档正文已迁入区间分片。
 - 后续若近线窗口再次膨胀，继续按 archive/index.md 的规则把更早阶段整体迁出。
 
 ---
+
+## 第八十二阶段：质量滚动治理与债务收敛（已审计归档）
+
+> **归档块模型**: v1
+
+-   **阶段名与时间**: 第八十二阶段 · 2026-11-22 ~ 2026-11-23
+-   **大条目清单与状态**: 1. 覆盖率第二十三批（[x]）；2. 字号归一第五批（[x]）；3. 静态规则债第五批（[x]）；4. 结构复用切片（[x]）
+-   **提交清单**: `f8a2f385`（立项）；`ac4cb00f`（82.1）；`d66239ad`、`fdd1933c`、`386c1f9f`（82.2）；`e625a1e9`、`bef0f871`、`18cd75b8`（82.3）；`6ceb2767`、`6d173e74`、`cfa05aae`（82.4）；`255b2602`、`e9e4a76d`、`6f2f5a02`（进度回填）；`80032677`（eslint 忽略 `.session`）
+-   **质量门结果**: 干净全量 `test:coverage` EXIT 0（645 文件 / 6,125 例通过 + 1 跳过，statements **87.27%**，34,642 / 39,694）；`release:check:full` 12/13（唯一失败 `docs:check:source-of-truth` 为四语 roadmap 镜像待本归档提交同步，归档提交后修复；其余 lint / lint:i18n / lint:css / lint:md / test / typecheck / security / build / E2E 全绿）；`test:perf:budget:strict`（`coreEntryJs` 291.64KB / 335KB、`keyCss` 60.21KB / 62KB）；`duplicate-code:check:strict` 0.32%；`docs:check:i18n` / `line-count` / `planning-docs` 与 `review-gate:generate:check` 通过；`test:visual` 32/32、parity 82/83（本机头像数据态，CI 裁决）
+-   **Review Gate 结论与轮次**: 82.1 R1 Reject → R2 Pass；82.2 分区 A/B R1 Pass；82.3 分区 A R1 Reject → R2 Pass、分区 B R1 Pass（条件已闭环）；82.4 分区 A/B R1 Pass；归档文档本轮 Gate
+-   **未覆盖边界**: ① `.vue` 内 10 处非空断言（3 文件）未纳入规则面；② `**/migration-*.ts` 命中的 4 个生产模块维持 `[0]`（backlog #10 待跟踪）；③ `login.vue` ↔ `register.vue` 140 行模板与 CLI / `post-export` 的 fence 解析重复；④ 本机 3001 端口被占用，视觉 / E2E 以 `E2E_PORT=3015` 运行；⑤ 本机 `user-settings-dark` parity 头像数据态差异以 CI 为裁决
+-   **规划正文**: [roadmap 分片](./archive/roadmap-phases-82.md)
 
 ## 第八十一阶段：质量底线与债务收口（已审计归档）
 

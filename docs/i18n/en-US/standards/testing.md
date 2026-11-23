@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-18
+last_sync: 2026-11-23
 translation_tier: summary-sync
 ---
 
@@ -31,6 +31,9 @@ This document outlines the testing process for the Momei blog to ensure code qua
 
 -   **`once`-queue accumulation between tests**: `vi.clearAllMocks()` only clears call records and instances, **not** the `mockResolvedValueOnce` / `mockImplementationOnce` queues. Calling `mockResolvedValueOnce` in multiple tests without consuming the queue pollutes later assertions. Fix: add `mockReset()` to the affected mocks in `beforeEach` (e.g. `mockRepo.findOne.mockReset()`), or guarantee each call site consumes its queue exactly once.
 -   **Type-safe mocks**: `vi.mocked(x).mockResolvedValue({...} as never)` bypasses union-type integrity checks (such as `AIProvider`); signature drift then silently mismatches. Prefer `as unknown as AIProvider` (or alignment with the production signature, e.g. `as Record<string, string | null>`) plus `import type` of the production type.
+-   **HEAD comparisons must exclude cache pollution**: when using `git stash` / `git checkout HEAD -- <file>` to prove a regression, `node_modules/.vitest-cache` may still serve transformed modules and make HEAD appear to fail identically; move the cache aside or use a separate worktree before drawing the conclusion.
+-   **`Array.prototype.entries` shadows object fields**: `allowlist.entries ?? allowlist` resolves to the array's `entries` function (always truthy) for arrays, silently disabling an explicit array allowlist; branch with `Array.isArray` instead of guessing with `??`.
+-   **Test-environment isolation with CI tokens**: clearing only `SECURITY_ALERTS_TOKEN` is not enough when CI injects `GITHUB_TOKEN` / `GH_TOKEN`; the security-alert fallback tests must clear all three or they never reach the `pnpm audit` degradation branch.
 -   **Probe before you assert external parser behaviour**: When writing tests that depend on third-party parser behaviour (e.g. fast-xml-parser), start with a probe script to confirm the actual behaviour. Known facts: with `parseTagValue: false`, numeric character references (`&#x41;`) are left intact, while named entities (`&amp;`) are decoded; nodes listed in `stopNodes` keep their full text (including the CDATA markers); malformed XML (unclosed tags) is parsed leniently without throwing.
 
 ### 2.3 Coverage Batch Pacing
@@ -43,6 +46,7 @@ This document outlines the testing process for the Momei blog to ensure code qua
 -   Pick modules by **absolute uncovered statements**, not by low coverage percentage; count branch coverage per branch path (never "any branch hit", which overstates by 10pp+); persist the baseline `coverage-final.json` (targeted runs still wipe the default `coverage/`).
 -   Prefer a new file over appending to a test file already near the `max-lines` warning; move `node_modules/.vitest-cache` aside before local runs (hot cache causes `@id/virtual:*` module errors that CI never sees).
 -   Tests touching module-level connection maps, `process.env` or fake timers need `afterEach` teardown plus `useRealTimers` / `unstubAllGlobals`; `isolate: true` only masks the pollution.
+-   **Concurrent coverage runs lock the directory**: two simultaneous `vitest run --coverage` processes lock `coverage/` and fail with "already in use"; run coverage batches serially or give each concurrent task its own `--coverage.reportsDirectory`.
 -   **A clean full run is the only valid baseline**: default concurrency makes `virtual:intlify-i18n` fail collection in about 25 suites (0 tests), distorting both numerator and denominator; use `rm -rf node_modules/.vitest-cache` + `--maxWorkers=4` for baselines and record the convention.
 -   **Prefer `--coverage` for single-file checks**: running one Nuxt test file can randomly fail to resolve `virtual:intlify-i18n`; `--coverage` is more stable. Clear the cache and retry before treating it as a regression.
 -   **Phase-close denominator**: use the statements total from that phase's clean full run as the denominator; when the next phase changes it, recompute cumulative deltas on the previous phase's file set and report the file count instead of rescaling the old phase with the new denominator.

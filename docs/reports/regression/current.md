@@ -10,6 +10,19 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径（迁移期，已随路由择库机制退役）：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；PrimeVue 卸载后由 `tests/modules/primevue-residual-guard.test.ts` 以全仓零残留口径替代。
 
+<!-- regression-window:start:periodic-regression:phase-close:2026-11-23 -->
+## 2026-11-23 阶段收口前周期性回归（自动回填 + 收口复验）
+
+- 执行入口: `pnpm regression:phase-close`（首跑）→ 按 required 命令逐项复验
+- 证据 artifact: `../../../artifacts/review-gate/2026-11-23-phase-close-regression.md` / `.json`；收口逐项映射 `../../../artifacts/review-gate/2026-11-23-phase82-close.md`
+- 结果摘要: 首跑在 `test:coverage` 被既有并发 flake `pages/submit.test.ts` 阻断（该文件孤立复跑 6/6 通过）；按 required 命令逐项复验后 **Pass**（blocker=0）。
+- 已执行验证: test:coverage=EXIT 0（645 文件 / 6,125 例通过 + 1 跳过，statements 87.27%）；release:check:full=12/13（仅 `docs:check:source-of-truth` 待四语 roadmap 镜像同步，本归档提交修复；其余 lint / lint:i18n / lint:css / lint:md / test / typecheck / security / build / E2E 全绿）；docs:check:i18n / line-count / planning-docs=PASS；test:perf:budget:strict=PASS（coreEntryJs 291.64KB / 335KB、keyCss 60.21KB / 62KB）；duplicate-code:check:strict=PASS（0.32%）；review-gate:generate:check=PASS
+- 回归窗口: 本窗口并入 2026-11-23 近线记录，归档判定=窗口健康。
+- Review Gate: `Pass`（首跑 flake 已孤立证伪，coverage 以干净全量跑为裁决）
+- 未覆盖边界: 本机 parity 82/83（`user-settings-dark` 头像数据态，CI 裁决）；本机 3001 端口被外部占用，E2E / 视觉以 `E2E_PORT=3015` / `E2E_INSTALLATION_PORT=3016` 运行
+
+<!-- regression-window:end:periodic-regression:phase-close:2026-11-23 -->
+
 <!-- regression-window:start:maintenance:caomei-ui-upgrade:2026-11-22 -->
 ## 2026-11-22 caomei-ui 1.3.0 → 1.4.0 维护批次
 

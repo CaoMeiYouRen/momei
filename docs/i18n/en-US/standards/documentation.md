@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-20
+last_sync: 2026-11-23
 translation_tier: summary-sync
 source_origin: docs/standards/documentation.md
 ---
@@ -313,3 +313,5 @@ A `regression-window` marker pair can still be malformed as "start at the top, b
 - [AI Collaboration Standards](./ai-collaboration.md)
 
 > Sync note (2026-11-15): §5.4 adds the rule that threshold clauses must single-source both line and record counts (lines → `check-line-count`, records → `LOG_WINDOW_LIMITS.maxEntries`), that index checks must match both `./x.md` and extension-less `./x` links, and that historical CRLF markdown must be checked before scripted rewrites.
+
+> Sync note (2026-11-23): §5.4 adds three rules — `docs:check:links` / `markers` scan `git ls-files` (untracked docs stay invisible until staged; re-run after commit) while `line-count` uses a fixed target list; `artifacts/` paths must be written as inline code because the directory is gitignored and links break on CI and fresh clones; the regression-window upsert inserts at the earlier of the first managed `start` marker and the first dated heading (`Math.min`), and using only the dated heading creates nesting.

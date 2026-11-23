@@ -144,7 +144,7 @@
 - 公开列表 API 子组中的 `attachTranslations(... as any)` 已在 `categories / tags / posts` 三个入口完成收敛，但这不等于 `server/api/**` 已具备目录级提级条件；后续仍应维持单文件 / 双文件节奏选择下一刀。
 - 广告域的 `AdAdapterConfig` 重复 `Record<string, any>` 已在共享类型与适配器基类处完成收敛，但 `server/services/adapters/**` 其它子类里的显式类型断言仍保留为后续候选，不在本轮继续扩写为适配器体系重构。
 - 第三十四阶段这条 `composables` 子桶回退主线已完成当前所有高 ROI 生产源码 `no-explicit-any` 单文件 / 双文件切片；当前 `composables/*.ts` 的残余显式 `any` 已收敛为测试文件与有意保留的非生产输入断言，不再阻塞本轮待办关闭。
-- `no-non-null-assertion` 目前新增覆盖到 `composables/use-post-editor-io.ts`、`server/services/ad.ts` 与 `utils/shared/citable-content.ts` 三个低风险文件，但并不意味着 `composables/**`、`server/services/**` 或 `utils/shared/**` 已具备目录级提级条件；`use-asr-direct.ts` 的目录级 `max-lines` blocker 已通过复用现有 PCM helper 收敛，但并未继续扩写为独立 ASR helper 下沉工程。
+- `no-non-null-assertion` 已于第八十二阶段生产面全量清零并升 `error`（见 §7.6），原「三文件低风险切片」口径作废；剩余仅 `.vue` 10 处与 `**/migration-*.ts` 豁免面。
 - `use-post-editor-ai.ts` 与 `use-post-editor-io.ts` 这类编辑器链路文件虽然本轮已完成 `no-explicit-any` 清零，但并不意味着下一阶段适合继续把 `no-unsafe-*` 或更宽的 editor 规则直接上收到整条编辑器链路；后续仍应保持单规则、单文件或双文件策略。
 - `prefer-nullish-coalescing`、`no-unsafe-*` 仍属于更宽的规则族，本轮不触碰。
 
@@ -195,6 +195,17 @@
 | typed 规则与 `allowDefaultProject` | 启用 typed 规则后必须 `ignores: ['nuxt.config.ts']`：该文件在 `allowDefaultProject` 下无类型信息，规则会抛 `requires type information` 而不是给告警。 |
 | 可 `--fix` 规则静默回归 | `prefer-reduce-type-parameter` / `non-nullable-type-assertion-style` 可自动修复，CI 的 `pnpm lint` 会把新回归直接改掉；需要拦截时以不可修复规则或单独的 no-fix probe 为准。 |
 | 纯静态类改造边界 | 改对象字面量前先确认无 `new` / `instanceof` / `this` 依赖；继承静态助手的基类（`this.xxx` + `extends`）用 `allowStaticOnly` 单文件切片，而不是强行对象化。 |
+
+### 7.6 第八十二阶段（2026-11-22）：`no-non-null-assertion` 生产面升 error（承接第八十一阶段第四批）
+
+第五批把生产 TS 的 26 处 / 15 文件非空断言清零并升 `error`（inventory 计数面 24 / 14）。沉淀：
+
+| 陷阱 | 结论 |
+|:---|:---|
+| legacy 装饰器的属性形态 | 属性装饰器在 legacy 发射下是 `(target, key, undefined)`，`descriptor === undefined` 是正常形态而非异常；按「descriptor 缺失就跳过」处理会让全部 `@CustomColumn` 静默失效，实体元数据构建才在 `dataSource.initialize()` 时暴露。装饰器分派必须三分支（class / property / method），并补直接单测。 |
+| 只 `throw` 的同步函数推断为 `void` | 同步函数仅抛错时 TS 推断返回 `void` 而非 `never`；`return fail(...)` 会命中 `no-confusing-void-expression`，显式标注 `: never`（异步 `Promise<never>`）可保留控制流收窄。 |
+| 豁免面按文件名前缀会误伤 | `PRODUCTION_TS_IGNORES` 的 `**/migration-*.ts` 会命中 `migration-link-governance` 等生产模块，使其不进入 error 面；收窄 ignore 前须评估共享该常量的其余规则新增命中。 |
+| 生产面升档与计数面口径 | inventory 的 hitCount 只统计生产扫描面（测试 / scripts 维持 `[0]`），与全量 `eslint .` 命中数不同；结论必须写明口径，避免把 24/14 与 26/15 混用。 |
 
 ## 8. 证据落点
 

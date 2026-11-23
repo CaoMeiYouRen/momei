@@ -299,7 +299,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 
 #### Step 7. 下一阶段规划闸门
 
-1. 规划前置盘点：拉取最新 issue、PR 与 Actions 状态（`gh issue list` / `gh pr list` / `gh run list`），评估其中对下一阶段有影响的内容；作者可信度、处置与合并门槛见 [Git 工作流规范 §6](./git.md)。
+1. 规划前置盘点：拉取最新 issue、PR 与 Actions 状态（`gh issue list` / `gh pr list` / `gh run list`），评估其中对下一阶段有影响的内容；作者可信度、处置与合并门槛见 [Git 工作流规范 §6](./git.md)。**准入前置必须在提交前重新 `git fetch` + 复核 open PR 与依赖 major 版本升级 / 自动合并状态**：依赖自动合并会让分支与 PR 状态在准备期间变化，沿用开工时的快照会把已合并 / 已关闭项写进准入结论。
 2. 只有在当前阶段已完成上述归档流程后，才允许把 backlog 条目正式上收为下一阶段规划。
 3. 下一阶段候选方案在未落盘前，应以“评估结论 / 候选主线 / ROI 与风险”形式存在，而不是提前写入 `todo.md` 或 `roadmap.md`；候选来源应显式区分是来自 backlog 的“长期主线切片”还是“短期 / 一次性候选”。
 4. 若用户只要求"先分析下一阶段"，则必须停留在候选方案层，不得偷跑正式规划落盘。

@@ -272,6 +272,15 @@
 
 后续若出现新缺口，按下方模板产出 issue 草稿，并在本表新增行（通道④列填写 issue 链接）。
 
+## 2026-11-22 依赖升级批次的视觉归因方法（第八十二阶段）
+
+-   **先对照构建再归因**：依赖升级（如 `caomei-ui@1.4.0`）出现视觉差异时，先用上一版本做对照构建，排除既有漂移，再用 DOM 计算样式 / 几何探针定位，最后才决定是否重采基线；禁止直接改参考态「变绿」。
+-   **fragment 根导致 attrs 丢失**：`CaomeiButton` 自 1.4.0 起根节点为 `CaomeiPassthrough` fragment，父组件 scoped 属性不再落到单个元素；需要承载尺寸 / class 时用自有包装元素（`AppAvatar` 同类处置）。
+-   **`CaomeiTooltipText` 的基线对齐**：其默认 `inline-block` 基线对齐会把表头行盒抬高约 3px；已由 `styles/main.scss` 的未分层 `vertical-align: top` 抵消（实测行高 32.59 → 35.69px 后恢复），`admin-comments-list` 无需重采；上游若修正行盒需复核该补偿。
+-   **单行截断契约**：按钮在 flex 场景下的单行截断由上游 `white-space` / `overflow` 决定，包装层不要重复声明，否则与升级后的默认行为叠加产生位移。
+
+> 依据：`artifacts/review-gate/2026-11-22-caomei-ui-1.4.0.md`。
+
 ## 上游反馈模板（通道④）
 
 无法用通道 ①②③ 解决时，产出 issue 草稿，至少包含：

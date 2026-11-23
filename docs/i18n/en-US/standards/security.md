@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-17
+last_sync: 2026-11-23
 translation_tier: summary-sync
 ---
 
@@ -63,6 +63,7 @@ Run `pnpm security:alerts` (Dependabot / Code Scanning) and `pnpm security:audit
 
 -   **critical**: must be fixed; no exemption of any kind. Neither `.github/security/security-alert-exceptions.json` nor `.github/security/dependency-risk-allowlist.json` applies to critical alerts, and an unfixed critical alert blocks the release.
 -   **high**: fix first; exempt only when no patched version exists or the fix is disproportionately hard, and record the reason plus a `temporaryException` deadline in the exceptions file (deferred) or the dependency-risk allowlist (unavailable patch / path-level), keeping the item tracked for a prompt fix.
+-   **Weekly / Release Dependabot token**: `GITHUB_TOKEN` with `permissions.security-events` only covers Code Scanning; reading Dependabot alerts returns 403. Weekly and Release must inject `SECURITY_ALERTS_TOKEN` (workflow expression `secrets.GH_TOKEN || secrets.GITHUB_TOKEN`). When unset, fall back to `pnpm audit` per the fail-closed rule and mark it degraded; when configured but returning 401 / 403, fail the gate and never downgrade the source to a warning.
 -   **moderate / medium and below**: may be deferred to regular dependency upgrades and do not block a release.
 -   **Code Scanning**: same severity rules; alerts under `tests/` or classified as test-only are observe-only (out of scope, not an exemption).
 -   **CodeQL stripping-logic alerts**: `js/incomplete-multi-character-sanitization` / `js/bad-tag-filter` flag single-pass `replace`-based stripping of `<script>` / `<!--`. Prefer a hand-written scanner (case-insensitive, nested pairs, tag-name boundaries) and **keep the remainder when a tag is unterminated**, otherwise the guard silently drops later content; never dismiss silently.

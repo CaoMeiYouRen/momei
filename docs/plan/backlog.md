@@ -20,8 +20,8 @@
 - **目标**: 在全仓 coverage 越过 `80%+` 的基础上分批渐进推进至 `90%+`（每批 1-2 个百分点），覆盖率提升与测试有效性并行，避免单一数字冲刺；失败 / 边界断言优先，不做低价值铺量。
 - **状态**: 进行中。
 - **最近一次上收阶段**: 第八十二阶段（第二十三批，2026-11-22 立项：候选 `inventory-font-sizes.mjs` 53/140、`use-post-editor-page.helpers.ts` 69/103、`packages/cli/src/api-client.ts` 62/110，目标同源 `+0.3pp`）。上一批为第八十一阶段（第二十二批，2026-11-21 **已完成**：`find-unused-components.mjs` 60.7% → **94.78%**、`check-source-of-truth.mjs` 74.9% → **96.17%**；同源 statements 86.35% → **86.69%**（+0.34pp），全量 640 passed / 1 skipped）。上一批为第八十阶段（第二十一批，2026-11-19 **已完成**：`check-line-count.mjs` 10/56 → 55/56、`probe-build-geometry.mjs` 94/190 → 193/208（分母含依赖注入抽离）；同源 statements 85.97% → 86.35%）。上一批为第七十九阶段（第二十批，2026-11-18 **已完成**：`check-script-governance` 补输出面与 `main` 用例至 **244/255 = 95.69%**（+20.79pp）、branches 85.93%；`capture-visual-reference` 维持 statements 98.69% / branches 88.11%）。上一批为第七十八阶段（第十九批，2026-11-18 **已完成**：`packages/cli/src/import-command.ts` 8/145 → **139/145（95.86%）**，`packages/cli/src/parser.ts` 的 `parseHexoFiles` 补 2 例至 **124/136（91.18%）**）。
-- **当前基线**: 同源口径 Statements **`86.69%`**（`34,068 / 39,299`，2026-11-21 第八十一阶段条目 2 出口；全量 34,368 / 39,624 = 86.74%）；干净全量跑口径为「运行前移走 `.vitest-cache` + `--maxWorkers=4`」。距 `90%+` 长期目标约 3.31pp。
-- **下一次可切片方向**: 覆盖率同源复算挂接 `code-quality-auditor` review checklist（待补挂）；单批 `+0.3pp` 约需 **118 条**（同源分母 39,299；本阶段条目 1 同口径），下一批优先从剩余脚本池（`audit-comment-drift` / `inventory-font-sizes` / `check-duplicate-code` 等）与组件池中选取，须保留「失败 / 边界优先」的断言标准；`components/admin/admin-taxonomy-page.vue` 需先拆分组件。遗留治理项：`text.test.ts` 超 1000 行建议拆分、`tts.test.ts` beforeEach 对齐 `mockReset`。
+- **当前基线**: 同源口径 Statements **`87.27%`**（`34,642 / 39,694`，2026-11-23 第八十二阶段收口复跑；分母相对条目 1 出口的 39,624 +70，来自新增 3 个源码文件；与第八十一阶段收口的 39,299 非同源，不可直接相减）；干净全量跑口径为「运行前移走 `.vitest-cache` + `--maxWorkers=4`」。距 `90%+` 长期目标约 2.73pp。
+- **下一次可切片方向**: 覆盖率同源复算挂接 `code-quality-auditor` review checklist（待补挂）；单批 `+0.3pp` 约需 **119 条**（同源分母 39,694；第八十二阶段条目 1 同口径），下一批优先从剩余脚本池（`audit-comment-drift` / `inventory-font-sizes` / `check-duplicate-code` 等）与组件池中选取，须保留「失败 / 边界优先」的断言标准；`components/admin/admin-taxonomy-page.vue` 需先拆分组件。遗留治理项：`text.test.ts` 超 1000 行建议拆分、`tts.test.ts` beforeEach 对齐 `mockReset`。
 
 ### 2. 结构复用治理：重复代码、零散类型与纯函数 / 工具函数收敛
 
@@ -61,6 +61,8 @@
 - **状态**: 观察中。
 - **最近一次上收阶段**: 第八十一阶段（条目 5：规划文档 v1 首轮实战与回归窗口插入修复，2026-11-21 **已完成**：5 行 6 列进度表与 17 小条目回填、`docs:check:planning-docs` 覆盖首个 v1 归档块、`regression-window.mjs` 插入锚点修复 + 56 例测试、`current.md` marker 规整）。上一批为第七十八阶段（条目 2：治理索引补全与索引检查，2026-11-18 **已完成**：69 份治理文档分类处置——25 份在役补索引、15 份一次性进 allowlist，未登记归零；新增 `governance:check:index` 报告型入口 + 9 例单测）。
 - **当前基线**: `docs:check:line-count` 覆盖 README、plan 主文档与 `docs/reports/regression/current.md`；`docs:check:source-of-truth` 以 git 提交判定 hard blocker，tier 软上限 `must-sync 60 天 / summary-sync 120 天`（`candidate` profile 保留 21/30 天基线，仅作收敛评估）。
+- **待跟踪（2026-11-23 新增，责任人：规划治理）**: `planning.md` §4.5 Step 7 新增的「准入前置须提交前重新 `git fetch` + 复核 open PR 与依赖 major 版本升级 / 自动合并状态」目前无门禁挂接（`docs:check:planning-docs` 不校验时效，code-auditor checklist 无对应项）；待补挂到规划类检查点或产品经理 agent 的准入清单后再视为生效。
+- **待跟踪（2026-11-23 新增，责任人：文档治理）**: `docs/standards/documentation.md` 已超 `docs:check:line-count:candidate` 的 error 线（363 / 320），本阶段新增 2 条 §5.4 条目后未做等量压缩；下一轮文档批次需把同类陷阱合并或下沉到 `docs/design/governance/`，只留一行指针。
 - **下一次可切片方向**: design 域审计 `docs/design/governance/` 中已过期评估 / 报告的归档状态；plan 域按阈值滚动归档（跟进 `roadmap.md` / `todo-archive.md` 与本文件行数）；评估 `backlog.md` 长期主线与短期候选的必填字段集与存量迁移口径（issue #1071 的候选字段规范化项延后至此）；翻译域评估进一步收紧 `must-sync` / `summary-sync` 的可执行性。
 - **待跟踪**: ① 迁移页跨批遗留形态——`--surface-ground` 幻影 token 仍有 3 处（`pages/goto/[code].vue` 1 处、`pages/admin/external-links/index.vue` 2 处；全仓未定义、恒为 `unset`），`p-fluid` 已清零；迁移页注释与测试注释中的阶段号 / 审计编号清理随 B4 收尾复核。② 视觉一致性门禁的跨环境基线——参考态刷新与预算调整固定走 `visual-reference-refresh.yml` 的 CI 重采，任何 `reader` 档路由上线前 parity 未归因差异须为 0；`capture-visual-reference.mjs` 在「无待采目标」时以 `--pass-with-no-tests` 视为成功，由 `tests/scripts/capture-visual-reference.test.ts` 静态守卫锁定，改动采集口径须同步复核该行为。
 

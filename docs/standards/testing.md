@@ -30,6 +30,8 @@
 -   **类型安全 mock**: `vi.mocked(x).mockResolvedValue({...} as never)` 会绕过联合类型完整性检查（如 `AIProvider`），接口签名漂移时测试会静默失配。改用 `as unknown as AIProvider` 或与签名对齐的显式类型（如 `as Record<string, string | null>`），并 `import type` 生产类型。
 -   **守卫的「出现过」断言要钉调用形态**: `toContain('函数名')` 会被注释 / 说明文字命中，必须剥离注释后按调用形态（如 `函数名\(md\)`）匹配；接线类守卫还要做「删单处必红」与「注释诱饵仍绿」的双向判别力自检（判别力口径见 §7.3「守卫的『覆盖声明』与实现脱节」）。
 -   **阈值 / 计数守卫要成对锁定**: 只断言「不等于旧值」挡不住回退为新字面量（尤其当新字面量恰好等于当前配置值时），应同时锁定派生关系与「源码不得出现该字面量」。
+-   **HEAD 对照必须排除缓存污染**: 用 `git stash` / `git checkout HEAD -- <file>` 做回归证伪时，`node_modules/.vitest-cache` 可能仍复用旧模块的转换结果，得到「HEAD 同样失败」的错误结论；对照前先移走缓存，或改用独立 worktree 复跑，再把结论写进证据。
+-   **`Array.prototype.entries` 会遮蔽对象字段**: `allowlist.entries ?? allowlist` 这类写法对数组取到的是 `entries` 函数（恒真），显式传入数组 allowlist 会静默失效；判定数组 / 对象双形态时用 `Array.isArray` 分支，不用 `??` 猜。
 -   **外部解析器行为先探测再断言**: 编写依赖第三方解析器行为的测试前（如 fast-xml-parser），先写探测脚本确认实际行为。已确认：`parseTagValue: false` 下数字字符引用（`&#x41;`）保留原样不解码、命名实体（`&amp;`）解码；stopNodes 列表内节点全文保留（含 CDATA 标记）；malformed XML（未闭合标签）被宽容解析不抛错。
 
 ### 2.3 覆盖率补测节奏 (Coverage Batch Pacing)
@@ -52,6 +54,7 @@
 -   **覆盖率展示口径**：全仓百分比常按 vitest 文本报告的截断显示（`81.1759 → 81.17`），模块表用四舍五入；同一文档要注明口径，增量列按「覆盖数 / 总数」复算，与两个展示值相减可能差 0.01pp。
 -   **干净全量跑才可作为基线**：默认并发下 `virtual:intlify-i18n` 会让约 25 个套件收集失败（0-test），覆盖率分子分母同时失真；基线统一用「运行前 `rm -rf node_modules/.vitest-cache node_modules/.vitest-cache-coverage` + `--maxWorkers=4`」，并在文档记录该口径。
 -   **单文件验证优先带 `--coverage`**：单文件跑 Nuxt 测试时 `virtual:intlify-i18n` 解析会随机失败，`--coverage` 模式下更稳定；失败时先清缓存重试，不要当成代码回归。
+-   **并发覆盖率运行会互相锁目录**: 两个 `vitest run --coverage` 同时执行会锁 `coverage/` 并报「already in use」；覆盖率批次必须串行，或为每个并发任务指定独立 `--coverage.reportsDirectory`。
 -   **识别天然 flaky 的覆盖率**：随机序列（如 snowflake 的 `Math.random` 初始化）、lazy-load 组件（`Lazy*`）、异步编辑器会在 ±20 条内波动；能补确定性用例就补（mock 时间 / 直接挂载），不能补的在归因中显式扣除并说明。
 -   **`not.toThrow()` 不是断言**：它对「删除守卫」没有判别力（字符串属性访问、可选链本就不抛错）；防御分支要断言可观察副作用——未写入字段、未调用依赖、未产生持久化记录。
 
@@ -360,7 +363,7 @@ pnpm run test:coverage
 | caomei-ui mock 的展开方式 | `vi.mock('caomei-ui')` 必须 `importOriginal` 展开后再覆盖 `useToast` / `useConfirm`；整模块替换会丢掉 `CaomeiDialog` / `CaomeiButton` 等导出，使挂载根组件的用例连锁失败。 |
 | Dialog 打开后的可访问性树 | caomei `CaomeiDialog` 按 Reka 契约给外部内容加 `aria-hidden`；「页面就绪」类 `getByRole('heading')` 断言必须在打开弹窗之前，否则等待超时。 |
 | 失败路径断言的引用陷阱 | `recordTask` 这类原地 `Object.assign` 同一对象的路径，`save.mock.calls[i][0]` 读到的是最终状态（引用），必须记录 `{...value}` 快照再断言 `status` / `error`。 |
-| 测试环境变量的隔离 | `process.env = { ...originalEnv }` 只是复制、不是隔离：shell 里恰好导出的被测键（含 legacy alias）会让「默认值 / 写入」用例必挂或空断言；基线副本要显式删除被测键。 |
+| 测试环境变量的隔离 | `process.env = { ...originalEnv }` 只是复制、不是隔离：shell 里恰好导出的被测键（含 legacy alias）会让「默认值 / 写入」用例必挂或空断言；基线副本要显式删除被测键。CI 自带 `GITHUB_TOKEN` / `GH_TOKEN` 时，安全告警 fallback 用例必须同时清空三者，否则永远走不到 `pnpm audit` 降级分支。 |
 | 未安装态第二实例 | 安装向导的视觉 / E2E 必须用第二 webServer（`MOMEI_INSTALLED=false` + `TEST_MODE=false` + `DATABASE_PATH=:memory:` + `DATABASE_SYNCHRONIZE=true`）；`MOMEI_INSTALLED=false` 单独不够（仍按 DB 探测），且已安装态服务端对 `/installation` 直接 302，前端 `page.route` mock 拦不住。 |
 | 登录态页面的 SSE | `/api/notifications/stream` 会让 `networkidle` 永不达成；parity 路由须标 `stable: 'lenient'`，E2E 改用 `domcontentloaded` 或业务锚点。 |
 | 参考态同批采集 | 新增待迁移 parity 路由必须在同一批登记并采集参考态，否则门禁因缺快照直接失败；采集中途失败时已落盘的 PNG 不会写入 manifest，需 `--only` 重采补齐来源。 |
