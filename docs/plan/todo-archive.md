@@ -28,13 +28,25 @@
 
 ## 主窗口保留范围
 
-- 主文档当前保留第七十至第八十二阶段共 13 个近线归档块（`399` 行，`docs:check:line-count` 口径，低于 warning `500`，暂不迁出）；行数为唯一硬约束，归档块数量只作观察项。
+- 主文档当前保留第七十至第八十三阶段共 14 个近线归档块（`411` 行，`docs:check:line-count` 口径，低于 warning `500`，暂不迁出）；行数为唯一硬约束，归档块数量只作观察项。
 - 深度归档索引已改为 4 列表格（阶段 / 主题 / 归档文件 / 归档日期），倒序覆盖 14 个 todo 分片；新增分片必须同步更新本表。
 - 第六十五至第六十八阶段与第六十九阶段的完整待办归档正文分别见 [archive/todo-archive-phases-65-68.md](./archive/todo-archive-phases-65-68.md)、[archive/todo-archive-phases-69.md](./archive/todo-archive-phases-69.md)。
 - 第一至第六十四阶段的完整待办归档正文已迁入区间分片。
 - 后续若近线窗口再次膨胀，继续按 archive/index.md 的规则把更早阶段整体迁出。
 
 ---
+
+## 第八十三阶段：规则面收口与文档/覆盖率滚动治理（已审计归档）
+
+> **归档块模型**: v1
+
+-   **阶段名与时间**: 第八十三阶段 · 2026-11-23 ~ 2026-11-24
+-   **大条目清单与状态**: 1. `.vue` 非空断言清零与规则面收口（[x]）；2. 文档规范压缩切片（[x]）；3. 覆盖率第二十四批（[x]）；4. 字号归一第六批 A（[x]）
+-   **提交清单**: `3f7d0c20`（立项）；`dde8afb4`（83.1）；`81ae829d`（83.2）；`2235c0b8`（83.3.1 基线回填）；`8e87eae8`（83.3）；`0d28324c`（83.4）
+-   **质量门结果**: 干净全量 `test:coverage` EXIT 0，statements **87.58%**（34,768 / 39,697，较本批 83.3.1 复算基线 34,647 / 39,697 **+0.305pp**；该基线与第八十二阶段收口的 34,642 / 39,694 分母 +3，不可直接相减）；`pnpm lint` 0 error（10 root + 3 cli 既有 warning）、`typecheck` 0 error、`lint:css` 0 error、`lint-md` 通过；`test:visual` 32/32、parity 本机 82/83（`user-settings-dark` 3,199px / 0.247% 既有 TEST_MODE 头像数据态，CI 裁决）；`docs:check:planning-docs` / `links`（372 md、321 md markers）/ `i18n` / `source-of-truth` / `governance:check:index` 通过；阶段收口 `regression:phase-close` 结论见 `artifacts/review-gate/2026-11-23-phase83-close.md`
+-   **Review Gate 结论与轮次**: 立项 R1 Reject → R2 Pass；83.1 R1 Pass → W1 修复 → R2 Pass；83.2 R1 Reject → R2 Reject → R3 Pass；83.3 R1 Reject → R2 Reject → R3 Pass；83.4 R1 Pass（W1–W3 文档事实项已修）；归档文档本轮 Gate
+-   **未覆盖边界**: ① `audit-comment-drift` / `check-duplicate-code` / `audit-field-copy` 余 27 / 6 / 2 条 statements（`main()` 直执行守卫与外部命令错误分支不可达）；② inventory `stripComments` 对 `accept="image/*"` 盲区（3 文件，修好后预期 token +4 / scale +1，backlog #9 待跟踪）；③ `snippet-edit-dialog.vue` 弹窗与 `external-feed-panel` 无直接逐元素视觉证据；④ 本机 `user-settings-dark` parity 差异以 CI 为裁决；⑤ `docs/guide/deploy.md` 274 行仍在候选 warn 线
+-   **规划正文**: [roadmap 分片](./archive/roadmap-phases-83.md)
 
 ## 第八十二阶段：质量滚动治理与债务收敛（已审计归档）
 

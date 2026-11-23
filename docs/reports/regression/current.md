@@ -10,6 +10,19 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径（迁移期，已随路由择库机制退役）：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；PrimeVue 卸载后由 `tests/modules/primevue-residual-guard.test.ts` 以全仓零残留口径替代。
 
+<!-- regression-window:start:periodic-regression:phase-close:2026-11-24 -->
+## 2026-11-24 第八十三阶段收口补跑与归因（人工回填）
+
+- 执行入口: `E2E_PORT=3015 pnpm regression:phase-close`（首跑发生于 2026-11-24 00:12 +08:00，脚本按 UTC 记为 2026-11-23，窗口按本地日期归入本键）→ 失败项定位后定向复验
+- 证据 artifact: `../../../artifacts/review-gate/2026-11-23-phase83-close.md`、`../../../artifacts/review-gate/2026-11-23-phase83-close-regression.log`
+- 结果摘要: 首跑 `Reject`（11/13，`test:coverage` PASS / `release:check:full` FAIL）；两项失败均已归因并复验——① `docs:check:source-of-truth` 因 `docs/guide/translation-governance.md` 已在第八十三阶段条目 2 压缩、四语镜像未同步，补 `last_sync: 2026-11-24` 与同步说明后复跑 **PASS**；② `test:e2e` 在本机 load average 33（同机另有 `/work` Nuxt 构建与多个 headless Chrome）下大面积超时，负载回落后定向复验：`theme-switcher` + `submit` 9/9 通过、`seo-regression` 7/7 通过、`user-workflow` 16 通过 + 1 flaky（重试通过）+ 3 skipped。
+- 已执行验证: test:coverage=PASS（836.5s，statements 87.58%）；release:check:full=11/13（lint 580.8s / lint:i18n / i18n:audit:missing / lint:css / lint:md / test 490.2s / typecheck / line-count / planning-docs / security:audit-deps / security:alerts 全 PASS；source-of-truth 与 test:e2e 见上）；docs:check:source-of-truth 复跑 PASS
+- 回归窗口: 6 个活动窗口 / 7 条记录（`entryCount` 口径含说明节，2026-11-18 ~ 2026-11-24），归档判定=窗口健康。
+- Review Gate: `Pass`（唯一 blocker 为环境性 E2E 与镜像同步，均已复验；CI 为最终裁决）。
+- 未覆盖边界: 本机 `user-settings-dark` parity 头像数据态差异 3,199px / 0.247% 沿用既有处置；`user-workflow` 的 `commercial link thumbnails` 用例在负载下 flaky（重试通过），登记待 CI 观察。
+
+<!-- regression-window:end:periodic-regression:phase-close:2026-11-24 -->
+
 <!-- regression-window:start:periodic-regression:phase-close:2026-11-23 -->
 ## 2026-11-23 阶段收口前周期性回归（自动回填 + 收口复验）
 

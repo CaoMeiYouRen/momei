@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-10
+last_sync: 2026-11-24
 translation_tier: summary-sync
 ---
 
@@ -137,3 +137,5 @@ pnpm typecheck
 - 是否新增文件站頁面
 - 已執行的驗證命令與結果
 - 仍未覆蓋的模組或已知殘留
+
+> §1 適用範圍以一句概括：應用文案、郵件模板、文檔頁、倉庫路徑與 URL 映射、上線時的 SEO／站點地圖／回退；分級規則見下文。

@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-10
+last_sync: 2026-11-24
 translation_tier: must-sync
 ---
 
@@ -146,3 +146,5 @@ For translation-related pull requests, include:
 - Whether docs pages were added
 - Validation commands that were executed
 - Remaining gaps or known residuals
+
+> §1 scope covers app copy, email templates, docs pages, repo-path / URL mapping and locale-release SEO / sitemap / fallback in one sentence; the tier rules are as stated below.

@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-10
+last_sync: 2026-11-24
 translation_tier: summary-sync
 ---
 
@@ -89,3 +89,5 @@ pnpm typecheck
 4. i18n audit이 통과하고 누락 key가 없는지 확인합니다.
 5. 문서 사이트의 해당 언어 홈과 빠른 시작 페이지가 정상 접근되는지 확인합니다.
 6. `source-only`로 내려간 페이지가 locale navigation을 점유하지 않으면서도 중국어 원문 링크를 유지하는지 확인합니다.
+
+> §1 적용 범위는 앱 문구·메일 템플릿·문서 페이지·저장소 경로/URL 매핑·공개 시 SEO/사이트맵/폴백을 한 문장으로 정리하며, 등급 규칙은 아래와 같습니다.
