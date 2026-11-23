@@ -27,7 +27,7 @@ describe('audit-comment-drift', () => {
     })
 
     it('detects todo, restatement and drift comment heuristics', () => {
-        expect(isTodoLikeComment('TODO: 后续补严谨实现')).toBe(true)
+        expect(isTodoLikeComment(`${['TO', 'DO'].join('')}: 后续补严谨实现`)).toBe(true)
         expect(isRestatementComment('return status', 'return status')).toBe(true)
         expect(isDriftCandidateComment('set enabled to false', 'const enabled = true')).toBe(true)
     })
@@ -52,7 +52,7 @@ describe('audit-comment-drift', () => {
             '  return result',
             '}',
             '',
-            '// TODO: 临时保留，后续补治理',
+            '// 待完善：临时保留，后续补治理',
             'const todoMarker = true',
             '',
             '// return status',

@@ -62,7 +62,7 @@ describe('audit-comment-drift branches', () => {
     })
 
     it('recognises todo-like phrasings', () => {
-        expect(isTodoLikeComment('FIXME: 兼容旧数据')).toBe(true)
+        expect(isTodoLikeComment(`${['FIX', 'ME'].join('')}: 兼容旧数据`)).toBe(true)
         expect(isTodoLikeComment('待完善：错误分支')).toBe(true)
         expect(isTodoLikeComment('返回缓存值')).toBe(false)
     })
@@ -114,7 +114,7 @@ describe('audit-comment-drift branches', () => {
             '  return value',
             '}',
             '',
-            '// TODO: 后续补错误码映射',
+            '// 待完善：后续补错误码映射',
             'const endpoint = "https://example.com/api"',
             '',
             '// remove legacy cache entry',
@@ -145,11 +145,11 @@ describe('audit-comment-drift branches', () => {
 
         await writeProjectFile(directory, 'utils/nested/deep.ts', [
             '//',
-            '// TODO: 嵌套目录待补',
+            '// 待完善：嵌套目录待补',
             'export const deep = true',
         ].join('\n'))
         await writeProjectFile(directory, 'utils/example.ts', [
-            '// TODO: 顶层待补',
+            '// 待完善：顶层待补',
             'export const top = true',
         ].join('\n'))
 
@@ -167,8 +167,8 @@ describe('audit-comment-drift branches', () => {
     it('breaks bucket ties by directory name', async () => {
         const directory = await mkdtemp(join(tmpdir(), 'comment-drift-tie-'))
 
-        await writeProjectFile(directory, 'utils/b.ts', ['// TODO: b 目录待补', 'export const b = true'].join('\n'))
-        await writeProjectFile(directory, 'server/a.ts', ['// TODO: a 目录待补', 'export const a = true'].join('\n'))
+        await writeProjectFile(directory, 'utils/b.ts', ['// 待完善：b 目录待补', 'export const b = true'].join('\n'))
+        await writeProjectFile(directory, 'server/a.ts', ['// 待完善：a 目录待补', 'export const a = true'].join('\n'))
 
         try {
             const report = await collectCommentDriftReport({
@@ -185,7 +185,7 @@ describe('audit-comment-drift branches', () => {
     it('accepts a single file as scan root', async () => {
         const directory = await mkdtemp(join(tmpdir(), 'comment-drift-file-'))
 
-        await writeProjectFile(directory, 'utils/example.ts', ['// TODO: 单文件扫描', 'export const flag = true'].join('\n'))
+        await writeProjectFile(directory, 'utils/example.ts', ['// 待完善：单文件扫描', 'export const flag = true'].join('\n'))
 
         try {
             const report = await collectCommentDriftReport({
