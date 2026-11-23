@@ -97,9 +97,7 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 
 ### 4.2 待办事项 (Todo) 维护
 -   `docs/plan/todo.md` 是实时操作手册，仅包含**当前阶段的具体实施任务**。
--   `docs/reports/regression/current.md` 用于集中维护周期性回归、阶段基线与补跑记录；`todo.md` 仅保留当前阶段上下文、摘要与链接，不再堆叠长篇回归正文。
--   `docs/reports/regression/current.md` 作为活动回归窗口，默认只保留最近 1 - 2 个阶段或最近 6 - 8 条完整回归记录；更早的历史记录应按滚动归档规则迁移到 `docs/reports/regression/archive/` 或其后续分拆文件。
--   旧 `docs/plan/` 目录中的 `regression-log*.md` 正文已迁移到 `docs/reports/regression/archive/legacy-plan-regression-log*.md`；新增记录统一写入 `docs/reports/regression/current.md`。
+-   `docs/reports/regression/current.md` 集中维护周期性回归、阶段基线与补跑记录，作为活动窗口默认只保留最近 1 - 2 个阶段或最近 6 - 8 条完整记录，更早记录按滚动归档规则迁入 `docs/reports/regression/archive/`；`todo.md` 仅保留当前阶段上下文、摘要与链接，旧 `docs/plan/` 的 `regression-log*.md` 正文已迁入 `docs/reports/regression/archive/legacy-plan-regression-log*.md`。
 -   任务状态必须清晰标记：`[ ]` (待办), `[x]` (已完成), `[-]` (已取消)。
 -   当前阶段必须在标题下维护进度表，行数与大条目数一致；列名、状态值与机检口径见 [规划文档模型 v1 §3](./planning-docs.md)。无进行中阶段时保留空表头或占位行。
 -   大条目的任务描述应包含具体的 "验收标准 (Acceptance Criteria)"，且至少覆盖执行范围、非目标、可验证结果、验证方式 / 证据落点，以及必要时的回滚边界；小条目的验收摘要按 [规划文档模型 v1 §2](./planning-docs.md) 回指大条目，不重复展开。
@@ -179,25 +177,10 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 ```md
 ## 回归任务记录
 - 回归范围:
-- 触发条件:
-- 执行频率:
-- timeout budget:
+- 触发条件: / 执行频率: / timeout budget:
 - 已执行命令:
-- 输出摘要:
-    - 已执行验证:
-    - 结果摘要:
-    - 测试结果（按需）:
-    - 浏览器验证（按需）:
-    - 性能结果（按需）:
-    - 依赖安全结果（按需）:
-        - 数据来源:
-        - 可修复项与验证结果:
-        - 未修复的 high+ 风险:
-        - 延期或计划修复判断:
-    - Review Gate 结论:
-    - 问题分级:
-    - 未覆盖边界:
-    - 后续补跑计划:
+- 输出摘要: 已执行验证 / 结果摘要 / Review Gate 结论 / 问题分级 / 未覆盖边界 / 后续补跑计划
+- 按需补充: 测试结果 / 浏览器验证 / 性能结果 / 依赖安全结果（数据来源 / 可修复项与验证结果 / 未修复的 high+ 风险 / 延期或计划修复判断）
 ```
 
     回归记录维护要求：
@@ -262,22 +245,17 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 
 #### Step 3. 文档同步检查
 
-1. 中文事实源必须先同步完成：`todo.md`、`todo-archive.md`、`roadmap.md`。
-2. 若本次阶段切换涉及 backlog 条目上收、长期主线切片或短期候选去重，必须同步更新 `docs/plan/backlog.md`，不能把 backlog 视为"可选补记"。
-3. 若阶段状态发生变化（例如"规划中"变为"已审计归档"），必须同步检查 `docs/i18n/*/plan/roadmap.md` 的摘要是否需要更新。
-4. 运行 `node scripts/ai-hooks/distill-wisdom.mjs --check`：若返回 `WISDOM_NEEDS_DISTILL`，检查并执行 [Session Wisdom 蒸馏流程](../design/governance/session-wisdom-distillation.md)，将高价值知识点固化到 `docs/` 后再归档。
-5. `todo.md` 与 `backlog.md` 默认保持中文，不为阶段归档单独创建翻译件。
-5. 若本阶段伴随规范、指南、README 或模块设计文档漂移，必须在归档前一并判断是否需要同步，不能把"文档补写"留作隐性尾项。
-6. 若本阶段新增或重写设计文档，必须同步判断其应进入 `docs/design/modules/` 还是 `docs/design/governance/`，禁止为了省事继续把专项治理文档塞回模块目录。
-7. **归档一致性检查**：确认 `docs/plan/archive/` 中 roadmap 归档分片与 todo-archive 归档分片的覆盖范围匹配。若 roadmap 归档截止阶段落后于 todo-archive，应先补齐缺失的 roadmap 归档分片，再继续归档。同理，若 roadmap 详情正文已被压缩为摘要表，应先从 git HEAD 或 todo-archive 恢复原文创建归档分片，避免阶段细节不可追溯。
+1. 中文事实源先同步完成：`todo.md`、`todo-archive.md`、`roadmap.md`；若涉及 backlog 条目上收、长期主线切片或短期候选去重，必须同步更新 `docs/plan/backlog.md`，不能视为"可选补记"。
+2. 阶段状态变化（如"规划中"→"已审计归档"）必须同步检查 `docs/i18n/*/plan/roadmap.md` 摘要；`todo.md` 与 `backlog.md` 保持中文，不为归档单独建翻译件。
+3. 运行 `node scripts/ai-hooks/distill-wisdom.mjs --check`：返回 `WISDOM_NEEDS_DISTILL` 时先执行 [Session Wisdom 蒸馏流程](../design/governance/session-wisdom-distillation.md)，再归档。
+4. 规范、指南、README 或模块设计漂移必须在归档前一并判断是否同步，不得留作隐性尾项；新增 / 重写设计文档须先判定进 `docs/design/modules/` 还是 `docs/design/governance/`。
+5. **归档一致性检查**：`docs/plan/archive/` 中 roadmap 与 todo-archive 分片的覆盖区间必须匹配；roadmap 落后时先补齐分片，若详情已被压缩为摘要表，先从 git HEAD 或 todo-archive 恢复原文再建分片。
 
 #### Step 4. 文件更新顺序
 
-1. 先更新 `docs/plan/todo.md`：清理当前进行中事项，移除已完成阶段的正文，仅保留仍在执行的阶段。
-2. 再更新 `docs/plan/todo-archive.md`：按 [规划文档模型 v1 §4](./planning-docs.md) 的必填字段追加归档块，并在块首保留 v1 标记。
-3. 然后更新 `docs/plan/roadmap.md`：把该阶段状态改为"已审计归档"或等价完成状态，并补一句阶段收口结论。
-4. 若本次切换涉及 backlog 条目变化，再更新 `docs/plan/backlog.md`：长期主线补记最新状态、最近一次上收阶段与下一次切片方向；短期 / 一次性候选在正式上收后去重或改写为历史说明。
-5. 最后按需更新 `docs/i18n/*/plan/roadmap.md`：只同步阶段状态与摘要，不强制翻译 `todo.md` / `backlog.md`。
+1. 先 `docs/plan/todo.md`：清理进行中事项，移除已完成阶段正文，仅保留仍在执行的阶段。
+2. 再 `docs/plan/todo-archive.md`：按 [规划文档模型 v1 §4](./planning-docs.md) 必填字段追加归档块并保留 v1 标记；然后 `docs/plan/roadmap.md` 改为"已审计归档"并补一句收口结论。
+3. 涉及 backlog 变化时更新 `docs/plan/backlog.md`（长期主线补记状态、最近上收阶段与下一次切片方向；短期候选上收后去重）；最后按需同步 `docs/i18n/*/plan/roadmap.md` 的阶段状态与摘要。
 
 > **归档前压缩铁律**：若对 `roadmap.md` 已完成阶段执行详情压缩（如将详细规划内容替换为摘要表），必须先确保原始完整正文已提取到 `archive/roadmap-phases-*-*.md` 分片文件。禁止在未创建归档分片的情况下直接丢弃阶段详情。可从 git HEAD 恢复原文，或从 `todo-archive.md` 对应阶段的记录重建。
 
@@ -307,20 +285,10 @@ $$Score = \frac{Value + Alignment}{Difficulty + Risk}$$
 #### Step 8. 新阶段评估前工作区清洁检查
 
 在进入新阶段正式评估前，先执行一次工作区清洁检查，确保规划文档基座干净、归档一致：
-1. **文档基座检查**：
-   - `todo.md` 无已完成阶段的残留正文，新阶段入口为"筹备中"状态，进度表与正文大条目一致。
-   - `todo-archive.md` 索引表覆盖全部分片、按阶段倒序、无正文残留。
-   - `roadmap.md` 无已归档阶段的详细规划残留（已完成阶段应只有摘要表或审计结论，不应保留"执行范围 / 非目标 / 最小验收"等规划细节）。
-   - `backlog.md` 无已完成候选条目的正文残留（已上收项应只保留一行说明或完全删除）。
-2. **归档一致性检查**：
-   - `docs/plan/archive/` 中 roadmap 归档分片与 todo-archive 归档分片覆盖的阶段区间应基本对齐；若 roadmap 归档范围明显偏小，应补齐缺失分片。
-   - 归档分片文件名与 `archive/index.md` 中的注册列表、`todo-archive.md` 索引表一致。
-3. **格式洁净度检查**：
-   - 全文无 `（(` / `）)` 等混用括号（中文语境应统一使用 `（` / `）`）。
-   - 全文无异常反引号（如双反引号不对等问题）。
-   - 标题层级合理（`#` → `##` → `###` 递进，无跳级）。
-   - 文档末尾有完整的"相关文档"索引，引用路径有效。
-4. **执行面**：上述检查由进入新阶段评估的 `@product-manager` 或等效角色执行；发现问题按"阻塞 / 非阻塞"分级，阻塞项必须先修复再进入评估，非阻塞项应在规划文档中标记 TODO 择机修复。
+1. **文档基座检查**：`todo.md` 无已完成阶段残留正文（新阶段入口为"筹备中"，进度表与正文大条目一致）；`todo-archive.md` 索引表覆盖全部分片、按阶段倒序、无正文残留；`roadmap.md` 无已归档阶段的详细规划残留（只留摘要表或审计结论）；`backlog.md` 无已完成候选正文残留。
+2. **归档一致性检查**：`docs/plan/archive/` 中 roadmap 与 todo-archive 分片覆盖区间基本对齐（偏小则补齐）；分片文件名与 `archive/index.md` 注册列表、`todo-archive.md` 索引表一致。
+3. **格式洁净度检查**：无 `（(` / `）)` 混用括号、无异常反引号、标题层级无跳级、末尾"相关文档"索引完整且路径有效。
+4. **执行面**：上述检查由进入新阶段评估的 `@product-manager` 或等效角色执行；问题按"阻塞 / 非阻塞"分级，阻塞项先修复再评估，非阻塞项在规划文档中标记 TODO 择机修复。
 
 #### backlog 双轨模板
 

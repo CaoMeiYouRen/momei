@@ -12,6 +12,9 @@
 
 - **[首页 SWR 与 i18n cookie 冲突决策](./2026-11-15-homepage-swr-i18n-cookie-decision)**: 第七十六阶段条目 4 的事实源，记录 nitropack 2.13.6 缓存安全规则后的 3 个候选方案与决策标准；结论为 ① 保持现状（/robots.txt 验证边缘可用，/ 仍 DYNAMIC），②/③ 转 backlog「首页缓存与语言检测解耦」。
 
+- **[文档规范压缩说明](./2026-11-23-docs-standards-compression)**: `documentation.md` / `planning.md` 回到候选行数线内的压缩理由、逐节映射与影响边界。
+- **[文档维护陷阱清单](./documentation-maintenance-traps)**: [文档规范 §5.4](../../standards/documentation.md#54-规划与治理维护陷阱) 的逐项展开，承接 marker 成对、锚点与相对链接深度、表格插入行、数字可复算等长期维护陷阱。
+
 - **[系统配置深度解耦与统一化](./system-config-unification)**: `system.md` 的配置治理补充，聚焦来源解释、锁定与审计口径。
 - **[存量代码注释治理与注释漂移治理](./comment-drift-governance)**: 第三十阶段治理切片文档，聚焦设置来源判定、locale 归一化与请求上下文挂载链路的高价值注释补强。
 - **[ESLint / 类型债与规则收紧治理](./eslint-type-debt-tightening)**: 第三十阶段治理切片文档，聚焦 `utils/shared` 生产源码范围的 `no-explicit-any` 上收、命中清单与回滚边界。

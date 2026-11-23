@@ -17,10 +17,7 @@
 -   `docs/standards/`: 各类专项开发规范、安全规范、测试规范及本文档。
 -   `docs/i18n/<locale>/`: 翻译文档的物理存储目录，例如 `docs/i18n/en-US/`、`docs/i18n/zh-TW/`、`docs/i18n/ko-KR/`。
 
-补充说明：
-
-- 对外文档站 URL 继续使用 `/<locale>/...`，不得把仓库中的 `i18n/` 物理层级暴露为公共访问路径。
-- 翻译文档迁移完成后，旧的 `docs/<locale>/` 目录不得继续保留，也不得重新创建；新增或修改翻译页只能落在 `docs/i18n/<locale>/`，避免 VitePress 生成重复路由。
+补充说明：对外文档站 URL 继续使用 `/<locale>/...`，不得把仓库 `i18n/` 物理层级暴露为公共访问路径；旧 `docs/<locale>/` 目录不得保留或重建，新增 / 修改翻译页只能落在 `docs/i18n/<locale>/`，避免 VitePress 生成重复路由。
 
 ## 3. 编写标准 (Writing Standards)
 
@@ -28,10 +25,7 @@
 
 -   **单个一级标题**: 每个文件必须且只能有一个 `#` (H1) 标题，作为页面主标题。
 -   **逻辑分级**: 依次使用 `##`, `###` 进行嵌套。严禁跨级使用（如直接从 `##` 跳到 `####`）。
--   **编号一致性**:
-    -   大项使用 `1.`, `2.` 数字编号。
-    -   子项优先使用无序列表 `-`。
-    -   如果流程具有强先后顺序，子项可使用 `1.1`, `1.2` 风格。
+-   **编号一致性**: 大项用 `1.`, `2.` 数字编号，子项优先用无序列表 `-`；流程有强先后顺序时子项可用 `1.1`, `1.2` 风格。
 
 ### 3.2 语言与风格 (Style & Tone)
 
@@ -58,13 +52,10 @@
 具体约束：
 
 1.  **禁止时间锚叙述**：不得在 `docs/standards/*.md`、`docs/guide/*.md`、`docs/design/modules/*.md`、`docs/plan/*.md` 与 `docs/plan/archive/*.md`（除 `todo.md` / `todo-archive.md` / `backlog.md` / `roadmap.md` 与分片归档文件 `todo-archive-phases-*.md` / `roadmap-phases-*.md` / `archive/index.md` 外）中使用以下表达：
-    - 中文：`"自 <日期> 起"`、`"由 <旧值> 放宽到 <新值>"`、`"由 X 调整为 Y"`、`"自 <日期> 由 X 放宽"`、`"前版本 Y 现改为 Z"`、`"新策略（<N-MM-DD> 落地）"`、`"as of"` 中文意译
+    - 中文：`"自 <日期> 起"`、`"由 X 调整为 Y"`、`"由 <旧值> 放宽到 <新值>"`、`"自 <日期> 由 X 放宽"`、`"前版本 Y 现改为 Z"`、`"新策略（<N-MM-DD> 落地）"`、`"as of"` 的中文意译；i18n 译文同样不写这类表达
     - 英文：`as of <date>`、`widened from X`、`since <YYYY-MM>`、`<legacy YYYY> previously X`、`soft ceiling raised from X to Y`、`prior tier was X, now Y`、`we previously required X, now Z`、`new signal (effective <N-MM-DD>)`
-    - 翻译同步：`自 <日期> 起` 的 i18n 译文一律不写
 2.  **历史必须单点收纳**：规范为何被改、改了什么、有何影响 **必须** 写到 `docs/design/governance/[YYYY-MM-DD]-*.md` 单点说明文档中，再以单点链接反向挂到规范章节。同步链路一旦发现正文带历史叙述而治理文档不存在对应单点说明，**视为违反**。
-3.  **执行节奏**：
-    - 改规范时先 commit `docs/design/governance/<date>-*.md`，commit message 中点出对应的 `docs/standards/*.md` 章节；该规范文件的 commit 在后续到达即可单点链接引用。
-    - `todo.md` / `backlog.md` / `todo-archive.md` / `roadmap.md` 与 `docs/plan/archive/` 下的分片归档文件（`todo-archive-phases-*.md` / `roadmap-phases-*.md` / `archive/index.md`）等纯规划文件**可以**使用历史性语句（"已于 `<date>` 完成"、"X 阶段已上收"等），因为它们本身承担记录历史与状态变化的职责。
+3.  **执行节奏**：改规范时先 commit `docs/design/governance/<date>-*.md`，并在 commit message 中点出对应 `docs/standards/*.md` 章节；`todo.md` / `backlog.md` / `todo-archive.md` / `roadmap.md` 与 `docs/plan/archive/` 分片归档文件等纯规划文件**可以**使用历史性语句（"已于 `<date>` 完成"、"X 阶段已上收"），因为它们本身承担记录历史与状态变化的职责。
 4.  **规范变更必须同 PR 收口**：不允许"先改规范 + 推迟写治理文档"或"先写治理文档 + 推迟改规范"。两者必须落在同一提交或紧邻提交里。
 5.  **审查条件**：本条直接列为 `code-quality-auditor` skill 的强制审查项（见 `.github/skills/code-quality-auditor/references/review-checklist.md`）；审计员在涉及 `docs/standards/**/*.md`、`docs/guide/**/*.md`、`docs/design/modules/**/*.md` 的改动时，**必须**扫描时间锚叙述并 Reject 违反者。
 
@@ -95,9 +86,7 @@
 | `ko-KR` | 已支持 | `docs/i18n/ko-KR/` | 以公开入口页摘要同步为主，深层页默认回到中文事实源。 |
 | `ja-JP` | 已支持 | `docs/i18n/ja-JP/` | 已完成 README、首页、快速开始、部署、翻译治理与路线图摘要同步，并补齐邮件、SEO、站点地图与专项回归验证。与 ko-KR 同为以摘要同步为主的公开语种。 |
 
-说明：
-
-- 中文原文 (`docs/`) 仍然是唯一事实源；`ja-JP` 与 `ko-KR` 均采用渐进式同步策略，不默认承诺全量模块翻译。
+说明：中文原文 (`docs/`) 仍是唯一事实源；`ja-JP` 与 `ko-KR` 均采用渐进式同步策略，不默认承诺全量模块翻译。
 
 ### 4.3 范围评估 (Scope Assessment)
 
@@ -124,12 +113,10 @@
 
 当前 locale 范围矩阵：
 
-| Locale | `must-sync` | `summary-sync` | `source-only` |
-| :-- | :-- | :-- | :-- |
-| `en-US` | `index`、`guide/quick-start`、`guide/deploy`、`guide/translation-governance` | `plan/roadmap`、`guide/development`、`guide/features`、`guide/variables`、`standards/planning`、`standards/documentation`、`standards/security`、`standards/testing`、`standards/development`、`standards/ai-collaboration` | `design/*`、`guide/ai-development`、`guide/comparison`、`standards/api` |
-| `zh-TW` | 无 | `index`、`guide/quick-start`、`guide/deploy`、`guide/translation-governance`、`guide/features`、`guide/variables`、`plan/roadmap` | `design/*`、`guide/development`、`guide/ai-development`、`guide/comparison`、`standards/*` |
-| `ko-KR` | 无 | 与 `zh-TW` 相同 | 与 `zh-TW` 相同 |
-| `ja-JP` | 无 | `index`、`guide/quick-start`、`guide/deploy`、`guide/translation-governance`、`guide/features`、`guide/variables`、`plan/roadmap` | 与 `ko-KR` 相同 |
+- `en-US`：`must-sync`＝`index` / `guide/quick-start` / `guide/deploy` / `guide/translation-governance`；`summary-sync`＝`plan/roadmap`、`guide/development`、`guide/features`、`guide/variables` 与 `standards/{planning,documentation,security,testing,development,ai-collaboration}`；`source-only`＝`design/*`、`guide/ai-development`、`guide/comparison`、`standards/api`。
+- `zh-TW`：无 `must-sync`；`summary-sync`＝`index`、`guide/quick-start`、`guide/deploy`、`guide/translation-governance`、`guide/features`、`guide/variables`、`plan/roadmap`；`source-only`＝`design/*`、`guide/development`、`guide/ai-development`、`guide/comparison`、`standards/*`。
+- `ko-KR`：无 `must-sync`，`summary-sync` 与 `source-only` 同 `zh-TW`。
+- `ja-JP`：无 `must-sync`，`summary-sync` 与 `zh-TW` 相同，`source-only` 同 `ko-KR`。
 
 ### 4.4 翻译件规范 (Standard for Translated Docs)
 
@@ -140,30 +127,22 @@
     This document has been translated from Chinese. In case of any discrepancy, the [original Chinese version](RELATIVE_PATH_TO_ZH) shall prevail.
     :::
     ```
-2.  **Frontmatter (版本溯源)**:
-    所有英文文档必须在 Frontmatter 中标注同步元数据，以便 AI 审计员检测过时内容：
+2.  **Frontmatter (版本溯源)**: 翻译文档必须标注同步元数据，供 AI 审计检测过时内容：
     ```yaml
     ---
     source_branch: master
     last_sync: 2026-02-11  # ISO 日期格式
     translation_tier: must-sync # must-sync | summary-sync | source-only
     # source_origin: ../../../guide/ai-development.md # source-only 页面必填
-    # 可选：source_hash: <git_commit_hash>
     ---
     ```
-3.  **`source-only` 页面要求**:
-    - 必须在 Frontmatter 中显式声明 `translation_tier: source-only` 与 `source_origin`。
-    - 必须在正文顶部明确说明“本页不再承诺持续维护翻译内容，请以中文原文为准”。
-    - 不得继续占据 locale 导航与侧边栏主入口。
+3.  **`source-only` 页面要求**: 必须在 Frontmatter 显式声明 `translation_tier: source-only` 与 `source_origin`；正文顶部说明“本页不再承诺持续维护翻译内容，请以中文原文为准”；不得占据 locale 导航与侧边栏主入口。
 
 ### 4.5 路线图翻译特殊逻辑 (Roadmap Sync)
 
 针对 `roadmap.md`，执行 **渐进式翻译策略 (Progressive Translation)**：
 1.  **已完成章节**: 必须提供完整、高质量的对等翻译。
-2.  **规划中/积压章节**:
-    -   保留二级/三级标题的翻译，以展示蓝图全貌。
-    -   正文内容可暂不翻译，使用统一占位符提示：`> [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](RELATIVE_PATH).`
-    -   避免因路线图频繁微调而产生大量陈旧的英文描述。
+2.  **规划中/积压章节**: 保留二 / 三级标题翻译以展示蓝图全貌，正文可暂不翻译并统一使用占位符 `> [!NOTE] Content in progress. For the latest updates, please see the [Chinese version](RELATIVE_PATH).`，避免路线图频繁微调产生大量陈旧英文描述。
 
 ## 5. 特殊文件维护 (Special File Maintenance)
 
@@ -177,11 +156,9 @@
 2.  **专项治理单独存放**: `docs/design/governance/` 统一承接 `*-governance.md`、`*-unification.md`、`*-optimization.md`、`*-report.md`、执行矩阵和跨模块专项评估文档。
 3.  **每个主题只保留一个总设计文档**: 模块总设计负责定义边界、核心流程与主入口；专项文档不得再重复整份模块概述。
 4.  **专项文档必须回链主文档**: 所有治理 / 迁移 / 评估文档都应显式说明对应主文档或唯一事实源，避免读者误把专项文档当作全量设计入口。
-5.  **设计文档不得承接 Todo 职责**: `docs/design/modules/` 与 `docs/design/governance/` 中都不应保留直接指向 `todo.md` 的“待办清单”式内容；尚未实施的后续工作应写为“后续增强方向”或回到 `docs/plan/roadmap.md`。
-6.  **阶段报告继续独立**: 阶段复盘类文档统一放在 `docs/design/governance/`，只保留结论、偏差与索引，不重复展开已收敛到主文档中的实现细节。
-7.  **新增文档先判目录归属**: 新建设计文档时，必须先判断它属于“稳定模块总设计”还是“专项治理 / 增量设计 / 阶段复盘”；判断不清时，不得默认写入 `docs/design/modules/`。
-8.  **严重漂移处理**: 如果专项治理文档已经无法代表当前实现，优先重写为只保留增量结论的 delta 文档；若已无参考价值，则迁移到归档或直接删除，不保留与事实源脱节的完整说明书。
-9.  **中大型改动先有文档工件**: 当事项涉及新模块、跨模块边界重写、数据 / 接口契约调整或需要单独成为一个治理专题时，必须先完成对应设计文档，再进入大规模实现；不得把“设计 + 实现”揉成一条模糊待办后直接跳过文档沉淀。
+5.  **设计文档不得承接 Todo 职责**: 两个目录都不应保留直接指向 `todo.md` 的“待办清单”式内容；尚未实施的后续工作写为“后续增强方向”或回到 `docs/plan/roadmap.md`。阶段复盘类文档统一放在 `docs/design/governance/`，只保留结论、偏差与索引。
+6.  **新增文档先判目录归属**: 新建设计文档必须先判断属于“稳定模块总设计”还是“专项治理 / 增量设计 / 阶段复盘”，判断不清时不得默认写入 `docs/design/modules/`；专项治理文档失去代表性时先改写为只保留增量结论的 delta 文档，再无参考价值则归档或删除。
+7.  **中大型改动先有文档工件**: 当事项涉及新模块、跨模块边界重写、数据 / 接口契约调整或需要单独成为一个治理专题时，必须先完成对应设计文档，再进入大规模实现；不得把“设计 + 实现”揉成一条模糊待办后直接跳过文档沉淀。
 
 ### 5.1 回归记录文档治理 (Regression Record Governance)
 
@@ -193,36 +170,23 @@
 2.  **活动窗口独立存放**: 最新回归正文优先写入 `docs/reports/regression/current.md`，只保留最近 1 - 2 个阶段或最近 6 - 8 条完整记录。
 3.  **按模块或日期归档**: 历史记录优先拆入 `docs/reports/regression/archive/` 下的模块或日期分片；若归档继续膨胀，再按年份或半年继续拆分。
 4.  **计划文档只留入口**: `docs/plan/` 中与回归记录有关的文件仅保留摘要与迁移说明，不再承载长篇正文。
-5.  **读写压力触发归档**: 当活动窗口超过 500 - 700 行、或超过 6 - 8 条完整记录且影响当前阶段阅读效率时，必须先滚动归档再继续追加新记录。
+5.  **读写压力触发归档**: 当活动窗口越过 [规划规范 §4.4](./planning.md#44-归档管理-archive-management) 定义的 warning 区间、或超过 6 - 8 条完整记录且影响当前阶段阅读效率时，必须先滚动归档再继续追加新记录。
 6.  **管理文档引用**: 文档规范、规划规范、测试规范与阶段审计文档应统一引用 `docs/reports/regression/index.md`，避免再把新记录入口散落到多个位置。
 
-`roadmap.md` 与 `todo-archive.md` 的深度归档治理继续以 [规划文档深度归档治理](../plan/archive/index.md) 为唯一入口；当前统一阈值如下：
+根目录 `README.md` 与 `README.<locale>.md` 作为门户摘要：`<= 300` 行健康、`301 - 400` 行 warning、超过 `400` 行须先把细节回收到 `docs/` 专题页；其余规划主文档（`roadmap.md` / `backlog.md` / `todo-archive.md` / `regression/current.md`）的行数阈值见 [规划规范 §4.4 归档管理](./planning.md#44-归档管理-archive-management)（`roadmap.md` / `todo-archive.md` 的细分口径另见 [深度归档治理 §3](../plan/archive/index.md)），机检口径统一为 `scripts/docs/check-line-count.mjs`。
 
-- `README.md` 与根目录 `README.<locale>.md` 镜像：作为门户摘要，`<= 300` 行为健康窗口，`301 - 400` 行进入 warning，超过 `400` 行应先把细节回收到 `docs/` 对应专题页，而不是继续在根 README 堆叠正文。
-- `roadmap.md`: `<= 800` 行为健康窗口，`801 - 900` 行进入 warning，超过 `900` 行应先拆分旧阶段正文再继续扩写。
-- `backlog.md`: `<= 500` 行为健康窗口，`501 - 700` 行进入 warning，超过 `700` 行应先把候选摘要回收为卡片式描述，而不是在 backlog 里堆叠实施细节。
-- `todo-archive.md`: `<= 500` 行为健康窗口，`501 - 700` 行进入 warning，超过 `700` 行应先进行阶段区间分片再继续归档。
-- `docs/reports/regression/current.md`: `<= 500` 行为健康窗口，`501 - 700` 行进入 warning，超过 `700` 行必须先把旧记录滚动归档到 `docs/reports/regression/archive/`。
-
-上述阈值由 `pnpm docs:check:line-count` 执行检查：warning 区间会输出治理提示，超过 error 线会直接阻断 `docs:build`、发版前回归、阶段归档前回归与文档类 Review Gate 检查，不能再依赖人工目测。规划文档的结构一致性由 `pnpm docs:check:planning-docs` 另行检查，口径见 [规划文档模型 v1](./planning-docs.md)。
+阈值由 `pnpm docs:check:line-count` 执行：warning 区间输出治理提示，超过 error 线直接阻断 `docs:build`、发版前回归、阶段归档前回归与文档类 Review Gate，不得依赖人工目测；规划文档结构一致性由 `pnpm docs:check:planning-docs` 另行检查，口径见 [规划文档模型 v1](./planning-docs.md)。
 
 ### 5.2 根目录 README 多语言镜像
 
-作为 `README.md` 的对等镜像，必须包含：
--   项目简介与核心价值主张。
--   特性列表 (Features)。
--   技术栈 (Tech Stack)。
--   快速上手链接（指向对应语言的文档站，若尚未开放则显式说明范围）。
--   顶部增加互跳链接，至少覆盖中文与英文；其他已发布语言应一并加入。
--   README 只保留门户型摘要、核心卖点与导航入口；实现细节、治理细则与长篇阶段记录必须回链到 `docs/` 下的事实源页面，不应在根 README 中长期堆积。
+作为 `README.md` 的对等镜像，必须包含项目简介与核心价值主张、特性列表 (Features)、技术栈 (Tech Stack)，以及快速上手链接（指向对应语言文档站，未开放时显式说明范围）；顶部增加互跳链接，至少覆盖中文与英文，其他已发布语言一并加入。README 只保留门户型摘要、核心卖点与导航入口，实现细节、治理细则与长篇阶段记录必须回链到 `docs/` 事实源页面。
 
 ### 5.3 项目规划文档 (Plan Docs)
 
 -   `roadmap.md`、`backlog.md` 与 `todo.md` 的维护必须严格遵循 [项目规划规范](./planning.md)。
 -   规划文档形态（粒度 / 进度表 / 索引表 / 归档块字段）遵循 [规划文档模型 v1](./planning-docs.md)；机检入口为 `pnpm docs:check:planning-docs`。
--   回归记录正式迁移到 [回归记录管理与深度归档](../reports/regression/index.md)；规划文档仅保留与当前阶段直接相关的摘要和入口链接。
+-   回归记录正式迁移到 [回归记录管理与深度归档](../reports/regression/index.md)，规划文档只保留与当前阶段直接相关的摘要和入口；活动窗口默认只留最近 1 - 2 个阶段或最近 6 - 8 条完整记录，更早记录按滚动归档规则迁入 `docs/reports/regression/archive/`。
 -   模块总设计与专项治理文档必须分目录维护：稳定高层入口留在 `docs/design/modules/`，增量治理 / 迁移方案 / 阶段复盘统一落在 `docs/design/governance/`。
- -   活动回归窗口默认只保留最近 1 - 2 个阶段或最近 6 - 8 条完整记录；更早的历史记录应按滚动归档规则迁移到 `docs/reports/regression/archive/`。
 -   规划文档、规范文档与其他 Markdown 文档在提交前同样必须经过至少一轮 review，不能因为“只改文档”而跳过审查。
 -   任何阶段性的功能完成，必须在 `todo.md` 中标记并在 `roadmap.md` 中体现进度。
 -   阶段归档与下一阶段规划必须遵循 [项目规划规范](./planning.md#45-阶段归档与下一阶段规划标准流程-phase-archive-workflow)；不得跳过“准入检查 -> 证据链检查 -> 文档同步 -> Review Gate -> 下一阶段闸门”的固定顺序。
@@ -230,42 +194,14 @@
 
 补充约束：
 
-1. `docs/reports/regression/current.md` 不采用“阶段完成即整份搬空”的归档方式，而采用滚动归档，确保最近基线比较和发版判断仍可直接在主日志中完成。
-2. 同一条回归记录迁移到归档文件时必须整体迁移，不得将执行命令、Review Gate 结论与后续补跑计划拆散到多个位置。
-3. 若 `docs/reports/regression/archive/` 继续膨胀，应再按年份或半年分拆，而不是重新把历史记录塞回活动窗口。
-4. 旧 `docs/plan/` 目录中的 `regression-log*.md` 正文已迁移到 `docs/reports/regression/archive/legacy-plan-regression-log*.md`；新增记录统一落在 `docs/reports/regression/current.md`。
-5. 若阶段状态从“规划中 / 进行中”变为“已归档 / 已审计归档”，必须同步检查 `docs/i18n/*/plan/roadmap.md` 的摘要状态与 `last_sync`，但 `todo.md` 与 `backlog.md` 仍保持中文事实源，不为归档动作单独扩展翻译件。
-6. 阶段归档块必须能独立说明“为什么可以归档”，按 [规划文档模型 v1 §4](./planning-docs.md) 的必填字段填写；存量归档块冻结，不回改正文。
+1. `docs/reports/regression/current.md` 采用滚动归档而非「阶段完成即整份搬空」，确保最近基线比较与发版判断仍可在主日志完成；同一条记录迁入归档必须整体迁移（执行命令、Review Gate 结论、补跑计划不得拆散）；`archive/` 继续膨胀时按年份或半年再分拆，不把历史塞回活动窗口。
+2. 旧 `docs/plan/` 的 `regression-log*.md` 正文已迁入 `docs/reports/regression/archive/legacy-plan-regression-log*.md`，新增记录统一落 `current.md`。
+3. 阶段状态由「规划中 / 进行中」变为「已归档 / 已审计归档」时，必须同步检查 `docs/i18n/*/plan/roadmap.md` 的摘要与 `last_sync`；`todo.md` 与 `backlog.md` 保持中文事实源，不为归档单独扩展翻译件。
+4. 阶段归档块必须能独立说明「为什么可以归档」，按 [规划文档模型 v1 §4](./planning-docs.md) 的必填字段填写；存量归档块冻结，不回改正文。
 
 ### 5.4 规划与治理维护陷阱
 
-| 陷阱 | 结论 |
-|:---|:---|
-| `regression-window` marker | `docs/reports/regression/current.md` 的 marker 必须成对（`start` + `## 标题` + 正文 + `end`，且 marker 日期与标题日期一致）；只写 `start` 会让下一轮自动回填把新块插进 marker 与标题之间，导致分组错乱。marker 成对也可能出现「start 在顶部、正文在底部」的 LIFO 形态，检查不会报错；归档时须整块归位并保持 newest-first。 |
-| 改 `roadmap.md` 连带翻译镜像 | `docs/i18n/{en-US,ja-JP,ko-KR,zh-TW}/plan/roadmap.md` 为 summary-sync tier，blocker 判据是「源文档自镜像 `last_sync` 起在 git 中有提交（**严格大于**日期）」；必须同一提交内更新镜像摘要并把 `last_sync` 提升到源提交日（同日不算 stale）。**提交前的 `docs:check:*` PASS 不能作为提交后证据。** |
-| 规划文档口径混写 | 「实测值」与「门禁配额」不可混写（如把 `keyCss` 配额当成迁移前实测值写进增长对比，会使算式自相矛盾）；写数值对比前先回读同节表格的三列口径。 |
-| 阈值类改动的同步点 | 改包体预算阈值时 `docs/standards/performance.md` 是第三处必同步点（与脚本 `BUDGETS`、基线 JSON 并列，规范中明写「三处同步」）；只改脚本 + 基线会被 Review Gate 判 blocker。 |
-| 阶段范围口径 | 确认「本阶段还剩哪些待办」只以 `todo.md` / `roadmap.md` 为准：迁移方案等文档的「分批执行计划」是**跨阶段批次表**，不是本阶段 todo（roadmap 明写「本阶段不提前落盘其原子条目」），不能据此直接开工。 |
-| 归档一致性 | 归档前确认 `docs/plan/archive/` 的 roadmap 分片与 todo-archive 分片覆盖区间匹配；压缩已完成阶段正文前必须先创建归档分片（可从 git HEAD 恢复原文），禁止未建分片直接丢弃阶段详情。 |
-| 长文本替换 | 用「截断的 oldString」做替换会把原行残余拼成重复句；`lint-md` 与 i18n 检查都检测不到句内重复，替换后必须回读该行。 |
-| 新增型路径也要查存在性 | 写「新增」文件前先 `git log --oneline -- <path>` / `git status` 确认该路径未被跟踪；改写既有测试必须先用 `git show HEAD:<path>` 取回原文，逐条核对覆盖面后再改写。 |
-| `docs:check:links` 的锚点规则 | 锚点按「小写 + 去标点 / 符号 / 空白」宽松比较，且生成标题锚点时会**剥离行内代码**（反引号内容不进入锚点）；标题含反引号时，锚点只能写到代码之前，VitePress 实际 slug 会保留代码内容（`ignoreDeadLinks` 兜底）。 |
-| 归档分片的相对链接深度 | 正文迁入 `docs/plan/archive/` 或 `docs/reports/regression/archive/` 后，原相对链接必须整体 +1 级（`../design/` → `../../design/`）；`archive` 已纳入 `docs:check:links` 扫描面，失效指针由门禁拦截，`pnpm docs:scan:archive-links` 仅用于快照复现与分类差量。 |
-| 滚动归档残行与引用 | 整块迁出后必须检查孤立 `-->` 尾行（VitePress 会渲染成正文，`docs:check:markers` 兜底）与全仓「窗口节名 / 节名短语」引用；引用改写与窗口迁移一并执行。 |
-| 新增文档门禁的扫描面 | 新写的文档检查必须显式包含 `archive`（`docs:check:markers` 已按此口径），否则归档产物长期处于门禁盲区；`lint-md` / line-count / links / i18n 四道检查都不校验注释完整性。 |
-| 回归窗口的插入位置 | 新窗口必须插在**首个 `## YYYY-MM-DD` 标题之前**（newest-first，与 `scripts/shared/regression-window.mjs` 的定位规则一致）；手工把它贴在「同阶段父条目」旁边会让后续 `regression:weekly` 自动写入插到顶端，造成时间序错乱。 |
-| 表格插入行被空行截断 | 处置表 / 台账类表格插入新行时，前置空行会把行踢出表格、渲染成字面竖线段落，且 `lint-md` 不拦截。改完用 `markdown-it` 复验两件事：① 不存在以竖线开头的段落（表格未被截断）；② **每行列数与表头一致**（单元格内裸竖线同样会吞列，只查前者会漏报）。 |
-| 同一批次的数字改写 | 用例条数 / 组件处数 / 参考态张数等数字出现在多个文档与多节中时，必须**全仓 grep 同一名词**统一改写；只改正文会留下同文件其它节的旧值，审计按「可复算」直接判 blocker。 |
-| 长文件的正则替换 | 对 `current.md` 这类长文件用 `re.sub(..., count=1)` 会命中**首个**匹配（往往是别的窗口），必须按窗口 / 小节边界切片后再替换。 |
-| VitePress 的注释判据 | md 被当作 Vue SFC 编译，但**只有块级** `<!--`（行首起始，CommonMark HTML block type 2）延续到 EOF 才报 `Unexpected EOF in comment`；合法多行注释、正文中段的行内 `<!--`、缩进代码块与 fenced 内的 `<!--` 均无害。判据必须用 `markdown-it` + `@vue/compiler-dom` 实测校准，凭直觉写「同一行内必须闭合」会引入假阳性并阻断 `docs:build`。 |
-| 新增文档门禁的接线 | 按层级接线，并在 `scripts/README.md` 声明所属层级：**构建期门禁**＝脚本 + `pnpm` 入口 + 构建链前置拦截（`docs:build` / `docs:dev` 或对应构建 workflow）+ PR 覆盖（`test.yml` 或文档构建 workflow）；**发布 / 周期级门禁**＝走 `release:check:full` / `regression:weekly` 等固定入口作等效接线（不强行塞进 `docs:build`，两者的预算与触发点不同）。任一形式都须在 `scripts/README.md` 声明层级与触发点，避免「脚本存在但仍靠人工补跑」。 |
-| 数字的可复算性 | 审计会逐项复算派生比例（如闭环比、分支百分比、舍入口径）；无法从留存产物复算的派生数字宁可不写，改用「实际值 / 理论上限」的相对表述。行数声明一律取 `docs:check:line-count` 口径（= `wc -l` + 1），同一句内不得混用两套口径。 |
-| 阈值口径要连「行数 + 条数」一起收 | 新增 / 改写阈值条款时，行数指向 `scripts/docs/check-line-count.mjs`，条数指向 `scripts/regression/run-periodic-regression.mjs` 的 `LOG_WINDOW_LIMITS.maxEntries`；只改行数会留下无门禁可校验的条数口径，形成同文件自相矛盾。 |
-| 索引引用要用两种链接形态核对 | 判断「文档是否被索引」时，扩展名链接（`./x.md`）与省略扩展名链接（`./x`）都要匹配；只 grep 前者会把在役文档误判成无引用。 |
-| untracked 文档与 `artifacts/` 引用 | `docs:check:links` / `markers` 走 `git ls-files`（新增 / 改名文档在 `git add` 前不参与扫描，提交后须复跑）；`line-count` 走固定目标清单，新增目标需显式登记。引用 `artifacts/` 产物路径必须用行内代码：写成链接时本地可通过、CI 与全新克隆会因 gitignore 失效。 |
-| 回归窗口脚本的插入锚点 | `upsertRegressionWindowContent` 取「首个 managed `start` 与首个日期标题中更靠前者」（`resolveManagedInsertionIndex` 的 `Math.min`）；只用日期标题会落在既有 `start` 之后产生嵌套，改脚本前先补「连续两次 upsert / 重 upsert 不嵌套」的单测。 |
-| 编辑历史 md 前先确认换行 | 对 CRLF 文件用脚本整文件写入会变成 LF 并产生全文件 diff；先 `file` 或用 git 确认换行，恢复后只保留语义行，规模审计才看得到真实改动。 |
-| 终态数字与收口时点 | 阶段摘要里的数字不能沿用**条目收口时点**的值（如路由登记数在后续条目继续增长）；写摘要前回到事实源复算，并在归档改完后做最后一轮 line-count 回写（合并章节会改变总行数）。 |
+改动规划与治理文档前，必须先读 [文档维护陷阱清单](../design/governance/documentation-maintenance-traps.md)（本规范的压缩与口径来源见 [文档规范压缩说明](../design/governance/2026-11-23-docs-standards-compression.md)）：marker 成对、锚点与相对链接深度、表格插入行、数字可复算与 line-count 口径、CRLF 与替换命中面等逐项结论都在该清单内，规范正文不再重复展开。
 
 ## 6. 事实源收敛机制 (Source of Truth Convergence)
 
@@ -297,29 +233,13 @@
 | 翻译文档 `last_sync` 缺失 | error |
 | 源文档无法定位 / 不存在 | error |
 
-**Tier 软上限**（仅作 warning 信号）：
+**Tier 软上限**（仅作 warning 信号）：`must-sync` 60 天、`summary-sync` 120 天、`source-only` 为 `null`（不检查时效）。
 
-| Tier | Soft maxAge |
-|:---|:---|
-| `must-sync` | 60 天 |
-| `summary-sync` | 120 天 |
-| `source-only` | `null` |
-
-**源路径解析**（三层 fallback，缺一即降至下一层）：
-
-1. `frontmatter.source_origin`（显式声明，相对仓库根）
-2. 正文里 `original Chinese version` / `Chinese version` / `原始中文` / `中文原文` 等锚文本后的**第一个相对路径**
-3. 目录约定：`docs/i18n/<locale>/<path>` ⇄ `docs/<path>`
+**源路径解析**（三层 fallback，缺一即降至下一层）：`frontmatter.source_origin`（显式声明，相对仓库根）→ 正文中 `original Chinese version` / `Chinese version` / `原始中文` / `中文原文` 等锚文本后的**第一个相对路径** → 目录约定 `docs/i18n/<locale>/<path>` ⇄ `docs/<path>`。
 
 **`source-only` 页面强约束**：必须在 frontmatter 显式声明 `translation_tier: source-only` 与 `source_origin`；不检查时效。
 
-**运行入口**：
-
-| 入口 | 语义 | 阻断？ |
-|:---|:---|:---|
-| `pnpm docs:check:source-of-truth`（默认 `default` profile + `error` mode） | CI 周级回归用，error 阻断 | **是**（仅对源有真实改动的情况） |
-| `pnpm docs:check:source-of-truth --mode=warn` | 把所有 error 降级为 warning 呈现，不改 exit code | 仅展示 |
-| `pnpm docs:check:source-of-truth:candidate`（`candidate` profile + `warn` mode） | 保留 21/30 天旧阈值作为收紧评估 baseline | 仅展示 |
+**运行入口**：`pnpm docs:check:source-of-truth`（默认 `default` profile + `error` mode，CI 周级回归用，仅对源有真实改动时阻断）为唯一阻断入口；`--mode=warn` 只把 error 降级为 warning 呈现、不改 exit code；`docs:check:source-of-truth:candidate`（`candidate` profile + `warn` mode）保留 21/30 天旧阈值作收紧评估 baseline，仅展示。
 
 智能体在引用文档时，应检查文件头部的 `last_sync` 时间戳，结合 git blame 看对应源文件是否在 `last_sync` 之后被改过。定期运行 `pnpm i18n:audit` 检查未同步的翻译键。
 
@@ -357,6 +277,7 @@ AI 智能体在处理文档时应遵守以下规则：
 ## 9. 相关文档
 
 -   [开发规范](./development.md)
+-   [文档维护陷阱清单](../design/governance/documentation-maintenance-traps.md)
 -   [规划规范](./planning.md)
 -   [规划文档模型 v1](./planning-docs.md)
 -   [AI 协作规范](./ai-collaboration.md)

@@ -22,7 +22,7 @@
 | 大条目 | 小条目 | 状态 | 提交 | 审计 | 容量（计划→实际） |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 83.1 `.vue` 非空断言清零 | 3/3 | 已闭环 | 待回填 | Pass（R1 Pass / R2 Pass） | 3 → 1 commit |
-| 83.2 文档规范压缩切片 | 0/3 | 未开始 | 待提交 | — | 3 → 0 commits |
+| 83.2 文档规范压缩切片 | 3/3 | 已闭环 | 待回填 | Pass（R1 R2 Reject / R3 Pass） | 3 → 1 commit |
 | 83.3 覆盖率第二十四批 | 0/3 | 未开始 | 待提交 | — | 3 → 0 commits |
 | 83.4 字号归一第六批 A | 0/3 | 未开始 | 待提交 | — | 3 → 0 commits |
 
@@ -47,18 +47,18 @@
         - 交付物: 验证摘要、issue 回写记录。
         - 依赖: 83.1.2。
 
-- [ ] **83.2 文档规范压缩切片（P2）**
-    - [ ] **83.2.1 盘点与压缩方案**
+- [x] **83.2 文档规范压缩切片（P2）**
+    - [x] **83.2.1 盘点与压缩方案**
         - 目标: 定位 `docs/standards/documentation.md`（363 行，候选 error 线 320）与 `docs/standards/planning.md`（395 行，候选 warn 线 365）中可合并的重复叙述、逐阶段历史与可下沉段落，核对锚点引用面。
         - 验收: 压缩方案落 `artifacts/review-gate/<date>-phase83-item2-docs.md`；列出被引用锚点与保留边界，规则正文不删减。
         - 交付物: 盘点清单、压缩方案。
         - 依赖: `node scripts/docs/check-line-count.mjs --profile=candidate`。
-    - [ ] **83.2.2 `documentation.md` 压缩至候选 error 线内**
+    - [x] **83.2.2 `documentation.md` 压缩至候选 error 线内**
         - 目标: 把 `documentation.md` 压到 `≤320` 行，规则只做合并 / 索引化，不降低约束强度。
         - 验收: 该文件候选 error 消失；`lint-md` 通过；受影响的 `docs:check:links` 锚点无失效。
         - 交付物: 文档改动、行数对比。
         - 依赖: 83.2.1。
-    - [ ] **83.2.3 `planning.md` 压缩与门禁复核**
+    - [x] **83.2.3 `planning.md` 压缩与门禁复核**
         - 目标: 把 `planning.md` 压到 `≤365` 行，并复核 `docs:check:planning-docs`、`docs:check:source-of-truth` 与 `docs:check:i18n` 全部通过。
         - 验收: 达 83.2 大条目验收标准；候选 profile 0 error / 0 warn（两文件均回健康线内）。
         - 交付物: 文档改动、门禁日志。

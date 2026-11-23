@@ -292,6 +292,10 @@ When an item meets "new module / cross-module / contract rewrite / standalone go
 
 After any dependency or tool version change, grep the repository for "current version / current pin" statements (migration plan, `docs/design/ui.md`, etc.) and update them in the same batch; otherwise two baselines coexist in one document and later batches plan against the wrong one.
 
+### 5.3 Compression Notes
+
+Phase-archive Steps 3 / 4 / 8, the regression-record template and the §4.2 regression bullets state the same rules in single-sentence form; rule set, check order and the archive-consistency requirement are unchanged. Rationale and per-section mapping live in [Docs & Standards Compression](../../../design/governance/2026-11-23-docs-standards-compression).
+
 ## 6. Related Documents
 
 -   [Project Roadmap](../plan/roadmap.md)
