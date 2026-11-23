@@ -419,6 +419,10 @@ export async function collectCommentDriftReport(options = {}) {
     }
 }
 
+/**
+ * @param {object} report 审计报告
+ * @param {string | null} [artifactPath] 产物路径，用于在报告头部回填
+ */
 export function renderMarkdownReport(report, artifactPath = null) {
     const lines = [
         '# Governance Baseline — comment-drift',
