@@ -21,7 +21,7 @@
 
 | 大条目 | 小条目 | 状态 | 提交 | 审计 | 容量（计划→实际） |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| 83.1 `.vue` 非空断言清零 | 0/3 | 未开始 | 待提交 | — | 3 → 0 commits |
+| 83.1 `.vue` 非空断言清零 | 3/3 | 已闭环 | 待回填 | Pass（R1 Pass / R2 Pass） | 3 → 1 commit |
 | 83.2 文档规范压缩切片 | 0/3 | 未开始 | 待提交 | — | 3 → 0 commits |
 | 83.3 覆盖率第二十四批 | 0/3 | 未开始 | 待提交 | — | 3 → 0 commits |
 | 83.4 字号归一第六批 A | 0/3 | 未开始 | 待提交 | — | 3 → 0 commits |
@@ -30,18 +30,18 @@
 
 > 阶段规划、8 要素、验收标准与回滚边界见 [项目计划](./roadmap.md#第八十三阶段规则面收口与文档覆盖率滚动治理进行中)。小条目默认独立提交、独立审计；强耦合时才合并批次并写明理由。
 
-- [ ] **83.1 `.vue` 非空断言清零与规则面收口（P2）**
-    - [ ] **83.1.1 复算命中与代表文件改造**
+- [x] **83.1 `.vue` 非空断言清零与规则面收口（P2）**
+    - [x] **83.1.1 复算命中与代表文件改造**
         - 目标: 复算 `.vue` 内 `@typescript-eslint/no-non-null-assertion` 命中（3 文件 10 处），先改代表文件 `components/app-captcha.vue`（5 处）。
         - 验收: 代表文件 `pnpm exec eslint` 0 error；`window.grecaptcha` 等全局对象改为显式守卫后行为等价；定向测试通过。
         - 交付物: 代表文件改动、命中清单。
         - 依赖: `eslint.config.js` 现有 `strictTsRuleOverrides` 面。
-    - [ ] **83.1.2 批量清零与规则面扩到 `.vue`**
+    - [x] **83.1.2 批量清零与规则面扩到 `.vue`**
         - 目标: 处理 `components/admin/admin-taxonomy-page.vue`（4 处）与 `components/admin/posts/post-editor-media-settings.vue`（1 处）；新增 `NO_NON_NULL_ASSERTION_FILES` 常量，让 `no-non-null-assertion` 的配置面与 inventory 计数面同源并纳入 `.vue`。
         - 验收: 三文件 0 命中；`pnpm lint` 0 error 且无新增 `eslint-disable`；`typecheck` 通过；`governance:inventory:eslint-rules` 该规则 0 命中 / 0 warning / 0 豁免。
         - 交付物: 代码 / 配置改动、inventory 产物。
         - 依赖: 83.1.1。
-    - [ ] **83.1.3 收口验证与 issue 回写**
+    - [x] **83.1.3 收口验证与 issue 回写**
         - 目标: 完成定向回归并回写 issue #262 的批次记录。
         - 验收: 达 83.1 大条目验收标准；`pnpm test` 定向文件全部通过；issue #262 回写链接。
         - 交付物: 验证摘要、issue 回写记录。

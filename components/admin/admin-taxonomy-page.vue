@@ -565,28 +565,20 @@ const initializeLocaleBuckets = () => {
 
 initializeLocaleBuckets()
 
+// 三个 getter 都通过 ref 读回取值：`??=` 只负责补齐缺省桶，返回值始终是响应式代理。
 const getFormState = (lang: string) => {
-    if (!multiForm.value[lang]) {
-        multiForm.value[lang] = props.config.buildEmptyForm(lang)
-    }
-
-    return multiForm.value[lang]!
+    multiForm.value[lang] ??= props.config.buildEmptyForm(lang)
+    return multiForm.value[lang]
 }
 
 const getErrorState = (lang: string) => {
-    if (!multiErrors.value[lang]) {
-        multiErrors.value[lang] = {}
-    }
-
-    return multiErrors.value[lang]!
+    multiErrors.value[lang] ??= {}
+    return multiErrors.value[lang]
 }
 
 const getParentOptions = (lang: string) => {
-    if (!parentOptionsMulti.value[lang]) {
-        parentOptionsMulti.value[lang] = []
-    }
-
-    return parentOptionsMulti.value[lang]!
+    parentOptionsMulti.value[lang] ??= []
+    return parentOptionsMulti.value[lang]
 }
 
 /** `CaomeiAutoComplete` 的选项形态为 `{ label, value }`，与迁移前 `Select` 映射同一份 `Category[]`。 */
@@ -759,7 +751,7 @@ const saveItemMulti = async () => {
 
         if (!result.success) {
             result.error.issues.forEach((issue) => {
-                multiErrors.value[languageOption.code]![String(issue.path[0])] = issue.message
+                getErrorState(languageOption.code)[String(issue.path[0])] = issue.message
             })
             hasErrors = true
             activeTab.value = languageOption.code

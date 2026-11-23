@@ -69,10 +69,13 @@ const loadScript = (src: string, onLoad: () => void) => {
 const renderCaptcha = () => {
     if (!container.value || !isEnabled.value) return
 
+    // 守卫后固定容器引用，避免在各 provider 分支重复使用非空断言。
+    const containerEl = container.value
+
     switch (provider) {
         case 'cloudflare-turnstile':
             if (window.turnstile) {
-                widgetId.value = window.turnstile.render(container.value!, {
+                widgetId.value = window.turnstile.render(containerEl, {
                     sitekey: siteKey,
                     callback: onVerify,
                     'expired-callback': onExpire,
@@ -85,11 +88,15 @@ const renderCaptcha = () => {
                 )
             }
             break
-        case 'google-recaptcha':
-            if (window.grecaptcha) {
-                window.grecaptcha.ready(() => {
-                    widgetId.value = window.grecaptcha!.render(
-                        container.value!,
+        case 'google-recaptcha': {
+            const grecaptcha = window.grecaptcha
+            if (grecaptcha) {
+                grecaptcha.ready(() => {
+                    // ready 回调可能在容器重新挂载后触发，调用时重新取引用。
+                    const readyContainer = container.value
+                    if (!readyContainer) return
+                    widgetId.value = grecaptcha.render(
+                        readyContainer,
                         {
                             sitekey: siteKey,
                             callback: onVerify,
@@ -105,9 +112,10 @@ const renderCaptcha = () => {
                 )
             }
             break
+        }
         case 'hcaptcha':
             if (window.hcaptcha) {
-                widgetId.value = window.hcaptcha.render(container.value!, {
+                widgetId.value = window.hcaptcha.render(containerEl, {
                     sitekey: siteKey,
                     callback: onVerify,
                     'expired-callback': onExpire,
@@ -122,7 +130,7 @@ const renderCaptcha = () => {
             break
         case 'captchafox':
             if (window.captchafox) {
-                widgetId.value = window.captchafox.render(container.value!, {
+                widgetId.value = window.captchafox.render(containerEl, {
                     sitekey: siteKey,
                     onVerify,
                     onExpire,

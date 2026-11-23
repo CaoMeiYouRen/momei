@@ -9,6 +9,7 @@ import { vueI18nNoUnusedKeyIgnores } from './scripts/i18n/dynamic-key-allowlist.
 import {
     NO_EXPLICIT_ANY_FILES,
     NO_INFERRABLE_TYPES_FILES,
+    NO_NON_NULL_ASSERTION_FILES,
     PRODUCTION_TS_IGNORES,
     PRODUCTION_TYPED_TS_IGNORES,
     RUNTIME_TS_IGNORES,
@@ -39,8 +40,9 @@ const lineRuleOverrides = [
 const strictTsRuleOverrides = [
     createRuleOverride({
         // ESLint 严格规则第五批：生产 TS 非空断言 24 处 / 14 文件清零后直接升 error；
-        // .vue 仍余 10 处（另立批次），测试 / 脚本 / 迁移文件维持既有豁免边界。
-        files: tsFiles,
+        // 第六批把 .vue 脚本块 10 处清零并把规则面扩到 .vue（与 inventory 计数面同源），
+        // 测试 / 脚本 / 迁移文件维持既有豁免边界。
+        files: NO_NON_NULL_ASSERTION_FILES,
         ignores: [...PRODUCTION_TS_IGNORES],
         plugins: {
             '@typescript-eslint': tseslint.plugin,

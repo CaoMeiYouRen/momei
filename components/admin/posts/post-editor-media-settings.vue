@@ -266,7 +266,7 @@ const upsertVisualAsset = (asset: PostVisualAssetMetadata, options: { replaceExi
     if (options.replaceExisting !== false) {
         const nextAssets = visualAssets.filter((item) => item?.usage !== asset.usage)
         nextAssets.push(asset)
-        post.value.metadata!.visualAssets = nextAssets
+        ensureMetadata().visualAssets = nextAssets
         return
     }
 

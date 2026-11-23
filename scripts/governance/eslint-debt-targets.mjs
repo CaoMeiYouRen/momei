@@ -115,6 +115,12 @@ export const NO_EXPLICIT_ANY_FILES = [
 ]
 
 /**
+ * 生产 TS / Vue 代码中已生效的 `no-non-null-assertion` 切片（非 typed 规则，可覆盖 `.vue` 脚本块）。
+ * 配置面与 inventory 计数面共用同一常量，避免两处各写一份后漂移。
+ */
+export const NO_NON_NULL_ASSERTION_FILES = ['**/*.{ts,tsx,mts,cts,vue}']
+
+/**
  * 生产 TS / Vue 代码中已生效的 ban-ts-comment 切片。
  * 测试与脚本维持显式豁免边界，若扩到 tests / scripts 需单列条目。
  */
@@ -171,9 +177,9 @@ export const ESLINT_DEBT_RULE_SLICES = [
         scope: 'no-explicit-any',
     },
     {
-        files: ['**/*.{ts,tsx,mts,cts}'],
+        files: NO_NON_NULL_ASSERTION_FILES,
         ignores: [...PRODUCTION_TS_IGNORES],
-        rationale: 'ESLint 严格规则第五批：生产 TS 非空断言已清零并升 error；.vue 余 10 处另立批次，测试 / 脚本 / 迁移维持豁免。',
+        rationale: 'ESLint 严格规则第五批：生产 TS 非空断言已清零并升 error；第六批把 `.vue` 脚本块 10 处一并清零后同步纳入计数面，测试 / 脚本 / 迁移维持豁免。',
         ruleId: '@typescript-eslint/no-non-null-assertion',
         scope: 'no-non-null-assertion',
     },
