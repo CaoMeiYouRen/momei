@@ -296,7 +296,7 @@ onMounted(() => {
         font-weight: 500;
 
         i {
-            font-size: 1.25rem;
+            font-size: var(--m-font-size-xl);
         }
 
         .github-icon {
@@ -317,7 +317,7 @@ onMounted(() => {
             line-height: 1.2;
 
             .account-id {
-                font-size: 0.75rem;
+                font-size: var(--m-font-size-xs);
                 font-weight: 400;
                 opacity: 0.8;
             }

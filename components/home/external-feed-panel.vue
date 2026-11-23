@@ -163,7 +163,7 @@ withDefaults(defineProps<{
 
     &__title {
         margin: 0;
-        font-size: 1.5rem;
+        font-size: var(--m-font-size-2xl);
         font-weight: 700;
     }
 
@@ -215,7 +215,7 @@ withDefaults(defineProps<{
     &__date,
     &__author {
         color: var(--caomei-color-text-muted);
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
     }
 
     &__item-title {

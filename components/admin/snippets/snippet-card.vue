@@ -145,7 +145,7 @@ const sourceIcon = computed<Component>(() => {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.75rem;
-    font-size: 0.875rem;
+    font-size: var(--m-font-size-sm);
     color: var(--caomei-color-text-muted);
   }
 
@@ -201,7 +201,7 @@ const sourceIcon = computed<Component>(() => {
     align-items: center;
     gap: 0.5rem;
     margin-top: 0.75rem;
-    font-size: 0.875rem;
+    font-size: var(--m-font-size-sm);
     padding: 0.5rem;
     background: var(--m-surface-hover);
   }

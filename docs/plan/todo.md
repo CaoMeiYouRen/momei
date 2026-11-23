@@ -24,7 +24,7 @@
 | 83.1 `.vue` 非空断言清零 | 3/3 | 已闭环 | 待回填 | Pass（R1 Pass / R2 Pass） | 3 → 1 commit |
 | 83.2 文档规范压缩切片 | 3/3 | 已闭环 | 待回填 | Pass（R1 R2 Reject / R3 Pass） | 3 → 1 commit |
 | 83.3 覆盖率第二十四批 | 3/3 | 已闭环 | 待回填 | Pass（R1 Reject / R2 Pass） | 3 → 1 commit |
-| 83.4 字号归一第六批 A | 0/3 | 未开始 | 待提交 | — | 3 → 0 commits |
+| 83.4 字号归一第六批 A | 3/3 | 已闭环 | 待回填 | Pass（R1 Pass） | 3 → 1 commit |
 
 ### 第八十三阶段：规则面收口与文档/覆盖率滚动治理（进行中，2026-11-23 立项）
 
@@ -81,18 +81,18 @@
         - 交付物: 测试文件、coverage exit、证据。
         - 依赖: 83.3.2。
 
-- [ ] **83.4 字号归一第六批 A（P3）**
-    - [ ] **83.4.1 复算与选批**
+- [x] **83.4 字号归一第六批 A（P3）**
+    - [x] **83.4.1 复算与选批**
         - 目标: 按 `governance:inventory:font-sizes` 复算 28 条口径内等值待替换，选出 ≤10 文件的一批（≥11 条）。
         - 验收: 选批清单与等值判定落 `artifacts/review-gate/<date>-phase83-item4-font-sizes.md`；不改非字阶取值。
         - 交付物: inventory 复算、选批清单。
         - 依赖: `governance:inventory:font-sizes`。
-    - [ ] **83.4.2 替换与逐元素对账**
+    - [x] **83.4.2 替换与逐元素对账**
         - 目标: 完成 ≥11 条等值字面量替换为 `--m-font-size-*`。
         - 验收: 口径内等值待替换 `28 → ≤17`；逐元素 `getComputedStyle` 0 差异；`pnpm lint:css` 0 error。
         - 交付物: token 替换、对账证据。
         - 依赖: 83.4.1。
-    - [ ] **83.4.3 视觉与 parity 收口**
+    - [x] **83.4.3 视觉与 parity 收口**
         - 目标: 确认视觉门禁无未归因差异。
         - 验收: 达 83.4 大条目验收标准；`test:visual` 32/32、parity 未归因差异 0，偏差按既有偏差处置表登记。
         - 交付物: visual / parity 日志。

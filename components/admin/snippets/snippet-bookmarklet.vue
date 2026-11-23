@@ -92,7 +92,7 @@ const copyBookmarklet = async () => {
                 border-radius: 2rem;
                 text-decoration: none;
                 font-weight: 600;
-                font-size: 0.875rem;
+                font-size: var(--m-font-size-sm);
                 box-shadow: 0 4px 12px var(--m-primary-200);
                 transition: all 0.2s;
                 cursor: move;

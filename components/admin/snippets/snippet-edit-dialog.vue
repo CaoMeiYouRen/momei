@@ -244,7 +244,7 @@ const updateSnippet = async () => {
         }
 
         .field-desc {
-            font-size: 0.875rem;
+            font-size: var(--m-font-size-sm);
             color: var(--caomei-color-text-muted);
             margin-top: -0.25rem;
             margin-bottom: 1rem;
@@ -258,7 +258,7 @@ const updateSnippet = async () => {
             :deep(.caomei-textarea__control) {
                 font-family: inherit;
                 line-height: 1.6;
-                font-size: 1rem;
+                font-size: var(--m-font-size-md);
             }
         }
 

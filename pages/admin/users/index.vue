@@ -400,7 +400,7 @@ onMounted(() => {
     }
 
     &__email {
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         color: var(--caomei-color-text-muted);
     }
 }
@@ -412,7 +412,7 @@ onMounted(() => {
 
     &__relative {
         color: var(--caomei-color-text-muted);
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
     }
 }
 </style>

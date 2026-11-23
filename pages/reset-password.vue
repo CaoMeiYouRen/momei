@@ -111,7 +111,7 @@ const handleResetPassword = async () => {
 <style lang="scss" scoped>
 .form-error {
     color: var(--m-red-500);
-    font-size: 0.875rem;
+    font-size: var(--m-font-size-sm);
 }
 
 .form-group {
@@ -120,7 +120,7 @@ const handleResetPassword = async () => {
     gap: 0.5rem;
 
     label {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         font-weight: 500;
         color: var(--caomei-color-text);
     }
