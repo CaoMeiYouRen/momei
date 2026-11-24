@@ -10,6 +10,21 @@ const FEED_CACHE_NAMESPACE = 'friend-link-feed'
 const FEED_CACHE_TTL_SECONDS = 3600 // 1 hour
 const FETCH_TIMEOUT_MS = 8000
 
+interface RssItem {
+    title?: string
+    link?: string
+    pubDate?: string
+    'atom:updated'?: string
+    published?: string
+}
+
+interface AtomEntry {
+    title?: string | { '#text'?: string }
+    link?: ({ '@_href'?: string } | string)[]
+    published?: string
+    updated?: string
+}
+
 interface RssChannel {
     title?: string
     link?: string
@@ -105,7 +120,7 @@ function parseRssFeed(xml: string): FeedItem[] {
         } else if (channel.item) {
             items = [channel.item]
         }
-        return items.slice(0, 5).map((item) => ({
+        return items.slice(0, 5).map((item: RssItem) => ({
             title: item.title || 'Untitled',
             url: item.link || siteUrl,
             publishedAt: parseDate(item.pubDate || item['atom:updated'] || item.published),
@@ -119,13 +134,13 @@ function parseRssFeed(xml: string): FeedItem[] {
     const atom = feed.feed
     if (atom) {
         const siteName = atom.title || ''
-        let entries: any[] = []
+        let entries: AtomEntry[] = []
         if (Array.isArray(atom.entry)) {
             entries = atom.entry
         } else if (atom.entry) {
             entries = [atom.entry]
         }
-        return entries.slice(0, 5).map((entry) => ({
+        return entries.slice(0, 5).map((entry: AtomEntry) => ({
             title: typeof entry.title === 'string' ? entry.title : (entry.title?.['#text'] || 'Untitled'),
             url: extractAtomLink(entry.link) || '',
             publishedAt: parseDate(entry.published || entry.updated),

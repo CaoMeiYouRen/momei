@@ -472,9 +472,9 @@ export const typeormAdapter =
                             }
                             const relationName = transformHelpers.getRelationName(model, joinedModel)
                             if (relationName && result && relationName in result) {
-                                const relationData = result[relationName]
+                                const relationData = result[relationName] as ObjectLiteral | ObjectLiteral[] | null | undefined
                                 if (Array.isArray(relationData)) {
-                                    transformed[relationName] = relationData.map((item) => transformHelpers.transformOutput(item, joinedModel))
+                                    transformed[relationName] = relationData.map((item: ObjectLiteral) => transformHelpers.transformOutput(item, joinedModel))
                                 } else if (relationData) {
                                     transformed[relationName] = transformHelpers.transformOutput(relationData, joinedModel)
                                 }
@@ -526,9 +526,9 @@ export const typeormAdapter =
                                 }
                                 const relationName = transformHelpers.getRelationName(model, joinedModel)
                                 if (relationName && r && relationName in r) {
-                                    const relationData = r[relationName]
+                                    const relationData = r[relationName] as ObjectLiteral | ObjectLiteral[] | null | undefined
                                     if (Array.isArray(relationData)) {
-                                        transformed[relationName] = relationData.map((item) => transformHelpers.transformOutput(item, joinedModel))
+                                        transformed[relationName] = relationData.map((item: ObjectLiteral) => transformHelpers.transformOutput(item, joinedModel))
                                     } else if (relationData) {
                                         transformed[relationName] = transformHelpers.transformOutput(relationData, joinedModel)
                                     }

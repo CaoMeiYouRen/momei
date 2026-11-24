@@ -28,9 +28,9 @@ function decodeBasicXmlEntities(value: string) {
 
     for (let index = 0; index < 2; index += 1) {
         const nextValue = decodedValue
-            .replace(/&#x([0-9a-fA-F]{1,6});/g, (_, codePoint) => String.fromCodePoint(Number.parseInt(codePoint, 16)))
-            .replace(/&#([0-9]{1,7});/g, (_, codePoint) => String.fromCodePoint(Number.parseInt(codePoint, 10)))
-            .replace(/&(lt|gt|quot|apos|amp);/g, (entity) => {
+            .replace(/&#x([0-9a-fA-F]{1,6});/g, (_match: string, codePoint: string) => String.fromCodePoint(Number.parseInt(codePoint, 16)))
+            .replace(/&#([0-9]{1,7});/g, (_match: string, codePoint: string) => String.fromCodePoint(Number.parseInt(codePoint, 10)))
+            .replace(/&(lt|gt|quot|apos|amp);/g, (entity: string) => {
                 switch (entity) {
                     case '&lt;':
                         return '<'

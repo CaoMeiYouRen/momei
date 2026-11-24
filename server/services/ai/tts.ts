@@ -450,11 +450,11 @@ export class TTSService extends AIBaseService {
 
             const post = postId ? await postRepo.findOneBy({ id: postId }) : null
 
-            const options = {
+            const options: TTSOptions = {
                 ...(payload.options || {}),
                 mode: payload.mode || task.mode || payload.options?.mode || 'speech',
             }
-            const voice = this.resolveVoice(payload.voice)
+            const voice = this.resolveVoice(payload.voice as string | undefined)
             const effectiveLanguage = post?.language || payload.language || options.language || null
             const effectiveTranslationId = post?.translationId ?? payload.translationId ?? null
             const checkpoint = task.type === 'podcast' ? parsePodcastTaskCheckpoint(task.result) : null
@@ -463,7 +463,7 @@ export class TTSService extends AIBaseService {
                 options.language = effectiveLanguage
             }
 
-            const contentToUse = payload.text || payload.script || (post ? post.content : '')
+            const contentToUse = (payload.text || payload.script || (post ? post.content : '')) as string
 
             if (!contentToUse) {
                 throw new Error('No content to generate speech from')

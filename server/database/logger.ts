@@ -211,13 +211,13 @@ export class CustomLogger implements Logger {
         switch (level) {
             case 'log':
             case 'info':
-                this.loggerService.info(message, { queryRunner })
+                this.loggerService.info(message as string, { queryRunner })
                 break
             case 'warn':
-                this.loggerService.warn(message, { queryRunner })
+                this.loggerService.warn(message as string, { queryRunner })
                 break
             default:
-                this.loggerService.debug(message, { queryRunner })
+                this.loggerService.debug(message as string, { queryRunner })
                 break
         }
     }
