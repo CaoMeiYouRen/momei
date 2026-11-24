@@ -208,7 +208,7 @@
     "@types/ws": "^8.18.1",
     "@vite-pwa/nuxt": "^2.0.3",
     "@vitest/coverage-v8": "5.1.1",
-    "@vue/test-utils": "^2.5.1",
+    "@vue/test-utils": "^2.6.0",
     "commitizen": "^4.3.1",
     "commitlint": "^21.2.4",
     "commitlint-config-cmyr": "^1.0.0",
