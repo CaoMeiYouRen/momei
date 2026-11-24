@@ -22,6 +22,16 @@ interface ASRTaskWrappedResponse {
     data: ASRTaskResponseData
 }
 
+/** 通知 SSE 推送的 ASR 任务更新载荷（字段可缺省，按需读取）。 */
+interface ASRTaskUpdatePayload {
+    type?: string
+    taskId?: string
+    status?: ASRTaskStatus
+    progress?: number
+    result?: ASRTaskResult
+    error?: string
+}
+
 type ASRTaskApiResponse = ASRTaskResponseData | ASRTaskWrappedResponse
 
 function normalizeTaskResponse(response: ASRTaskApiResponse): ASRTaskResponseData {
@@ -147,11 +157,11 @@ export function useASRTask(
 
             eventSource.onmessage = (event) => {
                 try {
-                    const data = JSON.parse(event.data)
+                    const data = JSON.parse(event.data as string) as ASRTaskUpdatePayload
 
                     // 处理 ASR 任务更新通知
                     if (data.type === 'ASR_TASK_UPDATE' && data.taskId === taskId) {
-                        status.value = data.status
+                        status.value = data.status ?? null
                         progress.value = data.progress || 0
 
                         if (data.status === 'completed') {

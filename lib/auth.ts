@@ -259,9 +259,9 @@ export const auth = betterAuth({
                     language: getAuthUserLanguage(user),
                 })
                 await emailService.sendEmailChangeVerification(
-                    user.email,
-                    newEmail,
-                    url,
+                    user.email as string,
+                    newEmail as string,
+                    url as string,
                     locale,
                 )
             },

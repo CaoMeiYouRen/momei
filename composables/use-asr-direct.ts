@@ -253,7 +253,7 @@ export function useASRDirect(options: ASRDirectOptions) {
                 return
             }
 
-            void handleVolcengineMessage(event.data)
+            void handleVolcengineMessage(event.data as string | ArrayBuffer | Blob)
         }
 
         socket.onerror = () => {

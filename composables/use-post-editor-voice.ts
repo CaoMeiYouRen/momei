@@ -225,7 +225,7 @@ async function startProxyVoiceStream(context: {
     }
 
     nextWs.onmessage = (event) => {
-        const msg = JSON.parse(event.data)
+        const msg = JSON.parse(event.data as string) as { type?: string, isFinal?: boolean, text: string, message?: string }
         if (msg.type === 'transcript') {
             if (msg.isFinal) {
                 context.onFinalTranscript(msg.text)

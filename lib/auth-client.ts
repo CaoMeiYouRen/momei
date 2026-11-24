@@ -145,7 +145,7 @@ export function primeAuthSessionRequestCache(session: AuthClientSession, ttlMs =
     }
 }
 
-const cachedAuthFetch: typeof fetch = async (input, init) => {
+const cachedAuthFetch: typeof fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     if (!import.meta.client || !isSessionRequest(input) || (init?.method && init.method.toUpperCase() !== 'GET')) {
         return fetch(input, init)
     }
