@@ -184,7 +184,7 @@ describe('count-primevue-usage / main', () => {
             const report = JSON.parse(await readFile(output, 'utf8'))
             const markdown = await readFile(join(directory, 'nested', 'primevue-usage.md'), 'utf8')
 
-            expect(report.components).toBeDefined()
+            expect(report.generatedFrom.fileCount).toBeGreaterThan(0)
             expect(markdown).toContain('# PrimeVue 用量基线')
             expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('[primevue-usage] JSON:'))
             expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('[primevue-usage] 浮层族：'))
@@ -262,7 +262,7 @@ describe('count-primevue-usage / 迁移面计数', () => {
             expect(report.styleCoupling.globalSelectors).toBe(1)
             expect(report.dataTable.columnTags).toBe(1)
             expect(report.dataTable.bodySlots).toBe(1)
-            expect(report.dataTable.slotProps).toBeGreaterThanOrEqual(1)
+            expect(report.dataTable.slotProps).toBe(2)
             expect(report.commandApis.anchorToggleCalls).toBe(1)
             expect(report.commandApis.usage.map((entry) => entry.name)).toContain('useToast')
             expect(report.commandApis.usage.map((entry) => entry.name)).toContain('useDialog')

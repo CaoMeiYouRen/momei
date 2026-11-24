@@ -208,6 +208,8 @@ export class CustomLogger implements Logger {
     }
 
     log(level: 'log' | 'info' | 'warn', message: any, queryRunner?: QueryRunner): any {
+        // TypeORM Logger 契约中 message 为 any（可能传入对象 / 错误），这里仅做类型断言保持原样传递，
+        // 不做字符串化，避免改变既有日志内容。
         switch (level) {
             case 'log':
             case 'info':

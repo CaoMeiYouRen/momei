@@ -24,8 +24,8 @@
 | 84.1 字号归一第六批 B | 3/3 | 已闭环 | 待回填 | Pass（R1 Pass / R2 Reject / R3 Pass；84.1.2 分区 R1 Reject / R2 Pass + 页面样式面 Pass） | 3 → 3 commits |
 | 84.2 文档 deploy 压缩 | 3/3 | 已闭环 | 待回填 | Pass（R1 Reject / R2 Pass） | 3 → 1 commit |
 | 84.3 结构复用切片 | 3/3 | 已闭环 | 待回填 | Pass（R1 Reject / R2 Reject / R3 Pass） | 3 → 1 commit |
-| 84.4 覆盖率第二十五批 | 3/3 | 已闭环 | 待回填 | 待审计 | 3 → 1 commit |
-| 84.5 静态规则债第六批 | 3/4 | 进行中 | 待回填 | 进行中 | 4 → 4 commits |
+| 84.4 覆盖率第二十五批 | 3/3 | 已闭环 | 待回填 | Pass（R1 Pass） | 3 → 2 commits |
+| 84.5 静态规则债第六批 | 4/4 | 已闭环 | 待回填 | Pass（R1 Pass） | 4 → 5 commits |
 | 84.6 i18n ALS 缺陷修复 | 3/3 | 已闭环 | 待回填 | Pass（R1 Reject / R2 Pass；设计先行，kill-switch 采用保持现状案） | 3 → 1 commit |
 
 ### 第八十四阶段：治理收尾与规则面/运行时缺陷收敛（进行中，2026-11-24 立项）
@@ -102,7 +102,7 @@
         - 交付物: 测试文件、coverage exit、证据。
         - 依赖: 84.4.2。
 
-- [ ] **84.5 静态规则债第六批（P2，确认档 ROI 1.33）**
+- [x] **84.5 静态规则债第六批（P2，确认档 ROI 1.33）**
     - [x] **84.5.1 复算基线与作用域评估**
         - 目标: 复算 `no-unsafe-argument` 命中（2026-11-21 口径 50 / 23 文件），确认 typed 规则在 `.vue` 与 tests / scripts 的作用域边界；评估 `PRODUCTION_TS_IGNORES` 中 `**/migration-*.ts` 收窄后共享该常量的其余规则新增命中。
         - 验收: inventory 基线落盘；收窄评估结论（4 个生产模块的新命中数）写入证据；代表文件先改 1 个并定向验证。
@@ -118,7 +118,7 @@
         - 验收: inventory 该规则 0 命中 / 0 warning / 0 豁免；`eslint.config.js` 与 `eslint-debt-targets.mjs` 常量同步；typecheck 通过。
         - 交付物: 代码 / 配置改动、inventory 产物。
         - 依赖: 84.5.2。
-    - [ ] **84.5.4 收口与 issue #262 回写**
+    - [x] **84.5.4 收口与 issue #262 回写**
         - 目标: 完成回归并回写批次记录。
         - 验收: `pnpm lint` / `typecheck` / 定向测试通过；issue #262 回写；若收窄引发 >20 处新增 error 且无法收敛，按 kill-switch 回退收窄并登记 backlog。
         - 交付物: 验证摘要、issue 记录。

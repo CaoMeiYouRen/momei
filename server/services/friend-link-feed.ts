@@ -18,35 +18,27 @@ interface RssItem {
     published?: string
 }
 
-interface AtomEntry {
-    title?: string | { '#text'?: string }
-    link?: ({ '@_href'?: string } | string)[]
-    published?: string
-    updated?: string
-}
-
 interface RssChannel {
     title?: string
     link?: string
-    item?: {
-        title?: string
-        link?: string
-        pubDate?: string
-        'atom:updated'?: string
-        published?: string
-    }[] | { title?: string, link?: string, pubDate?: string, 'atom:updated'?: string, published?: string }
+    item?: RssItem | RssItem[]
+}
+
+type AtomLink = { '@_href'?: string } | string
+
+interface AtomEntry {
+    title?: string | { '#text'?: string }
+    // fast-xml-parser 在只有一个 <link> 时返回单个对象，多 link 时返回数组
+    link?: AtomLink | AtomLink[]
+    published?: string
+    updated?: string
 }
 
 interface AtomFeed {
     feed?: {
         title?: string
-        link?: ({ '@_href'?: string } | string)[]
-        entry?: {
-            title?: string | { '#text'?: string }
-            link?: ({ '@_href'?: string } | string)[]
-            published?: string
-            updated?: string
-        }[]
+        link?: AtomLink | AtomLink[]
+        entry?: AtomEntry | AtomEntry[]
     }
 }
 
@@ -83,7 +75,7 @@ function parseDate(value: string | undefined): string | null {
     return Number.isNaN(d.getTime()) ? null : d.toISOString()
 }
 
-function extractAtomLink(link: ({ '@_href'?: string } | string)[] | string | undefined): string | null {
+function extractAtomLink(link: AtomLink | AtomLink[] | undefined): string | null {
     if (!link) {
         return null
     }

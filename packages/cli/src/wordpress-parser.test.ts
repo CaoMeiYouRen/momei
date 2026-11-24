@@ -423,7 +423,9 @@ describe('WordPressParser - parse: 文件与目录入口', () => {
     })
 
     it('路径既不是文件也不是目录时报错', async () => {
-        await expect(new WordPressParser().parse(join(tmpdir(), 'momei-missing-wxr-entry'))).rejects.toThrow(/neither a valid WXR XML file nor a directory/)
+        await withWxrDir({ 'readme.txt': 'no xml here' }, async (directory) => {
+            await expect(new WordPressParser().parse(join(directory, 'missing-entry'))).rejects.toThrow(/neither a valid WXR XML file nor a directory/)
+        })
     })
 
     it('缺少 rss/channel 时报错', async () => {
