@@ -73,7 +73,7 @@ function rewriteMarkdownMediaUrlsInTextSegment(segment: string, siteUrl: string)
     }
 
     const rewrittenSegment = protectedSegment
-        .replace(/!\[([^\]]*)\]\((\/[^)\s]+)(\s+"[^"]*")?\)/gu, (_match, alt, url, title = '') => `![${alt}](${buildAbsoluteUrl(siteUrl, url)}${title})`)
+        .replace(/!\[([^\]]*)\]\((\/[^)\s]+)(\s+"[^"]*")?\)/gu, (_match: string, alt: string, url: string, title = '') => `![${alt}](${buildAbsoluteUrl(siteUrl, url)}${title})`)
         .replace(/<(img|audio|source|video)\b([^>]*?)\s(src|poster)=(['"])(\/[^'"]+)\4([^>]*)>/giu, (...args) => {
             const [match, tag, before, attribute, quote, url, after] = args as [string, string, string, string, string, string, string]
             return match.replace(`<${tag}${before} ${attribute}=${quote}${url}${quote}${after}>`, `<${tag}${before} ${attribute}=${quote}${buildAbsoluteUrl(siteUrl, url)}${quote}${after}>`)

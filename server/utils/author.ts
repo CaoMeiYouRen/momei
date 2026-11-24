@@ -20,7 +20,7 @@ export async function processAuthorPrivacy(author: any, isAdmin: boolean, emailF
         // 计算 SHA256 哈希用于 Gravatar
         const nextAuthor = {
             ...author,
-            [hashField]: await sha256(author[emailField]),
+            [hashField]: await sha256(String(author[emailField])),
         }
 
         // 非管理员隐藏 Email 原文

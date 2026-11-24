@@ -29,7 +29,7 @@ export function deepMergeMessages(
             && typeof current === 'object'
             && !Array.isArray(current)
         ) {
-            target[key] = deepMergeMessages(current, value as Record<string, any>)
+            target[key] = deepMergeMessages(current as Record<string, any>, value as Record<string, any>)
             return
         }
 

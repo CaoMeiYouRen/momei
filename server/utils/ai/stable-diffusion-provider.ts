@@ -68,7 +68,7 @@ export class StableDiffusionProvider implements AIProvider {
                     url: `data:image/png;base64,${base64}`,
                 })),
                 model: options.model || 'stable-diffusion',
-                raw: response.info ? JSON.parse(response.info) : response,
+                raw: response.info ? JSON.parse(String(response.info)) : response,
             }
         } catch (error: any) {
             const status = error.statusCode || error.response?.status || 500

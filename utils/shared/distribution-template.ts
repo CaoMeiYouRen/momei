@@ -211,14 +211,14 @@ function sanitizeWechatSyncMarkdownForWeibo(markdown: string) {
     return stripResidualHtml(markdown
         .replace(/```([\s\S]*?)```/gu, '$1')
         .replace(/`([^`\n]+)`/gu, '$1')
-        .replace(/^\s{0,4}#{1,6}\s+(.+?)\s*#*\s*$/gmu, (_match, text) => renderWeiboHeadingMarkdown(text))
+        .replace(/^\s{0,4}#{1,6}\s+(.+?)\s*#*\s*$/gmu, (_match: string, text: string) => renderWeiboHeadingMarkdown(text))
         .replace(/^>\s?/gmu, '')
         .replace(/^\s*[-*_]{3,}\s*$/gmu, '')
-        .replace(/<h[1-6]\b[^>]*>([\s\S]*?)<\/h[1-6]>/giu, (_match, inner) => renderWeiboHeadingMarkdown(inner))
+        .replace(/<h[1-6]\b[^>]*>([\s\S]*?)<\/h[1-6]>/giu, (_match: string, inner: string) => renderWeiboHeadingMarkdown(inner))
         .replace(/<a\b[^>]*class=(['"])[^'"]*header-anchor[^'"]*\1[^>]*>[\s\S]*?<\/a>/giu, '')
         .replace(/<figure\b[^>]*>[\s\S]*?<img\b[^>]*src=(['"])(.*?)\1[^>]*>[\s\S]*?<\/figure>/giu, '\n\n![]($2)\n\n')
         .replace(/<img\b[^>]*src=(['"])(.*?)\1[^>]*\/?>/giu, '![]($2)')
-        .replace(/<blockquote\b[^>]*>([\s\S]*?)<\/blockquote>/giu, (_match, inner) => `\n\n${stripHtmlToPlainText(inner)}\n\n`)
+        .replace(/<blockquote\b[^>]*>([\s\S]*?)<\/blockquote>/giu, (_match: string, inner: string) => `\n\n${stripHtmlToPlainText(inner)}\n\n`)
         .replace(/<br\s*\/?>/giu, '\n')
         .replace(/<\/?(?:p|div|section|article|span|strong|em|b|i|u|code)\b[^>]*>/giu, '\n')
         .replace(/\n{3,}/gu, '\n\n')
@@ -319,7 +319,7 @@ function transformWechatMpExternalLinksToReferences(markdown: string) {
             return placeholder
         })
 
-        const rewrittenSegment = segmentWithoutInlineCode.replace(/(!)?\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/gu, (match, imageMarker, label, url) => {
+        const rewrittenSegment = segmentWithoutInlineCode.replace(/(!)?\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/gu, (match: string, imageMarker: string, label: string, url: string) => {
             if (imageMarker) {
                 return match
             }
@@ -334,7 +334,7 @@ function transformWechatMpExternalLinksToReferences(markdown: string) {
             return `${label}[${referenceIndex}]`
         })
 
-        const rewrittenWithBareUrls = rewrittenSegment.replace(/https?:\/\/[^\s<>)\]]+/gu, (match, ...args: unknown[]) => {
+        const rewrittenWithBareUrls = rewrittenSegment.replace(/https?:\/\/[^\s<>)\]]+/gu, (match: string, ...args: unknown[]) => {
             const sourceArg = args[args.length - 1]
             const offsetArg = args[args.length - 2]
             const source = typeof sourceArg === 'string' ? sourceArg : ''
@@ -357,7 +357,7 @@ function transformWechatMpExternalLinksToReferences(markdown: string) {
             return match
         })
 
-        return rewrittenWithBareUrls.replace(/__MOMEI_INLINE_CODE_(\d+)__/gu, (_match, rawIndex) => {
+        return rewrittenWithBareUrls.replace(/__MOMEI_INLINE_CODE_(\d+)__/gu, (_match: string, rawIndex: string) => {
             const index = Number.parseInt(rawIndex, 10)
             return inlineCodePlaceholders[index] || ''
         })
