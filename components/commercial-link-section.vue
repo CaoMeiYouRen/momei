@@ -280,7 +280,7 @@ function getPlatformName(key: string) {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
+        font-size: var(--m-font-size-2xl);
         background-color: var(--m-surface-50);
         border-radius: $border-radius-sm;
         flex-shrink: 0;

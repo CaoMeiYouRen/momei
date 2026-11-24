@@ -34,7 +34,7 @@ import { Upload } from '@lucide/vue'
 }
 
 .upload-text {
-    font-size: 1.5rem;
+    font-size: var(--m-font-size-2xl);
     font-weight: bold;
     color: var(--m-primary-500);
     text-shadow: 0 2px 4px rgb(0 0 0 / 0.5);

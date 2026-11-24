@@ -44,7 +44,7 @@ withDefaults(defineProps<{
     }
 
     .card-title {
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         color: var(--text-color-secondary);
     }
 

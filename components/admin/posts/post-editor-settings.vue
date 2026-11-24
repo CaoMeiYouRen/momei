@@ -414,7 +414,7 @@ const confirmClearTags = () => {
 
     &__title {
         margin: 0;
-        font-size: 1rem;
+        font-size: var(--m-font-size-md);
         font-weight: 600;
         white-space: nowrap;
         overflow: hidden;

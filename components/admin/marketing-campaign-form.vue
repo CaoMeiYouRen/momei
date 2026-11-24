@@ -397,7 +397,7 @@ const handleSave = async () => {
         &--sub {
             display: block;
             font-weight: 500;
-            font-size: 0.875rem;
+            font-size: var(--m-font-size-sm);
             margin-bottom: $spacing-xs;
         }
     }

@@ -292,7 +292,7 @@ const onNext = () => emit('next')
         border-radius: 999px;
         background: color-mix(in srgb, var(--caomei-color-primary) 12%, var(--m-surface-0));
         color: var(--caomei-color-text-muted);
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         white-space: nowrap;
     }
 

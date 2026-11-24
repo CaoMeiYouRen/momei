@@ -113,7 +113,7 @@ const statusIcon = computed<Component>(() => {
         gap: 0.45rem;
         padding: 0.55rem 0.85rem;
         border-radius: 999px;
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         font-weight: 600;
         backdrop-filter: blur(12px);
         box-shadow: 0 12px 28px rgb(15 23 42 / 0.08);

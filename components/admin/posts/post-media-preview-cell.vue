@@ -225,7 +225,7 @@ watch(audioPreview, () => {
     }
 
     &__status {
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
         color: var(--caomei-color-text);
         line-height: 1.2;
     }

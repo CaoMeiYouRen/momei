@@ -43,7 +43,7 @@ withDefaults(defineProps<{
   }
 
   &__title {
-    font-size: 1.5rem;
+    font-size: var(--m-font-size-2xl);
     font-weight: 700;
     margin: 0;
   }
