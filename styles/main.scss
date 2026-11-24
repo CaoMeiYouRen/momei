@@ -184,7 +184,7 @@
     }
 
     &__title {
-        font-size: 2.25rem;
+        font-size: var(--m-font-size-4xl);
         font-weight: 700;
         color: var(--caomei-color-text);
 
@@ -288,7 +288,7 @@
  * ------------------------------------------------------------------------ */
 .form-error {
     color: var(--m-red-500);
-    font-size: 0.875rem;
+    font-size: var(--m-font-size-sm);
 }
 
 /* ---------------------------------------------------------------------------

@@ -92,7 +92,7 @@
     gap: $spacing-xs;
 
     label {
-        font-size: 0.875rem;
+        font-size: var(--m-font-size-sm);
         font-weight: 500;
         color: var(--caomei-color-text-muted);
     }

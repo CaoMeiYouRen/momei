@@ -748,7 +748,7 @@ async function handleReAudit() {
 
     &__relative {
         color: var(--caomei-color-text-muted);
-        font-size: 0.75rem;
+        font-size: var(--m-font-size-xs);
 
         &--future {
             color: var(--caomei-color-primary);

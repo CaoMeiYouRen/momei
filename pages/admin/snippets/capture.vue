@@ -275,7 +275,7 @@ definePageMeta({
             height: 100%;
             border: none;
             resize: none !important;
-            font-size: 1.25rem;
+            font-size: var(--m-font-size-xl);
             line-height: 1.6;
             padding: 0;
             background: transparent;

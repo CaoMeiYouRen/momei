@@ -57,7 +57,7 @@ function navigateToMarketing() {
 
     &__intro-title {
         margin: 0;
-        font-size: 1.125rem;
+        font-size: var(--m-font-size-lg);
         font-weight: 600;
         color: var(--caomei-color-text);
     }

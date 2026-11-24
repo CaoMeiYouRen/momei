@@ -21,7 +21,7 @@
 
 | 大条目 | 小条目 | 状态 | 提交 | 审计 | 容量（计划→实际） |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| 84.1 字号归一第六批 B | 1/3 | 进行中 | 待回填 | Pass（R1 Pass / R2 Reject / R3 Pass） | 3 → 1 commit |
+| 84.1 字号归一第六批 B | 2/3 | 进行中 | 待回填 | Pass（R1 Pass / R2 Reject / R3 Pass） | 3 → 2 commits |
 | 84.2 文档 deploy 压缩 | 3/3 | 已闭环 | 待回填 | Pass（R1 Reject / R2 Pass） | 3 → 1 commit |
 | 84.3 结构复用切片 | 0/3 | 未开始 | 待提交 | — | 3 → 0 commits |
 | 84.4 覆盖率第二十五批 | 0/3 | 未开始 | 待提交 | — | 3 → 0 commits |
@@ -40,7 +40,7 @@
         - 验收: 盲区 3 文件（`snippet-edit-dialog.vue` / `pages/admin/snippets/capture.vue` / `snippet-quick-capture.vue`）声明重新计入；修复前后 inventory 差异与预期一致；脚本改动附单测（现存 `tests/scripts/*font*` 若无则补最小用例）。
         - 交付物: 脚本与测试改动、inventory 前后对比、选批清单。
         - 依赖: 无。
-    - [ ] **84.1.2 等值替换与逐元素对账**
+    - [x] **84.1.2 等值替换与逐元素对账**
         - 目标: 把口径内等值待替换清零（`scaleDeclarationCount = 0`），`styles/main.scss` 的 2 处按用途甄别（字阶定义行不得改）。
         - 验收: inventory `scale` 0 条、token 覆盖上升；逐元素 `getComputedStyle` 0 差异；`pnpm lint:css` 0 error。
         - 交付物: token 替换、对账证据。
