@@ -93,17 +93,95 @@ function computeLineNumber(content, index) {
     return content.slice(0, index).split('\n').length
 }
 
+const LINE_COMMENT_PREFIX_PATTERN = /^[ \t]*$/u
+/** 引号前出现这些字符才视为字符串字面量开头（属性赋值 `=`、函数参数 `(` 等）。 */
+const STRING_OPENERS = new Set(['=', '(', ':', ',', '[', '{', ';'])
+
+function previousSignificantChar(content, index) {
+    for (let cursor = index - 1; cursor >= 0; cursor -= 1) {
+        const char = content[cursor]
+
+        if (char === '\n' || !/\s/u.test(char)) {
+            return char
+        }
+    }
+
+    return ''
+}
+
 /**
  * 扫描前屏蔽注释（块注释与整行行注释），保留字符长度以维持行号。
  *
  * 只屏蔽「整行行注释」，避免误伤 `url(https://…)` 这类含 `//` 的取值。
+ *
+ * 扫描时跟踪字符串字面量：Vue 模板的 `accept` 属性会把 MIME 通配写法（`image` 斜杠星号、
+ * 纯通配等）写进属性字符串，其中的「斜杠 + 星号」不算注释起点；字符串外的块注释
+ * （含紧贴标识符的注释）仍照常屏蔽。
  */
 export function stripComments(content) {
-    const blankOut = (match) => match.replaceAll(/[^\n]/gu, ' ')
+    const stripped = content.split('')
+    let quote = ''
 
-    return content
-        .replaceAll(/\/\*[\s\S]*?\*\//gu, blankOut)
-        .replaceAll(/^[ \t]*\/\/[^\n]*/gmu, blankOut)
+    const blankOut = (from, to) => {
+        for (let cursor = from; cursor < to; cursor += 1) {
+            if (stripped[cursor] !== '\n') {
+                stripped[cursor] = ' '
+            }
+        }
+    }
+
+    for (let index = 0; index < content.length; index += 1) {
+        const char = content[index]
+
+        if (quote) {
+            if (char === '\n') {
+                quote = ''
+                continue
+            }
+
+            if (char === '\\') {
+                index += 1
+                continue
+            }
+
+            if (char === quote) {
+                quote = ''
+            }
+
+            continue
+        }
+
+        if (char === '/' && content[index + 1] === '*') {
+            const end = content.indexOf('*/', index + 2)
+
+            if (end === -1) {
+                continue
+            }
+
+            blankOut(index, end + 2)
+            index = end + 1
+            continue
+        }
+
+        if (char === '/' && content[index + 1] === '/' && LINE_COMMENT_PREFIX_PATTERN.test(content.slice(0, index).split('\n').pop() ?? '')) {
+            const end = content.indexOf('\n', index)
+            const stop = end === -1 ? content.length : end
+
+            blankOut(index, stop)
+            index = stop - 1
+            continue
+        }
+
+        if (char === '"' || char === '\'') {
+            const previous = previousSignificantChar(content, index)
+
+            if (previous === '' || previous === '\n' || STRING_OPENERS.has(previous)) {
+                quote = char
+            }
+        }
+    }
+
+    return stripped.join('')
 }
 
 function normalizeValue(rawValue) {

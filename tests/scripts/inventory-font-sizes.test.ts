@@ -145,6 +145,73 @@ describe('inventory-font-sizes - stripComments', () => {
         expect(declarations[0]?.line).toBe(4)
     })
 
+    it('Vue 属性的 image/* 取值不吞后续块注释', () => {
+        const content = [
+            '<template>',
+            '    <input accept="image/*" type="file" />',
+            '</template>',
+            '',
+            '<style scoped>',
+            '.a { font-size: 1rem; }',
+            '/* .b { font-size: 2rem; } */',
+            '.c { font-size: 1.25rem; }',
+            '</style>',
+        ].join('\n')
+        const scale = collectFontSizeScale(SCALE_FIXTURE)
+        const declarations = extractFontSizeDeclarations(content, '/repo/components/a.vue', scale, '/repo')
+
+        expect(declarations.map((item) => item.value)).toEqual(['1rem', '1.25rem'])
+        expect(stripComments(content)).toContain('accept="image/*"')
+        expect(stripComments(content)).not.toContain('2rem')
+    })
+
+    it('MIME 纯通配属性取值同样不吞后续块注释', () => {
+        const content = [
+            '<template>',
+            '    <input accept="*/*" type="file" />',
+            '</template>',
+            '<style scoped>',
+            '.a { font-size: 1rem; }',
+            '/* .b { font-size: 2rem; } */',
+            '.c { font-size: 1.25rem; }',
+            '</style>',
+        ].join('\n')
+        const declarations = extractFontSizeDeclarations(content, '/repo/components/b.vue', collectFontSizeScale(SCALE_FIXTURE), '/repo')
+
+        expect(declarations.map((item) => item.value)).toEqual(['1rem', '1.25rem'])
+        expect(stripComments(content)).not.toContain('2rem')
+    })
+
+    it('未闭合的块注释起始符不屏蔽到文件末尾', () => {
+        const content = [
+            'const mime = flag ? \'image/*\' : \'x\'',
+            '.a { font-size: 1rem; }',
+        ].join('\n')
+        const declarations = extractFontSizeDeclarations(content, '/repo/components/c.vue', collectFontSizeScale(SCALE_FIXTURE), '/repo')
+
+        expect(declarations.map((item) => item.value)).toEqual(['1rem'])
+    })
+
+    it('跨行不维持字符串状态，后续注释照常屏蔽', () => {
+        const content = [
+            '<p>',
+            '    \'引号开头的散文行',
+            '</p>',
+            '.a { font-size: 1rem; }',
+            '/* .b { font-size: 2rem; } */',
+        ].join('\n')
+        const declarations = extractFontSizeDeclarations(content, '/repo/components/d.vue', collectFontSizeScale(SCALE_FIXTURE), '/repo')
+
+        expect(declarations.map((item) => item.value)).toEqual(['1rem'])
+    })
+
+    it('字符串外的块注释即使紧贴标识符也照常屏蔽', () => {
+        const content = '.a { color: red/* font-size: 9rem; */; font-size: 1rem; }'
+        const declarations = extractFontSizeDeclarations(content, '/repo/styles/demo.scss', collectFontSizeScale(SCALE_FIXTURE), '/repo')
+
+        expect(declarations.map((item) => item.value)).toEqual(['1rem'])
+    })
+
     it('不误伤 url 中的 //', () => {
         const declarations = extractFontSizeDeclarations(
             '.a { background: url(https://example.com/a.png); font-size: 1rem; }',
