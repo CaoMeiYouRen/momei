@@ -22,7 +22,7 @@
 | 大条目 | 小条目 | 状态 | 提交 | 审计 | 容量（计划→实际） |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 84.1 字号归一第六批 B | 1/3 | 进行中 | 待回填 | Pass（R1 Pass / R2 Reject / R3 Pass） | 3 → 1 commit |
-| 84.2 文档 deploy 压缩 | 0/3 | 未开始 | 待提交 | — | 3 → 0 commits |
+| 84.2 文档 deploy 压缩 | 3/3 | 已闭环 | 待回填 | Pass（R1 Reject / R2 Pass） | 3 → 1 commit |
 | 84.3 结构复用切片 | 0/3 | 未开始 | 待提交 | — | 3 → 0 commits |
 | 84.4 覆盖率第二十五批 | 0/3 | 未开始 | 待提交 | — | 3 → 0 commits |
 | 84.5 静态规则债第六批 | 0/4 | 未开始 | 待提交 | — | 4 → 0 commits |
@@ -51,18 +51,18 @@
         - 交付物: visual / parity 日志、backlog 回填。
         - 依赖: 84.1.2。
 
-- [ ] **84.2 文档 deploy 压缩（P2）**
-    - [ ] **84.2.1 盘点与压缩方案**
+- [x] **84.2 文档 deploy 压缩（P2）**
+    - [x] **84.2.1 盘点与压缩方案**
         - 目标: `docs/guide/deploy.md` 274 行（候选 warn 255 / error 280）定位可合并段与可下沉细节，核对锚点引用面。
         - 验收: 方案落 `artifacts/review-gate/<date>-phase84-item2-docs.md`；不删除仍生效的部署步骤与平台差异说明。
         - 交付物: 盘点清单、压缩方案。
         - 依赖: `node scripts/docs/check-line-count.mjs --profile=candidate`。
-    - [ ] **84.2.2 压缩到候选 warn 线内**
+    - [x] **84.2.2 压缩到候选 warn 线内**
         - 目标: 压到 `≤255` 行，细节下沉到专项设计或平台文档并回链。
         - 验收: 候选 profile 0 error / 0 warn（全仓）；`lint-md` / `docs:check:links` 通过。
         - 交付物: 文档改动、行数对比。
         - 依赖: 84.2.1。
-    - [ ] **84.2.3 镜像与门禁收口**
+    - [x] **84.2.3 镜像与门禁收口**
         - 目标: 同步受影响的翻译镜像并复核文档门禁。
         - 验收: `docs:check:i18n` / `docs:check:source-of-truth` / `docs:check:markers` / `docs:check:line-count` 全通过；镜像 `last_sync` 提升到改动日。
         - 交付物: 镜像改动、门禁日志。

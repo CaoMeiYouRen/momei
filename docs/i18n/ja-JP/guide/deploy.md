@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-04
+last_sync: 2026-11-24
 ---
 
 # デプロイガイド

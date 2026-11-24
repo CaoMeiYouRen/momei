@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-04
+last_sync: 2026-11-24
 translation_tier: summary-sync
 ---
 
@@ -18,18 +18,9 @@ translation_tier: summary-sync
 
 第一次部署時，建議依序檢查，而不是一次把所有設定填滿：
 
-1. 先選部署路徑。
-	- 本機開發：允許零設定啟動，但只適用於開發與體驗。
-	- Vercel：必須切換到外部 `DATABASE_URL`，不要繼續使用預設 SQLite。
-	- Docker / 自託管 Node：可以保留 SQLite，但要先確認資料庫與上傳目錄能持久化。
-	- Cloudflare Pages / Workers：目前仍不支援整站主體執行，僅建議保留 R2、Scheduled Events 等外圍能力。
-2. 再補核心變數。
-	- 正式部署至少先補齊 `AUTH_SECRET`、`NUXT_PUBLIC_SITE_URL`、`NUXT_PUBLIC_AUTH_BASE_URL`。
-	- `NUXT_PUBLIC_SITE_URL` 與 `NUXT_PUBLIC_AUTH_BASE_URL` 在生產環境中通常應保持同源。
-3. 最後檢查組合衝突。
-	- Serverless + SQLite：重部署或重啟後會遺失資料，不應作為正式路徑。
-	- Serverless + `STORAGE_TYPE=local`：站點也許能啟動，但上傳與媒體鏈路會在實際使用時失敗。
-	- 資料庫無法連線：優先檢查 `DATABASE_URL`、SQLite 路徑權限、Docker 掛載與外部資料庫可達性。
+1. 先選部署路徑：本機開發允許零設定啟動，但只適用於開發與體驗；Vercel 必須切換到外部 `DATABASE_URL`，不要繼續使用預設 SQLite；Docker / 自託管 Node 可以保留 SQLite，但要先確認資料庫與上傳目錄能持久化；Cloudflare Pages / Workers 目前仍不支援整站主體執行，僅建議保留 R2、Scheduled Events 等外圍能力。
+2. 再補核心變數：正式部署至少先補齊 `AUTH_SECRET`、`NUXT_PUBLIC_SITE_URL`、`NUXT_PUBLIC_AUTH_BASE_URL`，後兩者在生產環境中通常應保持同源。
+3. 最後檢查組合衝突：Serverless + SQLite 會在重部署或重啟後遺失資料；Serverless + `STORAGE_TYPE=local` 時站點也許能先啟動，但上傳與媒體鏈路會在實際使用時失敗；資料庫無法連線時優先檢查 `DATABASE_URL`、SQLite 路徑權限、Docker 掛載與外部資料庫可達性。
 
 若安裝精靈第一步已經提示阻塞項，請先解決這些阻塞，再繼續資料庫初始化與管理員建立。
 
@@ -99,14 +90,9 @@ translation_tier: summary-sync
 - **`FRIEND_LINKS_FAILURE_BACKOFF_MAX_MINUTES`**：連續失敗站點的最大冷卻窗口，預設 `10080` 分鐘（7 天）。
 - **`FRIEND_LINKS_AUTO_DISABLE_FAILURE_THRESHOLD`**：連續失敗達到閾值後可自動轉為 `inactive`，預設關閉。
 
-說明：`WEBHOOK_TIMESTAMP_TOLERANCE` 目前仍保留在示例檔中，但現版本實作尚未讀取；Webhook 校驗固定使用 5 分鐘容差。
+說明：`WEBHOOK_TIMESTAMP_TOLERANCE` 目前仍保留在示例檔中，但現版本實作尚未讀取；Webhook 校驗固定使用 5 分鐘容差。Vercel / Cloudflare / 手動 Webhook 入口會統一執行文章排程、行銷排程、AI 媒體超時補償與友鏈巡檢；自託管環境下，主 Cron 負責文章 / 行銷排程與 AI 媒體補償，友鏈巡檢維持獨立 Cron，避免跟隨預設 5 分鐘主任務頻率高頻觸發。
 
-調度責任目前收斂如下：
-
-- Vercel / Cloudflare / 手動 Webhook 入口會統一執行文章排程、行銷排程、AI 媒體超時補償與友鏈巡檢。
-- 自託管環境下，主 Cron 負責文章 / 行銷排程與 AI 媒體補償；友鏈巡檢維持獨立 Cron，避免跟隨預設 5 分鐘主任務頻率高頻觸發。
-
-友鏈巡檢只會探測已達最小間隔且不在失敗冷卻期內的記錄；AI 媒體補償只會掃描超時且長期無更新的圖片生成 / 播客任務，並依既有 checkpoint 決定續跑、補寫或最終失敗落點。
+非生產環境預設不註冊這兩組內建 Cron，避免本機開發直連遠端資料庫時週期性喚醒 compute；需要本機聯調時再明確設定 `ENABLE_CRON_JOB=true`。即使統一定時入口觸發更頻繁，友鏈巡檢也只會探測已達最小間隔且不在失敗冷卻期內的記錄；AI 媒體補償只會掃描超時且長期無更新的圖片生成 / 播客任務，並依既有 checkpoint 決定續跑、補寫或最終失敗落點。
 
 ## 3. 體驗增強配置
 
@@ -194,18 +180,13 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 ### 4.4 Axiom 日誌聚合
 
 ```dotenv
-# Axiom Dataset 名稱（與控制台一致）
 AXIOM_DATASET_NAME=momei-prod
-# Axiom Ingest Token（在 Settings → API Tokens 產生）
 AXIOM_API_TOKEN=xaat-xxxxxxxx
-
-# 生產環境建議：明確等級，避免 http/silly 攝取暴增
 LOG_LEVEL=info
-# Docker / 自託管環境可開啟檔案日誌，Vercel 必須保持 false
 LOGFILES=true
 ```
 
-啟用後 Winston 會自動組合 `console + file + Axiom` 三路日誌；未捕獲例外與 Promise 拒絕會透過 Axiom 的 `exceptionHandlers` 一併上報。詳細欄位說明、查詢範例與告警接入見 [中文原文 §2.5.1](../../../guide/variables.md#251-日志与-axiom-集成-logging-and-axiom-integration)。
+Winston 會自動組合 `console + file + Axiom` 三路日誌；未捕獲例外與 Promise 拒絕會透過 Axiom 的 `exceptionHandlers` 一併上報。`LOGFILES` 僅在 Docker / 自託管環境設為 `true`，Vercel / Serverless 必須為 `false`。詳細欄位說明、查詢範例與告警接入見 [中文原文 §2.5.1](../../../guide/variables.md#251-日志与-axiom-集成-logging-and-axiom-integration)。
 
 ## 5. 部署到主流平台
 
@@ -217,11 +198,8 @@ LOGFILES=true
 	- 建議掛載 `database/` 與上傳目錄。
 	- 若需內建 Cron，可使用 `TASK_CRON_EXPRESSION` 自訂頻率。
 - **Cloudflare（外圍能力接入）**：
-	- 目前版本暫不支援將應用主體完整部署到 Cloudflare Pages / Workers，根因是專案仍依賴 TypeORM 與 Node 執行時能力。
-	- 研究結論與止損條件請參考 [Cloudflare 執行時相容研究與止損結論](../../../design/governance/archive/cloudflare-runtime-study.md)。
-	- Cloudflare R2 可繼續作為物件儲存接入。
-	- Scheduled Events 相關觸發適配與 [wrangler.toml](../../../../wrangler.toml) 配置目前保留為外圍能力設計 / 實驗入口，不應被解讀為整站 Cloudflare 執行時已受支援。
-	- `pnpm deploy:wrangler` 目前僅用於 wrangler 側適配調試，不應作為生產環境整站部署指令。
+	- 目前版本暫不支援將應用主體完整部署到 Cloudflare Pages / Workers，根因是專案仍依賴 TypeORM 與 Node 執行時能力；研究結論與止損條件請參考 [Cloudflare 執行時相容研究與止損結論](../../../design/governance/archive/cloudflare-runtime-study.md)。
+	- Cloudflare R2 可繼續作為物件儲存接入；Scheduled Events 相關觸發適配與 [wrangler.toml](../../../../wrangler.toml) 配置目前保留為外圍能力設計 / 實驗入口，`pnpm deploy:wrangler` 僅用於 wrangler 側適配調試，不應被解讀為整站 Cloudflare 執行時已受支援，也不應作為生產環境整站部署指令。
 
 ## 6. 排障指引
 

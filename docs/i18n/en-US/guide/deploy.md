@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-09-04
+last_sync: 2026-11-24
 translation_tier: must-sync
 ---
 
@@ -18,18 +18,9 @@ To make rollout easier, the configuration is grouped into three layers: **Essent
 
 For the first deployment, do not fill every option at once. Check them in this order instead:
 
-1. Choose the deployment path first.
-	- Local development: zero-config startup is allowed, but only for development and preview.
-	- Vercel: switch to an external `DATABASE_URL`; do not keep default SQLite.
-	- Docker / self-hosted Node: SQLite is still acceptable, but make sure the database and upload directories persist.
-	- Cloudflare Pages / Workers: the full application runtime is still unsupported; keep Cloudflare limited to peripheral integrations such as R2 or Scheduled Events experiments.
-2. Fill the core variables next.
-	- Production deployment should provide `AUTH_SECRET`, `NUXT_PUBLIC_SITE_URL`, and `NUXT_PUBLIC_AUTH_BASE_URL` first.
-	- `NUXT_PUBLIC_SITE_URL` and `NUXT_PUBLIC_AUTH_BASE_URL` should usually stay on the same origin in production.
-3. Check configuration conflicts last.
-	- Serverless + SQLite: data will be lost after redeploy or restart and is not a valid production path.
-	- Serverless + `STORAGE_TYPE=local`: the site may boot, but uploads and media flows will fail in real use.
-	- Missing database connectivity: verify `DATABASE_URL`, SQLite path permissions, Docker mounts, and external database reachability first.
+1. Choose the deployment path first: local development allows zero-config startup but is only for development and preview; Vercel must switch to an external `DATABASE_URL` instead of default SQLite; Docker / self-hosted Node can keep SQLite as long as the database and upload directories persist; the full application runtime on Cloudflare Pages / Workers is still unsupported, so keep Cloudflare limited to peripheral integrations such as R2 or Scheduled Events.
+2. Fill the core variables next: production deployment should provide `AUTH_SECRET`, `NUXT_PUBLIC_SITE_URL`, and `NUXT_PUBLIC_AUTH_BASE_URL` first, and the latter two should usually stay on the same origin.
+3. Check configuration conflicts last: Serverless + SQLite loses data after redeploy or restart; Serverless + `STORAGE_TYPE=local` boots but uploads and media flows fail in real use; for missing database connectivity verify `DATABASE_URL`, SQLite path permissions, Docker mounts, and external database reachability first.
 
 If the installation wizard already shows blockers on step 1, clear those blockers before proceeding with database initialization and admin creation.
 
@@ -56,19 +47,7 @@ These settings are not strictly required to boot the app, but they largely deter
 
 #### 2.1.1 Production Initialization (init.sql)
 
-When `DATABASE_SYNCHRONIZE=false`, you should run `database/**/init.sql` manually during first-time deployment. The current scripts map to:
-
-- SQLite: `database/sqlite/init.sql`
-- MySQL / MariaDB: `database/mysql/init.sql`
-- PostgreSQL: `database/postgres/init.sql`
-
-Before execution, verify:
-
-1. The target database is empty (or backed up).
-2. `DATABASE_URL` matches the selected engine.
-3. The init.sql files and `server/entities` are from the same branch revision.
-
-Example commands:
+When `DATABASE_SYNCHRONIZE=false`, run `database/**/init.sql` manually during first-time deployment: SQLite uses `database/sqlite/init.sql`, MySQL / MariaDB uses `database/mysql/init.sql`, and PostgreSQL uses `database/postgres/init.sql`. Before execution, verify the target database is empty or backed up, `DATABASE_URL` matches the selected engine, and the init.sql files and `server/entities` come from the same branch revision.
 
 ```bash
 # SQLite
@@ -128,16 +107,13 @@ Note: browser direct upload currently uses presigned `PUT` requests when `STORAG
 - **`FRIEND_LINKS_FAILURE_BACKOFF_MAX_MINUTES`**: Maximum cooldown window for repeatedly failing sites. Default `10080` minutes (7 days).
 - **`FRIEND_LINKS_AUTO_DISABLE_FAILURE_THRESHOLD`**: After this consecutive-failure threshold, a link can be auto-switched to `inactive`. Disabled by default.
 
-`WEBHOOK_TIMESTAMP_TOLERANCE` still appears in the example file, but the current implementation does not read it. Webhook validation uses a fixed 5-minute tolerance window.
+`WEBHOOK_TIMESTAMP_TOLERANCE` still appears in the example file, but the current implementation does not read it; Webhook validation uses a fixed 5-minute tolerance window.
 
-Dispatch responsibilities now converge as follows:
-
-- Vercel / Cloudflare / manual webhook entry points execute article scheduling, marketing scheduling, AI media timeout compensation, and friend-links inspection through the unified task entry.
-- In self-hosted mode, the main cron handles article / marketing scheduling and AI media timeout compensation, while friend-links inspection continues on a separate cron so it does not inherit the default 5-minute main-task cadence.
-
-Friend-links inspection only probes records that have passed the minimum interval and are not currently inside their failure cooldown window.
-
-AI media compensation only scans image-generation and podcast tasks that exceeded the timeout threshold and stayed stale long enough. It resumes or closes them based on persisted checkpoints instead of blindly regenerating them on every run.
+- Vercel / Cloudflare / manual webhook entry points run article scheduling, marketing scheduling, AI media timeout compensation, and friend-links inspection through the unified task entry.
+- In self-hosted mode, the main cron handles article / marketing scheduling and AI media timeout compensation, while friend-links inspection keeps its own cron so it does not inherit the default 5-minute main-task cadence.
+- Non-production environments do not register either built-in cron by default, so local development against a remote database does not periodically wake compute; set `ENABLE_CRON_JOB=true` explicitly for local joint debugging.
+- The unified entry only scans image-generation and podcast tasks that exceeded the timeout threshold and stayed stale long enough, resuming or closing them from persisted checkpoints instead of regenerating on every run.
+- Friend-links inspection only probes records that passed the minimum interval and are not inside their failure cooldown window, even when the unified entry triggers more frequently.
 
 ## 3. Optional Enhancements
 
@@ -226,18 +202,13 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 ### 4.4 Axiom Log Aggregation
 
 ```dotenv
-# Axiom dataset name (matches the dashboard)
 AXIOM_DATASET_NAME=momei-prod
-# Axiom Ingest token (generate from Settings → API Tokens)
 AXIOM_API_TOKEN=xaat-xxxxxxxx
-
-# Recommended for production: pin a stable level
 LOG_LEVEL=info
-# Enable file logs for Docker / self-hosted deployments; keep false on Vercel
 LOGFILES=true
 ```
 
-When these are set, Winston composes the `console + file + Axiom` pipeline automatically; uncaught exceptions and Promise rejections are routed through Axiom's `exceptionHandlers`. For field-level details, query examples, and alert setup see [Environment configuration → Logging and Axiom integration](./variables.md#251-logging-and-axiom-integration).
+Winston composes the `console + file + Axiom` pipeline automatically; uncaught exceptions and Promise rejections are routed through Axiom's `exceptionHandlers`. `LOGFILES` is only for Docker / self-hosted deployments and must stay `false` on Vercel / Serverless. For field-level details, query examples, and alert setup see [Environment configuration → Logging and Axiom integration](./variables.md#251-logging-and-axiom-integration).
 
 ## 5. Deploying To Major Platforms
 
@@ -256,11 +227,8 @@ When these are set, Winston composes the `console + file + Axiom` pipeline autom
 		- `docker compose -f docker-compose.yml -f docker-compose.umami.yml --env-file .env --env-file .env.umami up -d`
 	- For guided output, run `pnpm setup:umami` (`--website-id`, `--script-url`, and `--json` are supported).
 - **Cloudflare (Peripheral integrations only)**:
-	- The current version does not support deploying the main application to Cloudflare Pages / Workers because it still depends on TypeORM and Node runtime capabilities.
-	- The current study and stop-loss conclusion are documented in [Cloudflare Runtime Compatibility Study And Stop-Loss Conclusion](../../../design/governance/archive/cloudflare-runtime-study.md).
-	- Cloudflare R2 can still be used as object storage.
-	- Scheduled Events-related trigger adaptation and [wrangler.toml](../../../../wrangler.toml) are kept as peripheral-integration design / experimentation entry points and should not be read as full Cloudflare runtime support.
-	- `pnpm deploy:wrangler` is currently only for wrangler-side integration debugging and should not be treated as a production full-site deployment command.
+	- The current version does not support deploying the main application to Cloudflare Pages / Workers because it still depends on TypeORM and Node runtime capabilities; the study and stop-loss conclusion are documented in [Cloudflare Runtime Compatibility Study And Stop-Loss Conclusion](../../../design/governance/archive/cloudflare-runtime-study.md).
+	- Cloudflare R2 can still be used as object storage; Scheduled Events-related trigger adaptation and [wrangler.toml](../../../../wrangler.toml) are kept as peripheral-integration design / experimentation entry points, and `pnpm deploy:wrangler` is only for wrangler-side integration debugging, so neither should be read as full Cloudflare runtime support nor used as a production full-site deployment command.
 
 ## 6. Troubleshooting
 

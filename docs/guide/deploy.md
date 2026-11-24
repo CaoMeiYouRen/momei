@@ -6,18 +6,9 @@
 
 第一次部署时，请先按下面的顺序排查，而不是直接把所有配置项一次性填满：
 
-1. **先选部署路径**
-  - 本地开发：允许零配置启动，仅用于开发和体验。
-  - Vercel：必须改用外部 `DATABASE_URL`，不要继续依赖默认 SQLite。
-  - Docker / 自托管 Node：可继续使用 SQLite，但要先确认数据库目录和上传目录可持久化。
-  - Cloudflare Pages / Workers：当前不支持整站主体部署，只保留 R2、Scheduled Events 等外围能力接入。
-2. **再补核心变量**
-  - 正式部署至少先补齐 `AUTH_SECRET`、`NUXT_PUBLIC_SITE_URL`、`NUXT_PUBLIC_AUTH_BASE_URL`。
-  - `NUXT_PUBLIC_SITE_URL` 与 `NUXT_PUBLIC_AUTH_BASE_URL` 在生产环境中通常应保持同源。
-3. **最后看配置组合冲突**
-  - Serverless + SQLite：会在重部署或重启后丢失数据，不应继续作为正式路径。
-  - Serverless + `STORAGE_TYPE=local`：站点也许能先启动，但上传和媒体链路会在实际使用时失败。
-  - 缺少数据库连接：优先检查 `DATABASE_URL`、SQLite 路径权限、Docker 挂载和外部数据库可达性。
+1. **先选部署路径**：本地开发允许零配置启动，仅用于开发和体验；Vercel 必须改用外部 `DATABASE_URL`，不要继续依赖默认 SQLite；Docker / 自托管 Node 可继续使用 SQLite，但要先确认数据库目录和上传目录可持久化；Cloudflare Pages / Workers 当前不支持整站主体部署，只保留 R2、Scheduled Events 等外围能力接入。
+2. **再补核心变量**：正式部署至少先补齐 `AUTH_SECRET`、`NUXT_PUBLIC_SITE_URL`、`NUXT_PUBLIC_AUTH_BASE_URL`，后两者在生产环境中通常应保持同源。
+3. **最后看配置组合冲突**：Serverless + SQLite 会在重部署或重启后丢失数据；Serverless + `STORAGE_TYPE=local` 时站点也许能先启动，但上传和媒体链路会在实际使用时失败；缺少数据库连接时优先检查 `DATABASE_URL`、SQLite 路径权限、Docker 挂载和外部数据库可达性。
 
 如果安装向导第一步已经提示阻塞项，请先解决这些问题，再继续数据库初始化和管理员创建。
 
@@ -46,19 +37,7 @@
 
 #### 2.1.1 生产初始化（init.sql）
 
-当 `DATABASE_SYNCHRONIZE=false` 时，首次部署需要手动执行 `database/**/init.sql` 完成建表。当前三套脚本分别对应：
-
-- SQLite: `database/sqlite/init.sql`
-- MySQL / MariaDB: `database/mysql/init.sql`
-- PostgreSQL: `database/postgres/init.sql`
-
-建议在执行前确认：
-
-1. 数据库实例为空库或已完成备份。
-2. `DATABASE_URL` 与目标引擎一致。
-3. 初始化脚本与实体事实源（`server/entities`）来自同一分支版本。
-
-执行方式示例：
+当 `DATABASE_SYNCHRONIZE=false` 时，首次部署需要手动执行 `database/**/init.sql` 完成建表：SQLite 用 `database/sqlite/init.sql`，MySQL / MariaDB 用 `database/mysql/init.sql`，PostgreSQL 用 `database/postgres/init.sql`。执行前请确认数据库实例为空库或已完成备份、`DATABASE_URL` 与目标引擎一致、初始化脚本与实体事实源（`server/entities`）来自同一分支版本。
 
 ```bash
 # SQLite
@@ -118,13 +97,9 @@ psql "<DATABASE_URL>" -f database/postgres/init.sql
 - **`FRIEND_LINKS_FAILURE_BACKOFF_MAX_MINUTES`**: 连续失败站点的最大冷却窗口，默认 `10080` 分钟（7 天）。
 - **`FRIEND_LINKS_AUTO_DISABLE_FAILURE_THRESHOLD`**: 连续失败达到阈值后自动转为 `inactive`，默认关闭。
 
-说明：`WEBHOOK_TIMESTAMP_TOLERANCE` 这个变量名当前仍保留在示例文件中，但现版本实现尚未读取它；Webhook 校验默认固定为 5 分钟容差。调度职责说明如下：
+说明：`WEBHOOK_TIMESTAMP_TOLERANCE` 仍保留在示例文件中，但现版本实现尚未读取它，Webhook 校验默认固定为 5 分钟容差。Vercel / Cloudflare / 手动 Webhook 入口统一执行文章 / 营销调度、AI 媒体超时补偿和友链巡检；自部署环境由主 Cron 负责文章 / 营销调度与 AI 媒体补偿，友链巡检由独立 Cron 执行，避免跟随 5 分钟主任务频率高频触发。
 
-- Vercel / Cloudflare / 手动 Webhook 入口统一执行文章 / 营销调度、AI 媒体超时补偿和友链巡检。
-- 自部署环境下，主 Cron 负责文章 / 营销调度和 AI 媒体超时补偿；友链巡检继续由独立 Cron 执行，避免默认跟随 5 分钟主任务频率高频触发。
-- 非生产环境默认不自动注册这两组内置 Cron，避免本地开发直连远端数据库时周期性唤醒 compute；确需本地联调时再显式设置 `ENABLE_CRON_JOB=true`。
-- 即使 Cloudflare / Vercel 的统一定时入口触发更频繁，友链服务也只会对已达到最小间隔且不处于失败冷却期的记录发起探测。
-- 统一定时入口只会扫描超过超时阈值且长期无更新的图片生成 / 播客任务，并根据已持久化 checkpoint 决定补写结果、续跑处理或最终失败落点，不会在每次调度中盲目重生成。
+非生产环境默认不注册这两组内置 Cron，避免本地开发直连远端数据库时周期性唤醒 compute；确需本地联调时再显式设置 `ENABLE_CRON_JOB=true`。统一定时入口只扫描超过超时阈值且长期无更新的图片生成 / 播客任务，并根据已持久化 checkpoint 决定补写结果、续跑处理或最终失败落点，不会在每次调度中盲目重生成；即使统一定时入口触发更频繁，友链服务也只探测已达到最小间隔且不处于失败冷却期的记录。
 
 ## 3. 体验增强 (Level 3: Optional)
 
@@ -213,18 +188,13 @@ MEMOS_DEFAULT_VISIBILITY=PRIVATE
 ### 4.4 Axiom 日志聚合
 
 ```dotenv
-# Axiom Dataset 名称（与控制台保持一致）
 AXIOM_DATASET_NAME=momei-prod
-# Axiom Ingest Token（在 Settings → API Tokens 生成）
 AXIOM_API_TOKEN=xaat-xxxxxxxx
-
-# 生产环境推荐：明确等级，避免 http/silly 上报风暴
 LOG_LEVEL=info
-# Docker / 自部署环境可开启文件日志，Vercel 必须保持 false
 LOGFILES=true
 ```
 
-启用后，Winston 会把 `console + file + Axiom` 三路日志统一组装，未捕获异常和 Promise 拒绝也会通过 Axiom 的 `exceptionHandlers` 上报。详细字段说明、查询示例与告警接入见 [环境配置 → 日志与 Axiom 集成](./variables.md#251-日志与-axiom-集成-logging-and-axiom-integration)。
+Winston 会把 `console + file + Axiom` 三路日志统一组装，未捕获异常和 Promise 拒绝也会经 `exceptionHandlers` 上报；`LOGFILES` 仅在 Docker / 自部署环境设为 `true`，Vercel / Serverless 必须为 `false`。详细字段、查询示例与告警接入见 [环境配置 → 日志与 Axiom 集成](./variables.md#251-日志与-axiom-集成-logging-and-axiom-integration)。
 
 ## 5. 部署到主流平台
 
@@ -243,8 +213,7 @@ LOGFILES=true
   - 若需快速生成建议配置，可执行 `pnpm setup:umami`（支持 `--website-id` / `--script-url` / `--json`）。
 - **Cloudflare（外围能力接入）**:
   - 当前版本暂不支持将应用主体完整部署到 Cloudflare Pages / Workers，根因是项目仍依赖 TypeORM 与 Node 运行时能力；研究结论与止损条件见 [Cloudflare 运行时兼容研究与止损结论](../design/governance/archive/cloudflare-runtime-study.md)。
-  - Cloudflare R2 可继续作为对象存储接入；Scheduled Events 相关触发适配与 [wrangler.toml](../../wrangler.toml) 配置当前保留为外围能力设计 / 实验入口，不应解读为整站 Cloudflare 运行时已受支持。
-  - `pnpm deploy:wrangler` 当前仅用于 wrangler 侧适配调试，不应作为生产环境整站部署命令。
+  - Cloudflare R2 可继续作为对象存储接入；Scheduled Events 相关触发适配与 [wrangler.toml](../../wrangler.toml) 配置当前保留为外围能力设计 / 实验入口；`pnpm deploy:wrangler` 仅用于 wrangler 侧适配调试，不应解读为整站 Cloudflare 运行时已受支持，也不应作为生产环境整站部署命令。
 
 ## 6. 排障指引 (Troubleshooting)
 
