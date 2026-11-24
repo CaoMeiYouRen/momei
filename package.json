@@ -117,7 +117,7 @@
     "@vueuse/core": "^15.0.0",
     "@vueuse/nuxt": "^15.0.0",
     "animate.css": "^4.1.1",
-    "better-auth": "^1.7.25",
+    "better-auth": "^1.7.27",
     "better-auth-localization": "^4.0.0",
     "better-bytes": "^1.2.6",
     "better-sqlite3": "^12.11.1",
