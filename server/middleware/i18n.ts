@@ -1,12 +1,17 @@
 import { defineEventHandler } from 'h3'
 import { detectRequestAuthLocale, mapAuthLocaleToAppLocale } from '../utils/locale'
-import { i18nStorage } from '../utils/i18n'
 import { resolveAppLocaleCode } from '@/i18n/config/locale-registry'
 
 /**
- * 请求级 i18n 上下文注入。
- * 同时写入 event.context 与 AsyncLocalStorage，确保显式传参链路和深层工具链
- * 对“当前语言”读取的是同一份事实。
+ * 请求级 i18n 上下文注入：把请求语言写入 `event.context.locale`。
+ *
+ * 当前仓库没有读取 `event.context.locale` 的调用方，页面语言由 `@nuxtjs/i18n`
+ * 的请求侧检测驱动；这里的写入保留给显式读取该字段的中间件 / 路由。
+ *
+ * 注意：不要在这里用 `i18nStorage.run(locale, () => {})` 期望后续 handler 继承
+ * AsyncLocalStorage 上下文——`run()` 只在回调作用域内生效，空回调返回即销毁，
+ * 深层 helper 会回退默认语言。该限制与后续处置见
+ * docs/design/governance/2026-11-24-i18n-als-locale-resolution.md。
  */
 export default defineEventHandler((event) => {
     // 这里只跳过内部构建产物与 favicon；其余请求仍维持统一 locale 上下文，
@@ -21,10 +26,4 @@ export default defineEventHandler((event) => {
     const appLocale = resolveAppLocaleCode(mapAuthLocaleToAppLocale(rawLocale))
 
     event.context.locale = appLocale
-
-    // AsyncLocalStorage 让不显式接收 locale 参数的深层 helper 也能读取本次请求语境，
-    // 并且不同请求间不会互相污染。
-    i18nStorage.run(appLocale, () => {
-        // 继续执行后续 Handler
-    })
 })

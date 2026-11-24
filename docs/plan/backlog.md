@@ -53,7 +53,7 @@
 - **最近一次上收阶段**: 第七十五阶段（条目 4：64 组 allowlist 三类复核 + 公开页 runtime 审计，2026-11-13 **已完成**）。
 - **当前基线**: `i18n:audit:missing = 0`、`i18n:audit:duplicates` **64 组 / 149 keys / 33 组跨模块**（2026-11-12 第七十四阶段条目 4 收敛后复算；合并 35 组至 `common.*` / `legal.*`，剩余组登记 `scripts/i18n/duplicate-group-allowlist.json` 并由 `i18n:audit:duplicates:gate` 阻断未登记新增 / 失效条目）、原文级重复键 0、`i18n:check-sync` 五语一致；缺失字段优先修复、重复键及时清理、`unused` 默认观察。原文级重复键扫描（`pnpm i18n:audit:raw-duplicates`，默认 warning、`--mode=error` 可阻断）与 PR 侧 `i18n:audit:missing` 阻断已随第七十三阶段条目 3 落地。
 - **下一次可切片方向**: 剩余 64 组 allowlist 按「动态 key 拼接」「模块内字段语义不同」「跨模块对象语义不同」三类复核；动态拼接优先评估“是否为有限集合”，默认改显式静态 key 映射而非扩 allowlist。之后仍未纳入 runtime 回归的公开页装配链路（档案 / 分类 / 标签列表页 i18n 完整性审计）。
-- **待跟踪（已上收）**: `server/middleware/i18n.ts` 的 `i18nStorage.run(appLocale, () => {})` 在 `run()` 返回即销毁上下文，后续 handler 不在 ALS 作用域内，`server/utils/i18n.ts` 的 `getLocale()` 实际恒走 `AUTH_DEFAULT_LOCALE` 回退（2026-11-21 第八十一阶段条目 3 审计发现，属既有缺陷）。**已由第八十四阶段条目 6 承接（2026-11-24 立项，设计先行 + kill-switch：三案比较后若实现面 >3 个中间件或多处调用链，则只落设计结论并退回本条目）**。
+- **待跟踪（2026-11-24 更新，责任人：国际化运行时治理）**: `server/middleware/i18n.ts` 的 `i18nStorage.run(appLocale, () => {})` 在 `run()` 返回即销毁上下文，`getLocale()` 在生产请求中恒走 `AUTH_DEFAULT_LOCALE` 回退。第八十四阶段条目 6 已完成三案比较并**按 kill-switch 采用「保持运行时行为 + 修正事实陈述」**：移除无效 ALS 注入与误导注释，请求级 locale 以 `event.context.locale` 为事实源，决策与后续方案见 [请求级 i18n 上下文缺陷评估](../design/governance/2026-11-24-i18n-als-locale-resolution.md)。**实施前置**：① 跨运行时（Node / Vercel）验证 `nitro.experimental.asyncContext` + `useEvent()` 可用性；② 为 API 响应 / 邮件 / Feed 各补至少一条请求语言断言；③ 评估每请求 unctx 包裹开销。触发条件：需要服务端响应按请求语言本地化，或升级 Nitro 评估该开关时。
 
 ### 6. 文档事实源、翻译与分层归档治理
 

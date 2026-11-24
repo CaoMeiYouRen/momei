@@ -115,7 +115,12 @@ export async function t(key: string, params?: Record<string, any>): Promise<stri
 }
 
 /**
- * 获取当前 locale
+ * 读取当前 locale。
+ *
+ * 只读取 AsyncLocalStorage 中由调用方显式 `i18nStorage.run(...)` 写入的值
+ * （生产代码当前没有这样的调用方，仅单测使用）；未进入该作用域时回退到
+ * `AUTH_DEFAULT_LOCALE`。请求级 locale 的事实源是 `event.context.locale`
+ * （见 `server/middleware/i18n.ts`），本函数不会自动读取它。
  */
 export function getLocale(): string {
     const locale = i18nStorage.getStore() || mapAuthLocaleToAppLocale(AUTH_DEFAULT_LOCALE)
