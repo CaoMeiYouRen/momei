@@ -1,5 +1,7 @@
 export const RUNTIME_TS_IGNORES = ['**/*.test.*', '**/*.spec.*', 'tests/**', 'scripts/**']
-export const PRODUCTION_TS_IGNORES = [...RUNTIME_TS_IGNORES, 'server/api/admin/migrations/**', '**/migration-*.ts']
+// 迁移面只保留 SQL / API 路由：仓库内没有 TypeScript 迁移文件，旧的 `**/migration-*.ts`
+// 会把 4 个生产模块（迁移链接治理服务 / 其 helpers / 类型 / schema）一并排除在 typed 规则之外。
+export const PRODUCTION_TS_IGNORES = [...RUNTIME_TS_IGNORES, 'server/api/admin/migrations/**']
 // typed 规则不进 nuxt.config.ts（allowDefaultProject 下无类型信息，会直接抛错）
 export const PRODUCTION_TYPED_TS_IGNORES = [...PRODUCTION_TS_IGNORES, 'nuxt.config.ts']
 
@@ -169,6 +171,13 @@ export const DISABLED_TS_RULES = [
 }))
 
 export const ESLINT_DEBT_RULE_SLICES = [
+    {
+        files: ['**/*.{ts,tsx,mts,cts}'],
+        ignores: [...PRODUCTION_TYPED_TS_IGNORES],
+        rationale: 'ESLint 严格规则第七批：生产 TS 的 no-unsafe-argument 50 处 / 21 文件清零并升 error；typed 规则只覆盖 .ts，测试 / 脚本 / 迁移 API 维持豁免。',
+        ruleId: '@typescript-eslint/no-unsafe-argument',
+        scope: 'no-unsafe-argument',
+    },
     {
         files: NO_EXPLICIT_ANY_FILES,
         ignores: [...RUNTIME_TS_IGNORES],

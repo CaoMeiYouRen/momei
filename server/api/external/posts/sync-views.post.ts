@@ -16,7 +16,7 @@
  * views/time 格式：非负整数
  */
 import { z } from 'zod'
-import { getHeader } from 'h3'
+import { getHeader, type H3Event } from 'h3'
 import { dataSource } from '@/server/database'
 import { Post } from '@/server/entities/post'
 import { validateApiKeyRequest } from '@/server/utils/validate-api-key'
@@ -35,7 +35,7 @@ const syncViewsSchema = z.object({
 })
 
 /** 从 Accept-Language 请求头提取用户偏好语言（取第一个标记） */
-function detectLanguageFromHeader(event: any): string | undefined {
+function detectLanguageFromHeader(event: H3Event): string | undefined {
     const acceptLanguage = getHeader(event, 'accept-language')
     if (!acceptLanguage) {
         return undefined

@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
     const costDisplay = await getAICostDisplayConfig()
 
     return {
-        items: rawData.map((item) => normalizeAIAdminTaskListItem(item)),
+        items: rawData.map((item: Record<string, unknown>) => normalizeAIAdminTaskListItem(item)),
         total,
         costDisplay,
     }

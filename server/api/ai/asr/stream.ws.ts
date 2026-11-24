@@ -108,7 +108,7 @@ export default defineWebSocketHandler({
                 }
 
                 currentPeer.streamUnavailableNotified = false
-                const audioBuffer = Buffer.from(data.payload, 'base64')
+                const audioBuffer = Buffer.from(data.payload as string, 'base64')
                 currentPeer.audioChunkCount = (currentPeer.audioChunkCount || 0) + 1
                 const sequence = currentPeer.requestSequence || 1
                 currentPeer.volcClient.send(buildVolcengineAudioRequestFrame(audioBuffer, sequence, false))

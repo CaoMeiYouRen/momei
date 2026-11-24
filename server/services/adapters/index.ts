@@ -70,7 +70,7 @@ export const AdAdapterFactory = {
         }
 
         // 创建新实例（避免共享状态）
-        const instance = Object.create(Object.getPrototypeOf(adapter))
+        const instance = Object.create(Object.getPrototypeOf(adapter) as object)
         Object.assign(instance, adapter)
 
         await instance.initialize(config)

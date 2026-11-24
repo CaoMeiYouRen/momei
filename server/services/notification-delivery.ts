@@ -141,7 +141,7 @@ export async function getNotificationDeliveryLogs(filters: NotificationDeliveryL
         .getRawAndEntities()
 
     return {
-        items: entities.map((item, index) => mapNotificationDeliveryLogItem(item, raw[index] ?? {})),
+        items: entities.map((item, index) => mapNotificationDeliveryLogItem(item, (raw[index] ?? {}) as { user_name?: string | null, user_email?: string | null })),
         total,
         page: filters.page,
         limit: filters.limit,

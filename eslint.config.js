@@ -39,6 +39,18 @@ const lineRuleOverrides = [
 
 const strictTsRuleOverrides = [
     createRuleOverride({
+        // ESLint 严格规则第七批：生产 TS 的 no-unsafe-argument 50 处 / 21 文件清零后升 error。
+        // typed 规则只覆盖 .ts 文件；nuxt.config.ts 无类型信息，测试 / 脚本 / 迁移 API 维持既有豁免。
+        files: tsFiles,
+        ignores: [...PRODUCTION_TYPED_TS_IGNORES],
+        plugins: {
+            '@typescript-eslint': tseslint.plugin,
+        },
+        rules: {
+            '@typescript-eslint/no-unsafe-argument': 'error',
+        },
+    }),
+    createRuleOverride({
         // ESLint 严格规则第五批：生产 TS 非空断言 24 处 / 14 文件清零后直接升 error；
         // 第六批把 .vue 脚本块 10 处清零并把规则面扩到 .vue（与 inventory 计数面同源），
         // 测试 / 脚本 / 迁移文件维持既有豁免边界。

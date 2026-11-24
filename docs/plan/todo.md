@@ -25,7 +25,7 @@
 | 84.2 文档 deploy 压缩 | 3/3 | 已闭环 | 待回填 | Pass（R1 Reject / R2 Pass） | 3 → 1 commit |
 | 84.3 结构复用切片 | 3/3 | 已闭环 | 待回填 | Pass（R1 Reject / R2 Reject / R3 Pass） | 3 → 1 commit |
 | 84.4 覆盖率第二十五批 | 0/3 | 未开始 | 待提交 | — | 3 → 0 commits |
-| 84.5 静态规则债第六批 | 2/4 | 进行中 | 待回填 | 进行中 | 4 → 4 commits |
+| 84.5 静态规则债第六批 | 3/4 | 进行中 | 待回填 | 进行中 | 4 → 4 commits |
 | 84.6 i18n ALS 缺陷修复 | 3/3 | 已闭环 | 待回填 | Pass（R1 Reject / R2 Pass；设计先行，kill-switch 采用保持现状案） | 3 → 1 commit |
 
 ### 第八十四阶段：治理收尾与规则面/运行时缺陷收敛（进行中，2026-11-24 立项）
@@ -113,7 +113,7 @@
         - 验收: 本批 `pnpm lint` 0 error；定向测试通过；无新增 `eslint-disable`。
         - 交付物: 代码改动、文件清单。
         - 依赖: 84.5.1。
-    - [ ] **84.5.3 批量清零 B 并收窄 glob 升 error**
+    - [x] **84.5.3 批量清零 B 并收窄 glob 升 error**
         - 目标: 处理剩余命中；同批把 `**/migration-*.ts` 收窄为真实迁移路径，清理收窄带出的新增命中后把规则升 `error`。
         - 验收: inventory 该规则 0 命中 / 0 warning / 0 豁免；`eslint.config.js` 与 `eslint-debt-targets.mjs` 常量同步；typecheck 通过。
         - 交付物: 代码 / 配置改动、inventory 产物。

@@ -72,7 +72,7 @@ export default defineEventHandler(async (event) => {
     const postRepo = dataSource.getRepository(Post)
 
     // Helper to apply common filters including multi-language aggregation
-    const applyCommonFilters = async (qb: any) => {
+    const applyCommonFilters = async (qb: SelectQueryBuilder<Post>) => {
         if (query.scope === 'public') {
             try {
                 await applyPostVisibilityFilter(qb, user, 'public')
