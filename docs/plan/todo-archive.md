@@ -28,13 +28,25 @@
 
 ## 主窗口保留范围
 
-- 主文档当前保留第七十至第八十三阶段共 14 个近线归档块（`411` 行，`docs:check:line-count` 口径，低于 warning `500`，暂不迁出）；行数为唯一硬约束，归档块数量只作观察项。
+- 主文档当前保留第七十至第八十四阶段共 15 个近线归档块（`423` 行，`docs:check:line-count` 口径，低于 warning `500`，暂不迁出）；行数为唯一硬约束，归档块数量只作观察项。
 - 深度归档索引已改为 4 列表格（阶段 / 主题 / 归档文件 / 归档日期），倒序覆盖 14 个 todo 分片；新增分片必须同步更新本表。
 - 第六十五至第六十八阶段与第六十九阶段的完整待办归档正文分别见 [archive/todo-archive-phases-65-68.md](./archive/todo-archive-phases-65-68.md)、[archive/todo-archive-phases-69.md](./archive/todo-archive-phases-69.md)。
 - 第一至第六十四阶段的完整待办归档正文已迁入区间分片。
 - 后续若近线窗口再次膨胀，继续按 archive/index.md 的规则把更早阶段整体迁出。
 
 ---
+
+## 第八十四阶段：治理收尾与规则面/运行时缺陷收敛（已审计归档）
+
+> **归档块模型**: v1
+
+-   **阶段名与时间**: 第八十四阶段 · 2026-11-24 ~ 2026-11-25
+-   **大条目清单与状态**: 1. 字号归一第六批 B 与 inventory 盲区修复（[x]）；2. 文档 deploy 压缩（[x]）；3. 结构复用切片（[x]）；4. 覆盖率第二十五批（[x]）；5. 静态规则债第六批（[x]）；6. i18n ALS 缺陷修复（[x]，设计先行走 kill-switch 保持现状案）
+-   **提交清单**: `89d436f4`（立项）；`0aba192e`（84.1.1 盲区修复）；`eae612fd` / `a67557ff`（84.1.2 两段式替换）；`bf4bcdf3`（84.1.3 收口）；`55788c64`（84.2）；`2ac918f7`（84.3）；`06847127`（84.6）；`25c9803c` / `5fb22ce2` / `8e9f29c0` / `8c73ef65`（84.5 四批）；`50a763f8`（84.4）；`b0cd3025`（84.4 / 84.5 复审修正与规划回填，按复审修补计入）；归档提交见本阶段收口记录
+-   **质量门结果**: 干净全量 `coverage` EXIT 0（649 文件 / 6,177 tests / 1 skipped），statements **87.92%**（34,929 / 39,726，较第八十三阶段收口 87.58% **+0.34pp**）；`pnpm lint` 0 error（10 root + 3 cli 既有 warning）、`typecheck` 0 error、`lint:css` 0 error、`lint-md` 通过；`test:visual` 32/32、parity 本机 82/83（`user-settings-dark` 3,199px / 0.247% 既有头像数据态，CI 裁决）；`docs:check:{line-count,planning-docs,links,i18n,markers,source-of-truth}` 通过；`governance:inventory:eslint-rules` 对 `no-unsafe-argument` 0 命中 / 0 warning / 0 豁免 / effectiveSeverity 2；duplicate-code `0.31%`（strict Pass）；字号 inventory `scale 0 / token 274（59.96%）`
+-   **Review Gate 结论与轮次**: 84.1.1 R1 Pass → R2 Reject → R3 Pass；84.1.2 components 分区 R1 Reject → R2 Pass、pages/styles 分区 R1 Pass，主审合并 Pass；84.2 R1 Reject → R2 Pass；84.3 R1 Reject → R2 Reject → R3 Pass；84.4 R1 Pass；84.5 R1 Pass（W1–W2 修复、S3–S4 回填）；84.6 R1 Reject → R2 Pass；归档文档 R1 Reject → R2 Pass（四语摘要、分片链接、主窗口状态已修复）
+-   **未覆盖边界**: ① i18n ALS 真正修复（Nuxt `experimental.asyncContext` 或显式传参）转 backlog #5，前置为跨运行时验证与 API / 邮件 / Feed 语言断言；② `login.vue` ↔ `register.vue` 认证页骨架（140 行）为结构复用下一候选，需独立设计与 E2E；③ `packages/cli` 内 hugo / jekyll / parser 模板流程需先统一 parser 契约；④ typed `no-unsafe-argument` 不覆盖 `.vue`；⑤ 本地 vitest `virtual:intlify-i18n` 缓存污染以清缓存 / CI 处置；⑥ 方案 C 保留 `getLocale()` 默认语言回退的既有偏差
+-   **规划正文**: [roadmap 分片](./archive/roadmap-phases-84.md)
 
 ## 第八十三阶段：规则面收口与文档/覆盖率滚动治理（已审计归档）
 

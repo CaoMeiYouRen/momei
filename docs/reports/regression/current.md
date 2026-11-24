@@ -10,6 +10,18 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径（迁移期，已随路由择库机制退役）：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；PrimeVue 卸载后由 `tests/modules/primevue-residual-guard.test.ts` 以全仓零残留口径替代。
 
+<!-- regression-window:start:periodic-regression:phase-close:2026-11-25 -->
+## 2026-11-25 第八十四阶段收口（人工回填）
+
+- 执行入口: 分项执行 `pnpm lint` / `typecheck` / `lint:css` / `lint-md` / `test:visual` / `test:visual:parity` / 干净全量 `vitest run --coverage`（清缓存 + `--fsModuleCache=false`）与全部 `docs:check:*`
+- 证据 artifact: `../../../artifacts/review-gate/2026-11-24-phase84-item{1,2,3,4,5,6}-*.md`、`../../../artifacts/coverage/2026-11-24-phase84-item4/`、`../../../artifacts/governance/eslint-rules-inventory-84-final.json`
+- 结果摘要: **Pass**。lint 0 error / typecheck EXIT 0 / lint:css 0 error / lint-md 通过；干净全量 coverage EXIT 0（649 文件 / 6,177 tests / 1 skipped），statements **87.92%**（34,929 / 39,726，较 87.58% +0.34pp）；`test:visual` 32/32、parity 本机 82/83（`user-settings-dark` 3,199px / 0.247% 既有头像数据态，CI 裁决）；duplicate-code 0.31% strict Pass；inventory `no-unsafe-argument` 0 命中 / 0 warning / 0 豁免 / effectiveSeverity 2；字号 inventory `scale 0` / token 274（59.96%）；docs 门禁 line-count / planning-docs / links / i18n / markers / source-of-truth 全部通过
+- 回归窗口: 7 个活动窗口 / 8 条记录（2026-11-18 ~ 2026-11-25），归档判定=窗口健康。
+- Review Gate: `Pass`（84.1 / 84.2 / 84.3 / 84.4 / 84.5 / 84.6 各自 Gate 见 todo-archive；归档文档本轮 Gate Pass）。
+- 未覆盖边界: i18n ALS 真正修复转 backlog #5；`login`/`register` 认证页骨架、CLI parser 契约统一待下一批；本机 vitest `virtual:intlify-i18n` 缓存污染需清缓存或依赖 CI；typed `no-unsafe-argument` 不覆盖 `.vue`。
+
+<!-- regression-window:end:periodic-regression:phase-close:2026-11-25 -->
+
 <!-- regression-window:start:periodic-regression:phase-close:2026-11-24 -->
 ## 2026-11-24 第八十三阶段收口补跑与归因（人工回填）
 
