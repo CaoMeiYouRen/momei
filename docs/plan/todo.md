@@ -24,7 +24,7 @@
 | 84.1 字号归一第六批 B | 3/3 | 已闭环 | 待回填 | Pass（R1 Pass / R2 Reject / R3 Pass；84.1.2 分区 R1 Reject / R2 Pass + 页面样式面 Pass） | 3 → 3 commits |
 | 84.2 文档 deploy 压缩 | 3/3 | 已闭环 | 待回填 | Pass（R1 Reject / R2 Pass） | 3 → 1 commit |
 | 84.3 结构复用切片 | 3/3 | 已闭环 | 待回填 | Pass（R1 Reject / R2 Reject / R3 Pass） | 3 → 1 commit |
-| 84.4 覆盖率第二十五批 | 0/3 | 未开始 | 待提交 | — | 3 → 0 commits |
+| 84.4 覆盖率第二十五批 | 3/3 | 已闭环 | 待回填 | 待审计 | 3 → 1 commit |
 | 84.5 静态规则债第六批 | 3/4 | 进行中 | 待回填 | 进行中 | 4 → 4 commits |
 | 84.6 i18n ALS 缺陷修复 | 3/3 | 已闭环 | 待回填 | Pass（R1 Reject / R2 Pass；设计先行，kill-switch 采用保持现状案） | 3 → 1 commit |
 
@@ -85,18 +85,18 @@
         - 交付物: 收口证据、backlog 回填。
         - 依赖: 84.3.2。
 
-- [ ] **84.4 覆盖率第二十五批（P2）**
-    - [ ] **84.4.1 复算候选与基线**
+- [x] **84.4 覆盖率第二十五批（P2）**
+    - [x] **84.4.1 复算候选与基线**
         - 目标: 按最新 coverage-final 复算三模块未覆盖数：`composables/use-tts-volcengine-direct.ts`（229/310）、`packages/cli/src/wordpress-parser.ts`（60/116）、`scripts/governance/count-primevue-usage.mjs`（214/263）；确认同源分母 39,697 与 `+0.3pp ≈ 119 条`。
         - 验收: baseline 落 `artifacts/coverage/<date>-phase84-item4/`；候选与分母口径落 `artifacts/review-gate/`。
         - 交付物: coverage baseline、候选清单。
         - 依赖: 干净全量跑（清 `.vitest-cache` + `--maxWorkers=4`）。
-    - [ ] **84.4.2 模块 A/B 补测**
+    - [x] **84.4.2 模块 A/B 补测**
         - 目标: 补 `use-tts-volcengine-direct` 与 `wordpress-parser` 的失败 / 边界分支。
         - 验收: 两模块各自 `≥85%` 或 `+15pp`；定向测试通过；不写低价值断言。
         - 交付物: 测试文件、模块覆盖对比。
         - 依赖: 84.4.1。
-    - [ ] **84.4.3 模块 C 补测与同源增幅收口**
+    - [x] **84.4.3 模块 C 补测与同源增幅收口**
         - 目标: 补 `count-primevue-usage` 并确认同源 statements `+0.3pp`（三模块合计 186 条未覆盖，需覆盖约 64%）。
         - 验收: 干净全量 `pnpm test:coverage` EXIT 0 且同源增幅达标；flaky 记录；未达标则按 plan B 追加模块并写明原因。
         - 交付物: 测试文件、coverage exit、证据。

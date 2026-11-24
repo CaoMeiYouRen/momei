@@ -1,5 +1,8 @@
-import { describe, it, expect } from 'vitest'
-import { convertWxrItemToMomeiPost, type WxrItem } from './wordpress-parser'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { describe, it, expect, vi } from 'vitest'
+import { convertWxrItemToMomeiPost, WordPressParser, type WxrItem } from './wordpress-parser'
 
 // 让 WxrItem 在测试文件中可用
 export type { WxrItem } from './wordpress-parser'
@@ -339,5 +342,119 @@ describe('WordPress Parser - convertWxrItemToMomeiPost: Edge Cases', () => {
         const result = convertWxrItemToMomeiPost(item, 'translation.xml')
 
         expect(result.translationId).toBeNull()
+    })
+})
+
+const WXR_FIXTURE = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:wp="http://wordpress.org/export/1.2/">
+<channel>
+    <title>Demo</title>
+    <language>en-US</language>
+    <item>
+        <title>Published Post</title>
+        <dc:date>2024-06-15T10:00:00Z</dc:date>
+        <content:encoded><![CDATA[Hello world]]></content:encoded>
+        <wp:post_name>published-post</wp:post_name>
+        <wp:status>publish</wp:status>
+        <wp:post_type>post</wp:post_type>
+    </item>
+    <item>
+        <title>About Page</title>
+        <wp:post_name>about</wp:post_name>
+        <wp:status>publish</wp:status>
+        <wp:post_type>page</wp:post_type>
+    </item>
+    <item>
+        <title>No Slug</title>
+        <dc:date>2024-06-16T00:00:00Z</dc:date>
+        <wp:post_id>42</wp:post_id>
+        <wp:status>draft</wp:status>
+        <wp:post_type>post</wp:post_type>
+    </item>
+</channel>
+</rss>`
+
+async function withWxrDir(files: Record<string, string>, run: (directory: string) => Promise<void>) {
+    const directory = await mkdtemp(join(tmpdir(), 'momei-wxr-'))
+
+    try {
+        for (const [name, content] of Object.entries(files)) {
+            await writeFile(join(directory, name), content, 'utf8')
+        }
+
+        await run(directory)
+    } finally {
+        await rm(directory, { force: true, recursive: true })
+    }
+}
+
+describe('WordPressParser - parse: 文件与目录入口', () => {
+    it('直接传入 WXR 文件时解析并跳过非 post 条目', async () => {
+        await withWxrDir({ 'export.xml': WXR_FIXTURE }, async (directory) => {
+            const results = await new WordPressParser().parse(join(directory, 'export.xml'))
+
+            expect(results).toHaveLength(2)
+            expect(results.map((entry) => entry.post.title)).toEqual(['Published Post', 'No Slug'])
+            expect(results[0]?.relativeFile).toBe('published-post.xml')
+            expect(results[1]?.relativeFile).toBe('post-42.xml')
+        })
+    })
+
+    it('传入目录时取第一个 XML 文件并输出 verbose 日志', async () => {
+        const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+
+        try {
+            await withWxrDir({ 'a.xml': WXR_FIXTURE }, async (directory) => {
+                const results = await new WordPressParser().parse(directory, true)
+
+                expect(results).toHaveLength(2)
+                expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('Found 1 XML file(s)'))
+                expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('Skipping non-post item'))
+            })
+        } finally {
+            logSpy.mockRestore()
+        }
+    })
+
+    it('目录中没有 XML 文件时报错', async () => {
+        await withWxrDir({ 'readme.txt': 'no xml here' }, async (directory) => {
+            await expect(new WordPressParser().parse(directory)).rejects.toThrow(/No XML files found in directory/)
+        })
+    })
+
+    it('路径既不是文件也不是目录时报错', async () => {
+        await expect(new WordPressParser().parse(join(tmpdir(), 'momei-missing-wxr-entry'))).rejects.toThrow(/neither a valid WXR XML file nor a directory/)
+    })
+
+    it('缺少 rss/channel 时报错', async () => {
+        await withWxrDir({ 'broken.xml': '<?xml version="1.0"?><html></html>' }, async (directory) => {
+            await expect(new WordPressParser().parse(directory)).rejects.toThrow(/missing <rss><channel> structure/)
+        })
+    })
+
+    it('channel 无 item 时返回空数组并输出 verbose 提示', async () => {
+        const logSpy = vi.spyOn(console, 'log').mockImplementation(() => undefined)
+
+        try {
+            await withWxrDir({ 'empty.xml': '<rss><channel><title>Empty</title></channel></rss>' }, async (directory) => {
+                const results = await new WordPressParser().parse(join(directory, 'empty.xml'), true)
+
+                expect(results).toEqual([])
+                expect(logSpy).toHaveBeenCalledWith('No items found in WXR file')
+            })
+        } finally {
+            logSpy.mockRestore()
+        }
+    })
+
+    it('单个 item 且无 post_type 时按 post 处理，缺 wp:status 落 draft', async () => {
+        await withWxrDir({
+            'single.xml': '<rss><channel><item><title>Solo</title><dc:date>2024-01-01T00:00:00Z</dc:date></item></channel></rss>',
+        }, async (directory) => {
+            const results = await new WordPressParser().parse(join(directory, 'single.xml'))
+
+            expect(results).toHaveLength(1)
+            expect(results[0]?.post.status).toBe('draft')
+        })
     })
 })

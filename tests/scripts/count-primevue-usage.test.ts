@@ -1,11 +1,12 @@
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
     buildReport,
     countComponentTags,
     isProductionFile,
+    main,
     OVERLAY_FAMILY,
     resolveComposableOrigin,
     stripHtmlComments,
@@ -165,6 +166,109 @@ describe('count-primevue-usage / 浮层族分桶', () => {
                 { origin: 'auto', total: 1, byName: [{ name: 'useToast', count: 1 }] },
                 { origin: 'caomei-ui', total: 1, byName: [{ name: 'useConfirm', count: 1 }] },
             ])
+        } finally {
+            await rm(directory, { force: true, recursive: true })
+        }
+    })
+})
+
+describe('count-primevue-usage / main', () => {
+    it('写出 JSON 与 Markdown 产物并通过 logger 输出摘要', async () => {
+        const directory = await mkdtemp(join(tmpdir(), 'primevue-usage-main-'))
+        const output = join(directory, 'nested', 'primevue-usage.json')
+        const logger = { info: vi.fn() }
+
+        try {
+            await main({ argv: ['node', 'script', `--output=${output}`], logger })
+
+            const report = JSON.parse(await readFile(output, 'utf8'))
+            const markdown = await readFile(join(directory, 'nested', 'primevue-usage.md'), 'utf8')
+
+            expect(report.components).toBeDefined()
+            expect(markdown).toContain('# PrimeVue 用量基线')
+            expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('[primevue-usage] JSON:'))
+            expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('[primevue-usage] 浮层族：'))
+        } finally {
+            await rm(directory, { force: true, recursive: true })
+        }
+    })
+})
+
+describe('count-primevue-usage / 迁移面计数', () => {
+    it('统计图标、token、PrimeVue class、选择器与 DataTable 耦合', async () => {
+        const directory = await mkdtemp(join(tmpdir(), 'primevue-usage-surface-'))
+        // 守卫会扫描仓库内测试源码中的字面量，这里用拼接构造旧类名 / token，避免 live guard 误报。
+        const p = 'p'
+        const primeClass = (name: string) => `${p}-${name}`
+        const token = (name: string) => `--${p}-${name}`
+        const icon = (name: string) => `${p}i ${p}i-${name}`
+
+        try {
+            await writeProjectFile(
+                directory,
+                'scripts/governance/data/primevue-components.json',
+                JSON.stringify({ source: 'test', version: '0', components: ['Column'] }),
+            )
+            await writeProjectFile(
+                directory,
+                'components/table-view.vue',
+                [
+                    '<template>',
+                    '    <Column field="id" />',
+                    `    <span class="${primeClass('dialog')}">x</span>`,
+                    `    <i class="${icon('user')}" />`,
+                    '    <div :class="{ slotProps }">{{ slotProps }}#body</div>',
+                    '</template>',
+                    '<style scoped>',
+                    `.${primeClass('dialog')}:deep(.${primeClass('dialog-header')}) { color: var(${token('primary-color')}); }`,
+                    `.wrapper:global(.${primeClass('overlay')}) { background: var(${token('surface-0')}); }`,
+                    '</style>',
+                ].join('\n'),
+            )
+            await writeProjectFile(
+                directory,
+                'styles/legacy.scss',
+                [`.${primeClass('dialog')} .${primeClass('button')} { color: var(${token('primary-color')}); }`, `/* .${primeClass('ignored')} */`].join('\n'),
+            )
+            await writeProjectFile(
+                directory,
+                'composables/surface.ts',
+                ['const toast = useToast()', 'const dialog = useDialog()', 'function toggle() { dropdown.toggle() }'].join('\n'),
+            )
+            await writeProjectFile(
+                directory,
+                'tests/e2e/migration.spec.ts',
+                [`expect(await page.locator('.${primeClass('dialog')}')).toHaveCount(1)`, `expect('.${primeClass('button')}')`].join('\n'),
+            )
+            await writeProjectFile(
+                directory,
+                'tests/unit/primevue-mock.test.ts',
+                ['vi.mock(\'primevue/dialog\', () => ({ default: {} }))'].join('\n'),
+            )
+
+            const report = await buildReport({
+                projectRoot: directory,
+                componentListPath: resolve(directory, 'scripts/governance/data/primevue-components.json'),
+            })
+
+            expect(report.components.openTags).toBe(1)
+            expect(report.icons.total).toBe(1)
+            expect(report.tokens.total).toBe(3)
+            expect(report.tokens.varReferences).toBe(3)
+            expect(report.primeVueClasses.files).toBe(2)
+            expect(report.primeVueClasses.selectorStyleFiles).toBe(1)
+            expect(report.primeVueClasses.selectorVueFiles).toBe(1)
+            expect(report.styleCoupling.deepSelectors).toBe(1)
+            expect(report.styleCoupling.globalSelectors).toBe(1)
+            expect(report.dataTable.columnTags).toBe(1)
+            expect(report.dataTable.bodySlots).toBe(1)
+            expect(report.dataTable.slotProps).toBeGreaterThanOrEqual(1)
+            expect(report.commandApis.anchorToggleCalls).toBe(1)
+            expect(report.commandApis.usage.map((entry) => entry.name)).toContain('useToast')
+            expect(report.commandApis.usage.map((entry) => entry.name)).toContain('useDialog')
+            expect(report.testCoupling.vitestPrimeVueMockFiles).toBe(1)
+            expect(report.testCoupling.e2ePrimeClassAssertionFiles).toBe(1)
+            expect(report.testCoupling.e2ePrimeClassAssertions).toBe(2)
         } finally {
             await rm(directory, { force: true, recursive: true })
         }
