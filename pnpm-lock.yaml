@@ -525,8 +525,8 @@ importers:
         specifier: workspace:*
         version: link:../api-client
       cac:
-        specifier: ^7.1.0
-        version: 7.1.0
+        specifier: ^7.1.1
+        version: 7.1.1
       chalk:
         specifier: ^6.0.1
         version: 6.0.1
@@ -5465,6 +5465,10 @@ packages:
 
   cac@7.1.0:
     resolution: {integrity: sha512-LMDU/U2yA4IPIY8KT0NsNPWEYZvAMkbgyspxJ6btJaYV+WMDOHAZCmB0lsTObiHaRS1V/ztKAl7+TSkTqXyeoA==}
+    engines: {node: '>=20.19.0'}
+
+  cac@7.1.1:
+    resolution: {integrity: sha512-8zc+h51HxpodKsA7L4PpBNd+9qlrfuUcyUDE5a793BJfN4NZgwk7v9NmrY3ptZ+Sk0+ToigxSzkb47AsEgyizw==}
     engines: {node: '>=20.19.0'}
 
   cachedir@2.4.0:
@@ -13401,9 +13405,9 @@ snapshots:
   '@eslint/config-inspector@3.2.0(eslint@9.39.5(jiti@2.7.0)(supports-color@10.2.2))(srvx@0.11.22)':
     dependencies:
       ansis: 4.3.1
-      cac: 7.1.0
+      cac: 7.1.1
       chokidar: 5.0.0
-      devframe: 0.8.2(cac@7.1.0)(srvx@0.11.22)
+      devframe: 0.8.2(cac@7.1.1)(srvx@0.11.22)
       eslint: 9.39.5(jiti@2.7.0)(supports-color@10.2.2)
       jiti: 2.7.0
       tinyglobby: 0.2.17
@@ -17517,6 +17521,8 @@ snapshots:
 
   cac@7.1.0: {}
 
+  cac@7.1.1: {}
+
   cachedir@2.4.0: {}
 
   call-bind-apply-helpers@1.0.2:
@@ -18339,7 +18345,7 @@ snapshots:
 
   devalue@5.9.4: {}
 
-  devframe@0.8.2(cac@7.1.0)(srvx@0.11.22):
+  devframe@0.8.2(cac@7.1.1)(srvx@0.11.22):
     dependencies:
       '@standard-schema/spec': 1.1.0
       birpc: 4.2.0
@@ -18351,7 +18357,7 @@ snapshots:
       pathe: 2.0.3
       ufo: 1.6.4
     optionalDependencies:
-      cac: 7.1.0
+      cac: 7.1.1
     transitivePeerDependencies:
       - srvx
 
@@ -19252,7 +19258,7 @@ snapshots:
 
   fast-npm-meta@2.2.0:
     dependencies:
-      cac: 7.1.0
+      cac: 7.1.1
 
   fast-safe-stringify@2.1.1: {}
 
@@ -25037,7 +25043,7 @@ snapshots:
 
   vite-node@6.0.0(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.108.2)(terser@5.51.2)(yaml@2.9.1):
     dependencies:
-      cac: 7.1.0
+      cac: 7.1.1
       es-module-lexer: 2.3.2
       obug: 2.2.1
       pathe: 2.0.3
