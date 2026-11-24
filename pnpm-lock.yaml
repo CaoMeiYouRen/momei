@@ -167,8 +167,8 @@ importers:
         specifier: ^0.15.1
         version: 0.15.1
       cron:
-        specifier: ^4.4.0
-        version: 4.4.0
+        specifier: ^4.4.1
+        version: 4.4.1
       dayjs:
         specifier: ^1.11.23
         version: 1.11.23
@@ -4082,8 +4082,8 @@ packages:
   '@types/lodash@4.17.23':
     resolution: {integrity: sha512-RDvF6wTulMPjrNdCoYRC8gNR880JNGT8uB+REUpC2Ns4pRqQJhGz90wh7rgdXDPpCczF3VGktDuFGVnz8zP7HA==}
 
-  '@types/luxon@3.7.1':
-    resolution: {integrity: sha512-H3iskjFIAn5SlJU7OuxUmTEpebK6TKB8rxZShDslBMZJ5u9S//KM1sbdAisiSrqwLQncVjnpi2OK2J51h+4lsg==}
+  '@types/luxon@3.7.6':
+    resolution: {integrity: sha512-6KSjliQAXK8ZLgFQO4B7iE4Rpf/B3rItzCFuXezBY/XIAGxOdLd7vRNK9/StRPwiS/yJsVbB7HKpW46B8tcEuQ==}
 
   '@types/markdown-it-container@4.0.1':
     resolution: {integrity: sha512-lGoaXzFY51sfUiBZ+L9V7n/Ah2q/46G2MGERUXN/4Djq0aCFOEUxysC8xftAdf5EdnvKfb2QkQnGNMoaKwjI1Q==}
@@ -5977,8 +5977,8 @@ packages:
     resolution: {integrity: sha512-IBWsY8xznyQrcHn8h4bC8/4ErNke5elzgG8GcqF4RFPw6aHkWWRc7Tgw6upjaTX/CT/yQgqYENkxYsTYN+hW2g==}
     engines: {node: '>=18'}
 
-  cron@4.4.0:
-    resolution: {integrity: sha512-fkdfq+b+AHI4cKdhZlppHveI/mgz2qpiYxcm+t5E5TsxX7QrLS1VE0+7GENEk9z0EeGPcpSciGv6ez24duWhwQ==}
+  cron@4.4.1:
+    resolution: {integrity: sha512-ycMs0wTezbyWLuT6JKQWpLPr2q4H0x9yZfcitH+sThOg/VtijRHFHkikE683gjzgmziz0sdyQY5ZWdcNfBVXtA==}
     engines: {node: '>=18.x'}
 
   croner@10.0.1:
@@ -15991,7 +15991,7 @@ snapshots:
 
   '@types/lodash@4.17.23': {}
 
-  '@types/luxon@3.7.1': {}
+  '@types/luxon@3.7.6': {}
 
   '@types/markdown-it-container@4.0.1':
     dependencies:
@@ -18056,9 +18056,9 @@ snapshots:
       crc-32: 1.2.2
       readable-stream: 4.8.0
 
-  cron@4.4.0:
+  cron@4.4.1:
     dependencies:
-      '@types/luxon': 3.7.1
+      '@types/luxon': 3.7.6
       luxon: 3.7.2
 
   croner@10.0.1: {}
