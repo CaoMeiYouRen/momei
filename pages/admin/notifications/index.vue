@@ -47,26 +47,12 @@ function navigateToMarketing() {
 
 <style lang="scss" scoped>
 @use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
 
 .admin-notification-management {
     padding: $spacing-md;
 
-    &__intro {
-        margin-bottom: $spacing-lg;
-    }
-
-    &__intro-title {
-        margin: 0;
-        font-size: var(--m-font-size-lg);
-        font-weight: 600;
-        color: var(--caomei-color-text);
-    }
-
-    &__intro-description {
-        margin: $spacing-xs 0 0;
-        color: var(--caomei-color-text-muted);
-        line-height: 1.7;
-    }
+    @include admin-page-intro;
 
     &__card {
         :deep(.caomei-card__body) {

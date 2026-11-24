@@ -1,24 +1,10 @@
 @use '@/styles/variables' as *;
+@use '@/styles/mixins' as *;
 
 .admin-link-governance {
     padding: $spacing-md;
 
-    &__intro {
-        margin-bottom: $spacing-lg;
-    }
-
-    &__intro-title {
-        margin: 0;
-        font-size: var(--m-font-size-lg);
-        font-weight: 600;
-        color: var(--caomei-color-text);
-    }
-
-    &__intro-description {
-        margin: $spacing-xs 0 0;
-        color: var(--caomei-color-text-muted);
-        line-height: 1.7;
-    }
+    @include admin-page-intro;
 
     &__card {
         /* 对齐迁移前 PrimeVue Card 的观感：暗色下卡片面为页面基面（surface-0，而非 caomei 默认的

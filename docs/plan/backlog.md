@@ -27,9 +27,9 @@
 
 - **目标**: 压缩高频重复实现，补齐共享 helper / 纯函数抽象，并把零散类型与轻量响应壳层纳入受控复用；优先治理跨文件重复率高、适合稳定上收的候选，而不是把所有局部实现强行抽象。默认以 `pnpm duplicate-code:check` 作为事实源。
 - **状态**: 进行中。
-- **最近一次上收阶段**: 第八十四阶段（条目 3：结构复用切片，2026-11-24 立项：基线 0.33%（39 clones / 577 行）→ 目标 ≤0.32%）。上一批为第八十二阶段（条目 4，2026-11-22 **已完成**：重复率 `0.38% → 0.32%`，44 → 38 clones、656 → 561 行；设置字段归一 / ActivityPub actor 上下文 / AI 文本端点工厂三组同源重构，`duplicate-code:check:strict` Pass）。上一阶段为第六十六阶段（theme 颜色 model 工厂 + 预设值取值抽取到 `composables/use-theme-color-models.ts`）。
-- **当前基线**: `duplicate-code` 实测 **0.33%**（39 clones / 577 行，2026-11-23 jscpd 复算）；上一批收口基线 **0.32%**（38 clones / 561 行，2026-11-22 第八十二阶段条目 4）。
-- **下一次可切片方向**: 按 0.32% 基线继续收敛——`login.vue` ↔ `register.vue` 认证页骨架（140 行模板 + 17 行脚本，需独立设计与 E2E 回归）、`post-distribution-button.vue` 与 composable 的返回面（51 行，需改模板绑定命名）、`packages/cli` 与 `server/services/post-export.ts` 的 markdown fence 解析（受包边界限制，先评估共享包归属）。
+- **最近一次上收阶段**: 第八十四阶段（条目 3：结构复用切片，2026-11-24 **已完成**：开工 0.34%（40 clones / 598 行）→ **0.31%**（37 / 545 行，实测 0.3128%）；两组同源重构——`server/services/ai/text.ts` 的续写 / 扩写 / 精简共用骨架（32 行）与 admin 页顶部说明块 mixin（21 行）；`duplicate-code:check:strict` Pass）。上一批为第八十二阶段（条目 4，2026-11-22 **已完成**：重复率 `0.38% → 0.32%`，44 → 38 clones、656 → 561 行；设置字段归一 / ActivityPub actor 上下文 / AI 文本端点工厂三组同源重构，`duplicate-code:check:strict` Pass）。上一阶段为第六十六阶段（theme 颜色 model 工厂 + 预设值取值抽取到 `composables/use-theme-color-models.ts`）。
+- **当前基线**: `duplicate-code` 实测 **0.31%**（37 clones / 545 行 / 0.3128%，2026-11-24 第八十四阶段条目 3 收口复算；扫描分母 1242 sources / 174211 行）；配置基线 `.github/review-gate/duplicate-code-baseline.json` 仍为 0.5% / 48 clones（允许 0.65% / 50），本批只以阶段目标 0.32% 复核，未收紧（理由：距目标余量不足 0.01pp，后续认证页骨架切片会显著改变 clone 结构，过早收紧更易误红）。
+- **下一次可切片方向**: 按 0.31% 基线继续收敛——`login.vue` ↔ `register.vue` 认证页骨架（140 行模板 + 17 行脚本，唯一可达标的大块同源，需独立设计与登录 / 注册 E2E 回归）、`packages/cli` 内 hugo / jekyll / parser 的模板解析流程（需先统一 parser 契约）；`post-distribution-button.vue` 与 composable 的返回面属接口契约面，已判非同源，仅观察、不纳入合并候选；跨包 markdown fence 解析（`packages/cli` ↔ `server/services/post-export.ts`）与跨包 `slug.ts` 属同形不同源，**不合并**。
 
 ### 3. 存量代码注释治理与注释漂移收敛
 

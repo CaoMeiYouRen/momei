@@ -85,6 +85,26 @@
     }
 }
 
+// Admin page intro block (title + description)
+@mixin admin-page-intro {
+    &__intro {
+        margin-bottom: $spacing-lg;
+    }
+
+    &__intro-title {
+        margin: 0;
+        font-size: var(--m-font-size-lg);
+        font-weight: 600;
+        color: var(--caomei-color-text);
+    }
+
+    &__intro-description {
+        margin: $spacing-xs 0 0;
+        color: var(--caomei-color-text-muted);
+        line-height: 1.7;
+    }
+}
+
 // Form Field
 @mixin form-field {
     display: flex;

@@ -966,22 +966,31 @@ export class TextService extends AIBaseService {
         }
     }
 
-    static async continueWriting(
-        content: string,
-        style = 'casual',
-        language = 'zh-CN',
-        userId?: string,
-    ) {
+    /**
+     * 续写 / 扩写 / 精简三个写作任务的共用骨架：
+     * 入参校验 → 额度校验 → provider 选择 → prompt 组装 → 调用 → 日志与任务记录。
+     */
+    private static async runWritingTask(options: {
+        content: string
+        task: 'continue' | 'expand' | 'condense'
+        promptTemplate: string
+        systemInstruction: (language: string, styleDescription: string) => string
+        style?: string
+        language?: string
+        userId?: string
+    }) {
+        const { content, task, promptTemplate, style = 'casual', language = 'zh-CN', userId } = options
+
         if (!content || content.trim().length === 0) {
             throw createError({ statusCode: 400, statusMessage: 'Content is required' })
         }
 
         const inputContent = content.slice(0, AI_CHUNK_SIZE)
-        const styleDesc = AI_TEXT_STYLES[style] || style
+        const styleDescription = AI_TEXT_STYLES[style] || style
 
         await this.assertTextQuota({
             userId,
-            type: 'continue',
+            type: task,
             payload: { content: inputContent, style, language },
         })
 
@@ -990,26 +999,26 @@ export class TextService extends AIBaseService {
             throw new Error('Provider does not support chat')
         }
 
-        const prompt = formatPrompt(AI_PROMPTS.CONTINUE, {
+        const prompt = formatPrompt(promptTemplate, {
             content: inputContent,
             language,
-            style: styleDesc,
+            style: styleDescription,
         })
 
         const response = await provider.chat({
             messages: [
-                { role: 'system', content: `You are a professional writer. Continue writing content in ${language} with ${styleDesc} style, maintaining the same voice.` },
+                { role: 'system', content: options.systemInstruction(language, styleDescription) },
                 { role: 'user', content: prompt },
             ],
             temperature: 0.7,
             userId,
         })
 
-        this.logUsage({ task: 'continue', response, userId })
+        this.logUsage({ task, response, userId })
         await this.recordTask({
             userId,
             category: 'text',
-            type: 'continue',
+            type: task,
             provider: provider.name,
             model: response.model,
             payload: { content: inputContent, style, language },
@@ -1019,6 +1028,23 @@ export class TextService extends AIBaseService {
         })
 
         return response.content.trim()
+    }
+
+    static async continueWriting(
+        content: string,
+        style = 'casual',
+        language = 'zh-CN',
+        userId?: string,
+    ) {
+        return this.runWritingTask({
+            content,
+            task: 'continue',
+            promptTemplate: AI_PROMPTS.CONTINUE,
+            style,
+            language,
+            userId,
+            systemInstruction: (instructionLanguage, styleDescription) => `You are a professional writer. Continue writing content in ${instructionLanguage} with ${styleDescription} style, maintaining the same voice.`,
+        })
     }
 
     static async expandContent(
@@ -1027,53 +1053,15 @@ export class TextService extends AIBaseService {
         language = 'zh-CN',
         userId?: string,
     ) {
-        if (!content || content.trim().length === 0) {
-            throw createError({ statusCode: 400, statusMessage: 'Content is required' })
-        }
-
-        const inputContent = content.slice(0, AI_CHUNK_SIZE)
-        const styleDesc = AI_TEXT_STYLES[style] || style
-
-        await this.assertTextQuota({
-            userId,
-            type: 'expand',
-            payload: { content: inputContent, style, language },
-        })
-
-        const provider = await getAIProviderWithFallback('text')
-        if (!provider.chat) {
-            throw new Error('Provider does not support chat')
-        }
-
-        const prompt = formatPrompt(AI_PROMPTS.EXPAND, {
-            content: inputContent,
+        return this.runWritingTask({
+            content,
+            task: 'expand',
+            promptTemplate: AI_PROMPTS.EXPAND,
+            style,
             language,
-            style: styleDesc,
-        })
-
-        const response = await provider.chat({
-            messages: [
-                { role: 'system', content: `You are a professional writer. Expand content in ${language} with ${styleDesc} style, adding details and depth while preserving the original meaning.` },
-                { role: 'user', content: prompt },
-            ],
-            temperature: 0.7,
             userId,
+            systemInstruction: (instructionLanguage, styleDescription) => `You are a professional writer. Expand content in ${instructionLanguage} with ${styleDescription} style, adding details and depth while preserving the original meaning.`,
         })
-
-        this.logUsage({ task: 'expand', response, userId })
-        await this.recordTask({
-            userId,
-            category: 'text',
-            type: 'expand',
-            provider: provider.name,
-            model: response.model,
-            payload: { content: inputContent, style, language },
-            response,
-            textLength: content.length,
-            settlementSource: 'actual',
-        })
-
-        return response.content.trim()
     }
 
     static async condenseContent(
@@ -1082,53 +1070,15 @@ export class TextService extends AIBaseService {
         language = 'zh-CN',
         userId?: string,
     ) {
-        if (!content || content.trim().length === 0) {
-            throw createError({ statusCode: 400, statusMessage: 'Content is required' })
-        }
-
-        const inputContent = content.slice(0, AI_CHUNK_SIZE)
-        const styleDesc = AI_TEXT_STYLES[style] || style
-
-        await this.assertTextQuota({
-            userId,
-            type: 'condense',
-            payload: { content: inputContent, style, language },
-        })
-
-        const provider = await getAIProviderWithFallback('text')
-        if (!provider.chat) {
-            throw new Error('Provider does not support chat')
-        }
-
-        const prompt = formatPrompt(AI_PROMPTS.CONDENSE, {
-            content: inputContent,
+        return this.runWritingTask({
+            content,
+            task: 'condense',
+            promptTemplate: AI_PROMPTS.CONDENSE,
+            style,
             language,
-            style: styleDesc,
-        })
-
-        const response = await provider.chat({
-            messages: [
-                { role: 'system', content: `You are a professional editor. Condense content in ${language} with ${styleDesc} style, making it concise while preserving key information.` },
-                { role: 'user', content: prompt },
-            ],
-            temperature: 0.7,
             userId,
+            systemInstruction: (instructionLanguage, styleDescription) => `You are a professional editor. Condense content in ${instructionLanguage} with ${styleDescription} style, making it concise while preserving key information.`,
         })
-
-        this.logUsage({ task: 'condense', response, userId })
-        await this.recordTask({
-            userId,
-            category: 'text',
-            type: 'condense',
-            provider: provider.name,
-            model: response.model,
-            payload: { content: inputContent, style, language },
-            response,
-            textLength: content.length,
-            settlementSource: 'actual',
-        })
-
-        return response.content.trim()
     }
 
     static async* translateStream(content: string, to: string, userId?: string, options?: TranslateRequestOptions) {
