@@ -21,7 +21,7 @@
 
 | 大条目 | 小条目 | 状态 | 提交 | 审计 | 容量（计划→实际） |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| 84.1 字号归一第六批 B | 2/3 | 进行中 | 待回填 | Pass（R1 Pass / R2 Reject / R3 Pass） | 3 → 2 commits |
+| 84.1 字号归一第六批 B | 3/3 | 已闭环 | 待回填 | Pass（R1 Pass / R2 Reject / R3 Pass；84.1.2 分区 R1 Reject / R2 Pass + 页面样式面 Pass） | 3 → 3 commits |
 | 84.2 文档 deploy 压缩 | 3/3 | 已闭环 | 待回填 | Pass（R1 Reject / R2 Pass） | 3 → 1 commit |
 | 84.3 结构复用切片 | 0/3 | 未开始 | 待提交 | — | 3 → 0 commits |
 | 84.4 覆盖率第二十五批 | 0/3 | 未开始 | 待提交 | — | 3 → 0 commits |
@@ -34,7 +34,7 @@
 >
 > 用户于候选页确认「A+B+C 全量纳入」：6 个大条目在默认容量（4–6）内。其中 84.5（ROI 1.33）与 84.6（ROI 1.14）属 [规划规范 §3.3](../standards/planning.md#33-准入基准-decision-rules) 的「1.0 < Score ≤ 1.5」确认档，已按用户确认纳入，均带 kill-switch。
 
-- [ ] **84.1 字号归一第六批 B 与 inventory 盲区修复（P3）**
+- [x] **84.1 字号归一第六批 B 与 inventory 盲区修复（P3）**
     - [x] **84.1.1 复算、盲区修复与选批**
         - 目标: 复算口径内 16 条待替换（grep 命中 17 处，须先解释差 1 处）；修复 `inventory-font-sizes.mjs` 的 `stripComments` 对 Vue 属性 `accept="image/*"` 的吞块问题，修后先对账「token +4 / scale +1」再选批。
         - 验收: 盲区 3 文件（`snippet-edit-dialog.vue` / `pages/admin/snippets/capture.vue` / `snippet-quick-capture.vue`）声明重新计入；修复前后 inventory 差异与预期一致；脚本改动附单测（现存 `tests/scripts/*font*` 若无则补最小用例）。
@@ -45,7 +45,7 @@
         - 验收: inventory `scale` 0 条、token 覆盖上升；逐元素 `getComputedStyle` 0 差异；`pnpm lint:css` 0 error。
         - 交付物: token 替换、对账证据。
         - 依赖: 84.1.1。
-    - [ ] **84.1.3 视觉与 parity 收口**
+    - [x] **84.1.3 视觉与 parity 收口**
         - 目标: 视觉门禁无未归因差异。
         - 验收: `test:visual` 32/32；parity 本机除既有 `user-settings-dark` 外无新增失败；backlog #11 基线与 #9 盲区条目回填。
         - 交付物: visual / parity 日志、backlog 回填。
