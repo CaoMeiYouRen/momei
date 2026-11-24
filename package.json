@@ -157,7 +157,7 @@
     "mjml": "^5.4.1",
     "momei-mcp-server": "workspace:*",
     "ms": "^4.0.0-nightly.202508271359",
-    "music-metadata": "^12.5.0",
+    "music-metadata": "^12.8.0",
     "mysql2": "^3.24.6",
     "nest-winston": "^2.0.0",
     "nodemailer": "^10.6.1",
