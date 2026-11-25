@@ -4,7 +4,7 @@ import { MOBILE_READING_FIXTURE_HTML } from '../helpers/mobile-reading-fixture'
 test.use({ ...devices['iPhone 13'] })
 
 
-/** 等客户端水合完成：ClientOnly 的搜索按钮从禁用态变为可用。 */
+/** 等客户端水合完成：等待 ClientOnly 的真实搜索按钮挂载（SSR fallback 按钮没有 id，因此「出现」即代表客户端已接管）。 */
 async function waitForHydration(page: import('@playwright/test').Page) {
     await page.waitForFunction(() => {
         const button = document.querySelector('#search-btn')
