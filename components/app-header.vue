@@ -296,6 +296,7 @@
         >
             <div class="mobile-menu">
                 <div
+                    id="mobile-nav-search"
                     class="mobile-nav-link"
                     @click="isMobileMenuOpen = false; openSearch()"
                 >
