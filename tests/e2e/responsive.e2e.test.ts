@@ -85,6 +85,63 @@ test.describe('Responsive Design E2E Tests', () => {
         expect(box?.height ?? 0).toBeGreaterThanOrEqual(44)
     })
 
+    test('should open, navigate and close the mobile table of contents', async ({ page }) => {
+        await page.goto('/posts/hello-momei-test', { waitUntil: 'domcontentloaded' })
+        await page.getByRole('heading', { name: 'Hello Momei Test', exact: true }).first().waitFor({ state: 'visible' })
+
+        /* 首屏 SSR 已渲染按钮，但水合完成前点击会被丢弃；以 ClientOnly 搜索按钮转为可用作为水合完成信号。 */
+        await page.waitForFunction(() => {
+            const button = document.querySelector('#search-btn')
+            return button !== null && !button.hasAttribute('disabled')
+        }, { timeout: 15000 })
+
+        const trigger = page.locator('.post-detail__toc-trigger')
+        await expect(trigger).toBeVisible()
+        const triggerBox = await trigger.boundingBox()
+        expect(triggerBox?.height ?? 0).toBeGreaterThanOrEqual(44)
+
+        const drawer = page.locator('.post-detail__toc-drawer[role="dialog"]')
+        /* SSR 首屏按钮可见但可能尚未水合：重试点击直到抽屉真正打开，避免「点了没反应」的假失败。 */
+        await expect(async () => {
+            await trigger.click()
+            await expect(drawer).toBeVisible({ timeout: 1000 })
+        }).toPass({ timeout: 15000 })
+
+        const firstTocLink = drawer.locator('.toc__link').first()
+        await expect(firstTocLink).toBeVisible()
+        await firstTocLink.click()
+
+        /* 点击目录后抽屉应关闭，并滚动到对应标题附近。 */
+        await expect(drawer).toBeHidden()
+        await expect.poll(async () => page.evaluate(() => {
+            const heading = document.getElementById('section-1')
+            return heading ? Math.abs(heading.getBoundingClientRect().top) : Number.POSITIVE_INFINITY
+        }), { message: '目录跳转后标题未进入视口' }).toBeLessThan(200)
+
+        /* 关闭后不得残留滚动锁（body overflow / data-scroll-locked 都要恢复）。 */
+        const lockState = await page.evaluate(() => ({
+            bodyOverflow: getComputedStyle(document.body).overflow,
+            inlineOverflow: document.body.style.overflow,
+            paddingRight: document.body.style.paddingRight,
+        }))
+        expect(lockState.bodyOverflow).not.toBe('hidden')
+        expect(lockState.inlineOverflow).not.toBe('hidden')
+        expect(lockState.paddingRight).toBe('')
+
+        /* 作者元信息在窄屏可换行，分享按钮达到 44px 触控尺寸。 */
+        const authorWhiteSpace = await page.locator('.post-detail__author').first().evaluate((element) => getComputedStyle(element).whiteSpace)
+        expect(authorWhiteSpace).not.toBe('nowrap')
+
+        const shareButton = page.getByTestId('article-share-primary')
+        await shareButton.scrollIntoViewIfNeeded()
+        const shareBox = await shareButton.boundingBox()
+        expect(shareBox?.height ?? 0).toBeGreaterThanOrEqual(44)
+
+        const copyLinkButton = page.getByTestId('article-share-copy-link')
+        const copyLinkBox = await copyLinkButton.boundingBox()
+        expect(copyLinkBox?.height ?? 0).toBeGreaterThanOrEqual(44)
+    })
+
     test.skip('should handle post reading on mobile', async ({ page }) => {
         // 需要数据库数据，待实现测试数据设置
         await page.goto('/posts/hello-momei-test')

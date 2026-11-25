@@ -134,6 +134,8 @@
                             {{ post.title }}
                         </h1>
 
+                        <PostTocDrawer :content="post?.content || ''" />
+
                         <div class="post-detail__meta">
                             <div v-if="post.author" class="post-detail__author">
                                 <AppAvatar
