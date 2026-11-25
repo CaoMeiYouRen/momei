@@ -1,5 +1,5 @@
 <template>
-    <div class="auth-page">
+    <div class="auth-page public-form">
         <div class="auth-card">
             <div class="auth-header">
                 <NuxtLink :to="localePath('/')" class="logo-link">
@@ -66,6 +66,7 @@ const localePath = useLocalePath()
     justify-content: center;
     align-items: center;
     min-height: calc(100vh - 200px);
+    min-height: calc(100dvh - 200px);
     padding: 2rem 1rem;
 }
 

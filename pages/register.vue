@@ -1,5 +1,5 @@
 <template>
-    <div class="register-page">
+    <div class="public-form register-page">
         <CaomeiCard class="register-card">
             <template #title>
                 <div class="register-card__header">
@@ -65,6 +65,8 @@
                             id="name"
                             v-model="form.name"
                             type="text"
+                            autocomplete="nickname"
+                            enterkeyhint="next"
                             :invalid="!!errors.name"
                             class="register-form__input"
                         />
@@ -86,6 +88,9 @@
                             id="email"
                             v-model="form.email"
                             type="email"
+                            inputmode="email"
+                            autocomplete="email"
+                            enterkeyhint="next"
                             :invalid="!!errors.email"
                             class="register-form__input"
                         />
@@ -106,6 +111,8 @@
                         <CaomeiPassword
                             id="password"
                             v-model="form.password"
+                            autocomplete="new-password"
+                            enterkeyhint="next"
                             :feedback="true"
                             :invalid="!!errors.password"
                         />
@@ -126,6 +133,8 @@
                         <CaomeiPassword
                             id="confirmPassword"
                             v-model="form.confirmPassword"
+                            autocomplete="new-password"
+                            enterkeyhint="submit"
                             :feedback="false"
                             :invalid="!!errors.confirmPassword"
                         />
@@ -273,6 +282,20 @@ const handleRegister = async () => {
                 errors.value[key] = t(issue.message)
             }
         })
+
+        /* 聚焦首个错误字段：字段名与表单控件 id 一一对应，captcha/agreed 映射到可聚焦控件。 */
+        const fieldIds: Record<string, string> = {
+            name: 'name',
+            email: 'email',
+            password: 'password',
+            confirmPassword: 'confirmPassword',
+            agreed: 'agreed',
+        }
+        const firstErrorKey = Object.keys(errors.value).find((key) => errors.value[key as keyof typeof errors.value])
+        await nextTick()
+        if (firstErrorKey) {
+            document.getElementById(fieldIds[firstErrorKey] ?? firstErrorKey)?.focus()
+        }
         return
     }
 

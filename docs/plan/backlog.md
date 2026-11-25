@@ -202,6 +202,12 @@
     - **上收前置**: 先闭环详细方案 §7 的 6 项待验证——尤其是「当前套餐是否覆盖 Batch / `conflict_resolvers`」「`conflict_resolvers` 对与 base 冲突是否生效」「机械消解后 lockfile 是否内部自洽」。必须在测试仓库用真实 `pnpm-lock.yaml` 冲突跑通一轮后再动生产配置。
     - **详细方案**: [2026-10-12-mergify-merge-queue-adoption-evaluation.md](../design/governance/2026-10-12-mergify-merge-queue-adoption-evaluation.md)
 
+6. **列表骨架屏视觉基线（候选评估）**
+    - **背景**: 第八十五阶段已为列表空态建立独立移动基线（`/posts?page=2`）；骨架屏只在客户端 `pending` 态出现，而 Nuxt 路由导航会等待数据完成才提交路由，TEST_MODE 下无法稳定捕获。
+    - **最小范围**: 为列表页增加可注入的延迟端点（仅测试环境）或在组件层挂载 posts 页面并冻结 pending 态，产出骨架屏独立视觉基线。
+    - **非目标**: 不改变生产加载路径；不为迁移服务端渲染时序引入测试专用分支到生产代码。
+    - **上收前置**: 确认延迟端点不会进入生产路由表；或在组件测试中能稳定渲染 skeleton 并转为视觉快照。
+
 ## 待跟踪与上游反馈登记（跨主线）
 
 > 本区收录不属于任何单一阶段、也无法直接上收的事项：上游组件库缺口、门禁口径边界与既有缺陷的长期观察。已消解或已过期的跟踪项迁入 [短期候选解决归档](./archive/backlog-resolved-candidates.md)。

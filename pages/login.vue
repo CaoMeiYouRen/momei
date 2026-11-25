@@ -1,5 +1,5 @@
 <template>
-    <div class="login-page">
+    <div class="login-page public-form">
         <CaomeiCard class="login-card">
             <template #title>
                 <div class="login-card__header">
@@ -63,6 +63,9 @@
                             id="email"
                             v-model="form.email"
                             type="email"
+                            inputmode="email"
+                            autocomplete="email"
+                            enterkeyhint="next"
                             :invalid="!!errors.email"
                             class="login-form__input"
                         />
@@ -83,6 +86,8 @@
                         <CaomeiPassword
                             id="password"
                             v-model="form.password"
+                            autocomplete="current-password"
+                            enterkeyhint="submit"
                             :feedback="false"
                             :invalid="!!errors.password"
                         />
@@ -279,6 +284,8 @@ const handleEmailLogin = async () => {
                 errors.value[key] = t(issue.message)
             }
         })
+        await nextTick()
+        document.getElementById(errors.value.email ? 'email' : 'password')?.focus()
         return
     }
 

@@ -95,7 +95,7 @@
     - **目标**: 首屏与列表页在窄屏下信息密度合理、分页可点、空态不塌陷。
     - **优先级**: P3。确认档：Score 1.20 落在「1.0–1.5」，标注为**待用户确认**，未确认前不启动。**Kill-switch**: 360px 下无页面级横向滚动 ∧ 卡片标题 ≤2 行不截断 ∧ 分页触控目标 ≥44px 同时成立时，仅登记证据、不做密度调整，并从本阶段移出。
     - **范围**: `pages/index.vue`、`pages/posts/index.vue`、`components/article-card.vue`、`pages/categories/index.vue`、`pages/tags/index.vue`、`pages/archives/index.vue`、`pages/friend-links.vue`、`components/home/external-feed-panel.vue`。
-    - **验收标准**: 360px 宽度下卡片不溢出、标题不截断到不可读；分页控件点击后 URL / 列表内容变化且触控目标 ≥44px；分类 / 标签 / 归档 / 友链的标签与元信息正常换行；空态与骨架屏各自独立基线（或同路由两态卡片区 + 分页区高度差 ≤24px）；CLS 基线以 `pnpm test:perf:cwv` 独立观测；移动快照通过。
+    - **验收标准**: 360px 宽度下卡片不溢出、标题不截断到不可读；分页控件点击后 URL / 列表内容变化且触控目标 ≥44px；分类 / 标签 / 归档 / 友链的标签与元信息正常换行；空态独立基线已交付（骨架屏基线转 backlog 待上收候选 #6，TEST_MODE 无法稳定复现 pending 态）；CLS 基线以 `pnpm test:perf:cwv` 独立观测；移动快照通过。
     - **不做什么**: 不改列表查询与分页协议；不为移动端新建第二套卡片组件。
     - **依赖**: 85.1。
     - **交付物**: 样式与模板微调、移动快照。

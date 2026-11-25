@@ -120,6 +120,7 @@ const scrollToHeading = (id: string) => {
         margin: 0;
         padding: 0;
         max-height: calc(100vh - 12rem);
+        max-height: calc(100dvh - 12rem);
         overflow-y: auto;
     }
 
@@ -140,6 +141,22 @@ const scrollToHeading = (id: string) => {
         &:hover {
             color: var(--caomei-color-primary);
             text-decoration: underline;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--m-primary-500);
+            outline-offset: 2px;
+        }
+
+        /* 触屏：无 hover，按压态反馈并保证 44px 触控高度（保留 block 以免丢失省略号）。 */
+        @media (hover: none), (pointer: coarse) {
+            min-height: 44px;
+            padding: 0.75rem 0;
+
+            &:active {
+                color: var(--caomei-color-primary);
+                text-decoration: underline;
+            }
         }
     }
 }

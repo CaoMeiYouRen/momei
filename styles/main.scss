@@ -546,3 +546,60 @@ html:root.dark {
 
     /* `neutral-text` 无需暗色覆盖：其取值是「文本色 → 卡片色」的派生，暗色下随文本色自动变浅。 */
 }
+
+/* ---------------------------------------------------------------------------
+ * 公开表单的移动端可用性
+ *
+ * - 输入字号 ≥16px：iOS Safari 在聚焦字号 <16px 的输入框时会自动放大页面。
+ * - 粘性提交按钮 + 安全区：键盘弹出时可滚动到提交按钮且不被 home indicator 遮挡。
+ * - 密码显隐按钮补足 44px 触控尺寸。
+ *
+ * 只作用于公开表单页（页面根节点带 `public-form` 类），不影响后台表单。
+ * ------------------------------------------------------------------------ */
+@media (width <= 768px), (pointer: coarse) {
+    .public-form {
+        /* `:is()` 取参数中最高特异性，压过 caomei 控件内部的 14px 声明（含 textarea）。 */
+        :is(input:not([type="checkbox"], [type="radio"]), textarea, select) {
+            font-size: 16px;
+        }
+
+        .caomei-password__toggle {
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        :is(.login-form__submit-btn, .register-form__submit-btn, .submit-form__actions, .submit-btn, .settings-form__submit-btn) {
+            position: sticky;
+            bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+            z-index: 5;
+        }
+    }
+}
+
+/* 触屏分页触控目标：caomei Paginator 默认尺寸小于 44px。 */
+@media (hover: none), (pointer: coarse) {
+    .caomei-paginator__item,
+    .caomei-paginator__control {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+/* 触屏：抽屉关闭按钮 / 开往入口 / 站点 Logo 链接补足 44px 触控目标。 */
+@media (hover: none), (pointer: coarse) {
+    .caomei-drawer__close,
+    .travellings-link,
+    a.app-logo {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+/* 触屏：公开壳层图标按钮（搜索 / 主题 / 语言 / 菜单 / 登录）统一 44px。 */
+@media (hover: none), (pointer: coarse) {
+    .app-header .caomei-button,
+    .mobile-drawer .caomei-button {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}

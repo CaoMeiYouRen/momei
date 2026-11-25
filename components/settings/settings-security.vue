@@ -21,6 +21,8 @@
                     <CaomeiPassword
                         id="currentPassword"
                         v-model="passwordForm.currentPassword"
+                        autocomplete="current-password"
+                        enterkeyhint="next"
                         :feedback="false"
                     />
                 </div>
@@ -29,6 +31,8 @@
                     <CaomeiPassword
                         id="newPassword"
                         v-model="passwordForm.newPassword"
+                        autocomplete="new-password"
+                        enterkeyhint="next"
                         :feedback="true"
                     />
                 </div>
@@ -37,6 +41,8 @@
                     <CaomeiPassword
                         id="confirmPassword"
                         v-model="passwordForm.confirmPassword"
+                        autocomplete="new-password"
+                        enterkeyhint="submit"
                         :feedback="false"
                     />
                 </div>
