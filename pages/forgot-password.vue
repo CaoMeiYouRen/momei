@@ -13,6 +13,9 @@
                 id="email"
                 v-model="email"
                 type="email"
+                inputmode="email"
+                autocomplete="email"
+                enterkeyhint="send"
                 :placeholder="$t('pages.login.email_placeholder')"
                 required
                 :invalid="!!error"

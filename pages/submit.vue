@@ -1,5 +1,5 @@
 <template>
-    <div class="submit-page">
+    <div class="public-form submit-page">
         <div class="submit-container">
             <header class="submit-header">
                 <h1 class="submit-header__title">
@@ -17,6 +17,7 @@
                         <CaomeiInput
                             id="title"
                             v-model="form.title"
+                            enterkeyhint="next"
                             :placeholder="$t('pages.submit.form.title_placeholder')"
                             :invalid="!!errors.title"
                         />
@@ -58,6 +59,8 @@
                             <CaomeiInput
                                 id="name"
                                 v-model="form.contributorName"
+                                autocomplete="name"
+                                enterkeyhint="next"
                                 :placeholder="$t('pages.submit.form.name_placeholder')"
                                 :invalid="!!errors.contributorName"
                             />
@@ -76,6 +79,9 @@
                                 id="email"
                                 v-model="form.contributorEmail"
                                 type="email"
+                                inputmode="email"
+                                autocomplete="email"
+                                enterkeyhint="next"
                                 :placeholder="$t('pages.submit.form.email_placeholder')"
                                 :invalid="!!errors.contributorEmail"
                             />
@@ -95,6 +101,10 @@
                         <CaomeiInput
                             id="url"
                             v-model="form.contributorUrl"
+                            type="url"
+                            inputmode="url"
+                            autocomplete="url"
+                            enterkeyhint="next"
                             :placeholder="$t('common.optional')"
                             :invalid="!!errors.contributorUrl"
                         />
@@ -187,12 +197,28 @@ const handleSubmit = async () => {
                 errors.value[key] = issue.message
             }
         })
+
+        const fieldIds: Record<string, string> = {
+            title: 'title',
+            content: 'content',
+            contributorName: 'name',
+            contributorEmail: 'email',
+            contributorUrl: 'url',
+            captchaToken: 'captcha',
+        }
+        const firstErrorKey = Object.keys(errors.value).find((key) => errors.value[key as keyof typeof errors.value])
+        await nextTick()
+        if (firstErrorKey) {
+            document.getElementById(fieldIds[firstErrorKey] ?? firstErrorKey)?.focus()
+        }
         return
     }
 
     // 验证验证码（如果启用）
     if (isCaptchaEnabled.value && !form.value.captchaToken) {
         errors.value.captchaToken = t('pages.submit.form.captcha_required')
+        await nextTick()
+        document.getElementById('captcha')?.focus()
         return
     }
 
@@ -238,6 +264,7 @@ const handleSubmit = async () => {
 .submit-page {
     padding: 2rem 1rem;
     min-height: calc(100vh - 200px);
+    min-height: calc(100dvh - 200px);
 }
 
 .submit-container {

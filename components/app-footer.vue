@@ -199,6 +199,9 @@ const footerPoweredByText = computed(() => t('components.footer.powered_by', { n
 
 .footer {
   padding: $spacing-xl 0;
+  padding-bottom: calc(#{$spacing-xl} + env(safe-area-inset-bottom, 0px));
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
   background-color: var(--caomei-color-bg);
   color: var(--caomei-color-text);
   text-align: center;
@@ -238,6 +241,24 @@ const footerPoweredByText = computed(() => t('components.footer.powered_by', { n
     &:hover {
       color: var(--caomei-color-primary);
       text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--m-primary-500);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    /* 触屏：无 hover，改为按压态并保证 44px 触控高度。 */
+    @media (hover: none), (pointer: coarse) {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 0 0.25rem;
+
+      &:active {
+        color: var(--caomei-color-primary);
+      }
     }
   }
 

@@ -38,6 +38,8 @@
                     id="name"
                     v-model="profileForm.name"
                     type="text"
+                    autocomplete="nickname"
+                    enterkeyhint="done"
                 />
             </div>
 

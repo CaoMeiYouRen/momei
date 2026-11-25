@@ -60,3 +60,31 @@ test.describe('移动端公开页视觉基线', () => {
         }
     }
 })
+
+/**
+ * 列表页空态基线（骨架屏基线转 backlog #6：Nuxt 路由导航等待数据完成，TEST_MODE 下无法稳定捕获 pending 态）。
+ */
+test.describe('移动端列表数据态', () => {
+    for (const theme of VISUAL_THEMES) {
+        const emptyName = `mobile-posts-empty-${theme}`
+
+        test(emptyName, async ({ page }, testInfo) => {
+            const entry = getMobileBudgetEntry(emptyName, budgetFile)
+            const report = { name: emptyName, route: '/posts?page=2', theme, tier: entry.tier, budget: { maxDiffPixels: entry.maxDiffPixels }, outputDir: testInfo.outputDir }
+            try {
+                await applyTheme(page, theme)
+                await blockExternalRequests(page)
+                await page.goto('/posts?page=2', { waitUntil: 'domcontentloaded' })
+                await waitForMobileStable(page, { lenient: true })
+                const emptyState = page.locator('.app-empty-state')
+                await expect(emptyState).toBeVisible()
+                await expect(emptyState).toHaveScreenshot(`${emptyName}.png`, { maxDiffPixels: entry.maxDiffPixels, threshold: budgetFile.meta.pixelThreshold })
+                writeMobileReport({ ...report, status: 'pass' })
+            } catch (error) {
+                writeMobileReport({ ...report, status: 'fail', error: error instanceof Error ? error.message.slice(0, 2000) : String(error) })
+                throw error
+            }
+        })
+
+    }
+})

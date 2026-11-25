@@ -13,6 +13,9 @@
                 id="email"
                 v-model="email"
                 type="email"
+                inputmode="email"
+                autocomplete="email"
+                enterkeyhint="next"
                 required
                 :disabled="!!route.query.email"
             />
@@ -24,6 +27,9 @@
                 id="otp"
                 v-model="otp"
                 type="text"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                enterkeyhint="next"
                 :placeholder="$t('pages.reset_password.otp_placeholder')"
                 required
             />
@@ -34,6 +40,8 @@
             <CaomeiPassword
                 id="password"
                 v-model="password"
+                autocomplete="new-password"
+                enterkeyhint="next"
                 :placeholder="$t('pages.reset_password.new_password_placeholder')"
                 :feedback="true"
                 required
@@ -45,6 +53,8 @@
             <CaomeiPassword
                 id="confirmPassword"
                 v-model="confirmPassword"
+                autocomplete="new-password"
+                enterkeyhint="submit"
                 :placeholder="$t('pages.reset_password.confirm_password_placeholder')"
                 :feedback="false"
                 required

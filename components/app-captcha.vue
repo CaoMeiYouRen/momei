@@ -190,8 +190,10 @@ defineExpose({
 <template>
     <div
         v-if="isEnabled"
+        id="captcha"
         ref="container"
         class="app-captcha"
+        tabindex="-1"
     />
 </template>
 

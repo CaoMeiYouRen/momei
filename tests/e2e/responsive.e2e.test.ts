@@ -1,27 +1,9 @@
 import { devices, expect, test } from '@playwright/test'
 import { MOBILE_READING_FIXTURE_HTML } from '../helpers/mobile-reading-fixture'
+import { openMobileMenu, waitForHydration } from './helpers/mobile-e2e'
 
 test.use({ ...devices['iPhone 13'] })
 
-
-/** 等客户端水合完成：等待 ClientOnly 的真实搜索按钮挂载（SSR fallback 按钮没有 id，因此「出现」即代表客户端已接管）。 */
-async function waitForHydration(page: import('@playwright/test').Page) {
-    await page.waitForFunction(() => {
-        const button = document.querySelector('#search-btn')
-        return button !== null && !button.hasAttribute('disabled')
-    }, { timeout: 15000 })
-}
-
-/** 点击汉堡按钮直到抽屉真正打开（兼容 SSR 首屏未水合的点击丢失）。 */
-async function openMobileMenu(page: import('@playwright/test').Page) {
-    const menuButton = page.locator('#mobile-menu-btn')
-    const drawer = page.locator('.mobile-drawer')
-    await expect(async () => {
-        await menuButton.click()
-        await expect(drawer).toBeVisible({ timeout: 1000 })
-    }).toPass({ timeout: 15000 })
-    return drawer
-}
 
 test.describe('Responsive Design E2E Tests', () => {
     test('should show mobile menu on small screens', async ({ page }) => {

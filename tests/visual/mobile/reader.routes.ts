@@ -93,3 +93,9 @@ export const MOBILE_READER_ROUTES: MobileReaderRoute[] = [
         stable: 'lenient',
     },
 ]
+
+/** 列表空态的独立视觉基线；骨架屏见 backlog #6。 */
+export const MOBILE_LIST_STATE_CASES = [
+    'mobile-posts-empty-light',
+    'mobile-posts-empty-dark',
+] as const

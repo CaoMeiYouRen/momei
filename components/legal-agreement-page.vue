@@ -101,6 +101,7 @@ defineProps<{
 .legal-page {
     padding: 2rem 1rem;
     min-height: 100vh;
+    min-height: 100dvh;
     background-color: var(--m-surface-0);
 
     &__container {

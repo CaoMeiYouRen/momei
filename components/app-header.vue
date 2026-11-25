@@ -277,6 +277,9 @@
                     icon-only
                     class="mobile-only"
                     :label="$t('components.header.title')"
+                    aria-haspopup="dialog"
+                    :aria-expanded="isMobileMenuOpen"
+                    :aria-controls="isMobileMenuOpen ? 'mobile-menu-drawer' : undefined"
                     @click="isMobileMenuOpen = true"
                 >
                     <template #icon>
@@ -287,12 +290,13 @@
         </div>
 
         <CaomeiDrawer
+            id="mobile-menu-drawer"
             :open="isMobileMenuOpen"
             position="right"
             size="sm"
             :title="$t('components.header.title')"
             class="mobile-drawer"
-            @update:open="isMobileMenuOpen = $event"
+            @update:open="handleMobileMenuOpenChange"
         >
             <div class="mobile-menu">
                 <div
@@ -482,6 +486,14 @@ const localePath = useLocalePath()
 const nuxtApp = useNuxtApp()
 
 const isMobileMenuOpen = ref(false)
+
+/** 关闭抽屉后把焦点还给触发按钮（Reka 在触屏点击场景可能无法自动还原）。 */
+const handleMobileMenuOpenChange = (open: boolean) => {
+    isMobileMenuOpen.value = open
+    if (!open) {
+        nextTick(() => document.getElementById('mobile-menu-btn')?.focus())
+    }
+}
 const adminLocaleReady = ref(false)
 
 const showAdminControls = computed(() => Boolean(
@@ -601,6 +613,8 @@ watch(
 
 .app-header {
     background-color: var(--caomei-color-bg);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
     height: 64px;
     position: sticky;
     top: 0;
@@ -721,6 +735,21 @@ watch(
     transition: background-color $transition-fast;
 
     &:hover {
+        background-color: var(--m-surface-100);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--m-primary-500);
+        outline-offset: 2px;
+    }
+
+    /* 触屏：无 hover，用按压态提供可见反馈，并保证 44px 触控高度。 */
+    @media (hover: none), (pointer: coarse) {
+        min-height: 44px;
+
+        &:active {
+            background-color: var(--m-surface-100);
+        }
     }
 
     i,
@@ -750,6 +779,7 @@ watch(
     width: 100%;
     justify-content: flex-start;
     margin-top: $spacing-sm;
+    min-height: 44px;
 }
 
 </style>

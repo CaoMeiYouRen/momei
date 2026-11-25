@@ -1,5 +1,5 @@
 <template>
-    <div class="settings-page">
+    <div class="public-form settings-page">
         <h1 class="settings-title">
             {{ $t("pages.settings.title") }}
         </h1>

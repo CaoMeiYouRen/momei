@@ -71,8 +71,8 @@
 // 阅读器控制面板
 .reader-controls {
     position: fixed;
-    right: 2rem;
-    bottom: 2rem;
+    right: calc(2rem + env(safe-area-inset-right, 0px));
+    bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
     z-index: 1000;
     display: flex;
     align-items: flex-end;
@@ -96,8 +96,8 @@
 
         @include respond-below("md") {
             position: fixed;
-            left: 2rem;
-            right: 2rem;
+            left: calc(2rem + env(safe-area-inset-left, 0px));
+            right: calc(2rem + env(safe-area-inset-right, 0px));
             bottom: 6rem;
             width: auto;
             animation: slide-up 0.3s ease-out;
