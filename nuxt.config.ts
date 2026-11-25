@@ -184,6 +184,12 @@ export default defineNuxtConfig({
         },
     },
     sentry: {
+        // 11.16 起模块默认开启构建期 orchestrion 注入，会在打包后的 pg / pg-pool 里插入
+        // `orchestrionModuleInjected("pg-pool", …)` 调用，与 CJS 命名空间互操作形成 TDZ：
+        // `ReferenceError: Cannot access 'pg' before initialization`，服务端启动即崩溃（CI Test / Lighthouse / E2E 全红）。
+        // 本仓库只用错误上报，不需要 pg / redis 的构建期自动埋点，故整体关闭该注入；
+        // 恢复条件见 backlog #10（升级后若上游修复互操作问题再评估开启）。
+        buildTimeInstrumentation: false,
         // Sentry v11 移除了 v10 的 `sourceMapsUploadOptions`，改由 `sourcemaps.disable` 统一控制。
         // v10 的判定是三分支：显式 `sourcemaps.disable` 优先，其次才回退到
         // `sourceMapsUploadOptions.enabled ?? true`。本仓库从未设置 Sentry 模块的 `sourcemaps` 选项，故旧的
