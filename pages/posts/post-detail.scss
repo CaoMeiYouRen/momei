@@ -307,6 +307,17 @@
         color: var(--caomei-color-text);
     }
 
+    /* caomei-ui Button 为 fragment root，scoped 样式需 :deep 才能命中真实按钮。 */
+    :deep(.post-detail__toc-trigger) {
+        display: none;
+        min-height: 44px;
+        margin-bottom: 1.25rem;
+
+        @media (width <= 1023px) {
+            display: inline-flex;
+        }
+    }
+
     &__meta {
         display: flex;
         flex-wrap: wrap;
@@ -353,6 +364,13 @@
         align-items: center;
         gap: 0.5rem;
         white-space: nowrap;
+
+        @media (width <= 768px) {
+            /* 作者名过长时允许换行，避免把元信息行撑出视口。 */
+            min-width: 0;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
     }
 
     &__category {

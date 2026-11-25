@@ -1,6 +1,6 @@
 <template>
     <div class="toc">
-        <h3 class="toc__title">
+        <h3 v-if="!hideTitle" class="toc__title">
             {{ $t('components.toc.title') }}
         </h3>
         <ul class="toc__list">
@@ -25,8 +25,20 @@
 <script setup lang="ts">
 import { sanitizeHtmlToText } from '@/utils/shared/html'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     content: string
+    /** 为 true 时不自行滚动，由父级在关闭抽屉 / 解除滚动锁后处理（移动端目录抽屉）。 */
+    deferScroll?: boolean
+    /** 抽屉等已自带标题的场景下隐藏组件内标题，避免重复。 */
+    hideTitle?: boolean
+}>(), {
+    deferScroll: false,
+    hideTitle: false,
+})
+
+const emit = defineEmits<{
+    /** 点击目录项后触发，供移动端抽屉关闭（滚动逻辑仍由本组件负责）。 */
+    navigate: [id: string]
 }>()
 
 const { createMarkdownRenderer } = await import('@/utils/shared/markdown')
@@ -72,6 +84,12 @@ const headings = computed(() => {
 })
 
 const scrollToHeading = (id: string) => {
+    emit('navigate', id)
+
+    if (props.deferScroll) {
+        return
+    }
+
     const element = document.getElementById(id)
     if (element) {
         const offset = 80

@@ -308,6 +308,13 @@ onMounted(() => {
         }
     }
 
+    /* 触屏 / 粗指针：分享按钮达到 44px 触控高度。 */
+    @media (hover: none), (pointer: coarse) {
+        :deep(.article-share__action-btn) {
+            min-height: 44px;
+        }
+    }
+
     :deep(.article-share__platform-btn) {
         --article-share-platform-color: var(--caomei-color-primary);
         --caomei-button-border: var(--caomei-color-border);

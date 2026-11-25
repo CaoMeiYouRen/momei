@@ -71,6 +71,33 @@ describe('TableOfContents', () => {
         expect(wrapper.findAll('.toc__link')).toHaveLength(0)
     })
 
+    it('emits navigate when a heading link is clicked', async () => {
+        const scrollToMock = vi.fn()
+        Object.defineProperty(window, 'scrollTo', {
+            value: scrollToMock,
+            writable: true,
+        })
+        vi.spyOn(document, 'getElementById').mockReturnValue({
+            getBoundingClientRect: () => ({ top: 200 }),
+        } as unknown as HTMLElement)
+
+        const wrapper = await mountSuspended(TableOfContents, {
+            props: {
+                content: '## Section One',
+            },
+            global: {
+                mocks: {
+                    $t: (key: string) => key,
+                },
+            },
+        })
+
+        await wrapper.find('.toc__link').trigger('click')
+
+        expect(wrapper.emitted('navigate')?.[0]).toEqual(['section-one'])
+        expect(scrollToMock).toHaveBeenCalled()
+    })
+
     it('scrolls to headings with the configured top offset', async () => {
         const scrollToMock = vi.fn()
         const element = {
@@ -101,5 +128,50 @@ describe('TableOfContents', () => {
             top: 160,
             behavior: 'smooth',
         })
+    })
+
+    it('does not scroll when deferScroll is true but still emits navigate', async () => {
+        const scrollToMock = vi.fn()
+        Object.defineProperty(window, 'scrollTo', {
+            value: scrollToMock,
+            writable: true,
+        })
+        vi.spyOn(document, 'getElementById').mockReturnValue({
+            getBoundingClientRect: () => ({ top: 200 }),
+        } as unknown as HTMLElement)
+
+        const wrapper = await mountSuspended(TableOfContents, {
+            props: {
+                content: '## Deferred Section',
+                deferScroll: true,
+            },
+            global: {
+                mocks: {
+                    $t: (key: string) => key,
+                },
+            },
+        })
+
+        await wrapper.find('.toc__link').trigger('click')
+
+        expect(wrapper.emitted('navigate')?.[0]).toEqual(['deferred-section'])
+        expect(scrollToMock).not.toHaveBeenCalled()
+    })
+
+    it('hides the built-in title when hideTitle is true', async () => {
+        const wrapper = await mountSuspended(TableOfContents, {
+            props: {
+                content: '## With Title',
+                hideTitle: true,
+            },
+            global: {
+                mocks: {
+                    $t: (key: string) => key,
+                },
+            },
+        })
+
+        expect(wrapper.find('.toc__title').exists()).toBe(false)
+        expect(wrapper.findAll('.toc__link')).toHaveLength(1)
     })
 })
