@@ -93,6 +93,24 @@ describe('ArticleContent', () => {
         expect(wrapper.text()).toContain('This is a tip')
     })
 
+    it('wraps markdown tables in a focusable scroll region', async () => {
+        const content = '| 列 A | 列 B |\n| --- | --- |\n| 1 | 2 |'
+        const wrapper = await mountSuspended(ArticleContent, {
+            props: {
+                content,
+            },
+        })
+
+        await nextTick()
+
+        const region = wrapper.find('.table-scroll')
+        expect(region.exists()).toBe(true)
+        expect(region.attributes('tabindex')).toBe('0')
+        expect(region.attributes('role')).toBe('region')
+        expect(region.attributes('aria-label')).toBeTruthy()
+        expect(region.find('table').exists()).toBe(true)
+    })
+
     it('renders GitHub alerts', async () => {
         const content = '> [!NOTE]\n> This is a note'
         const wrapper = await mountSuspended(ArticleContent, {

@@ -18,6 +18,7 @@
         "pinned": "固定表示",
         "views": "閲覧数",
         "word_count": "文字数",
+        "table_region": "表（横スクロール可能）",
         "minutes": "{min} 分",
         "published_at": "公開日時",
         "author": "著者",
