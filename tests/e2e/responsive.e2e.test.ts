@@ -113,7 +113,10 @@ test.describe('Responsive Design E2E Tests', () => {
         await waitForHydration(page)
 
         const drawer = await openMobileMenu(page)
-        await drawer.locator('.mobile-nav-link').filter({ hasText: '搜索' }).first().click()
+        await drawer.locator('#mobile-nav-search').click()
+
+        /* 打开搜索后移动菜单应收起，避免抽屉叠加在对话框背后。 */
+        await expect(drawer).toBeHidden()
 
         const searchDialog = page.locator('.app-search-dialog[role="dialog"]')
         await expect(searchDialog).toBeVisible()
@@ -122,7 +125,9 @@ test.describe('Responsive Design E2E Tests', () => {
         await expect(input).toBeVisible()
         await input.fill('Hello')
 
-        await expect(searchDialog.locator('.app-search__result-item').first()).toBeVisible({ timeout: 10000 })
+        const firstResult = searchDialog.locator('.app-search__result-item').first()
+        await expect(firstResult).toBeVisible({ timeout: 10000 })
+        await expect(firstResult).toContainText(/Hello/i)
 
         await page.keyboard.press('Escape')
         await expect(searchDialog).toBeHidden()
@@ -133,6 +138,7 @@ test.describe('Responsive Design E2E Tests', () => {
         await page.getByRole('heading', { name: '访客投稿', exact: true }).first().waitFor({ state: 'visible' })
 
         await expect(page.locator('#title')).toBeVisible()
+        await expect(page.locator('#name')).toBeVisible()
         await expect(page.locator('#content')).toBeVisible()
 
         const submitButton = page.locator('.submit-form button[type="submit"]').first()
@@ -140,6 +146,22 @@ test.describe('Responsive Design E2E Tests', () => {
         await submitButton.scrollIntoViewIfNeeded()
         const box = await submitButton.boundingBox()
         expect(box?.height ?? 0).toBeGreaterThan(0)
+    })
+
+
+    test('should keep the posts index usable when the page is clamped to a single page', async ({ page }) => {
+        await page.goto('/posts?page=2')
+        await page.getByRole('heading', { name: '文章列表', exact: true }).first().waitFor({ state: 'visible' })
+
+        /* 种子只有 1 篇文章：越界页返回空列表并渲染空态，且不渲染分页器、页面不横向溢出。 */
+        await expect(page.locator('.app-empty-state')).toBeVisible()
+        await expect(page.locator('.caomei-paginator')).toHaveCount(0)
+
+        const metrics = await page.evaluate(() => ({
+            innerWidth: window.innerWidth,
+            scrollWidth: document.documentElement.scrollWidth,
+        }))
+        expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.innerWidth)
     })
 
     test('should open, navigate and close the mobile table of contents', async ({ page }) => {
