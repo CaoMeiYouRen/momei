@@ -12,6 +12,7 @@
 
 - **[首页 SWR 与 i18n cookie 冲突决策](./2026-11-15-homepage-swr-i18n-cookie-decision)**: 第七十六阶段条目 4 的事实源，记录 nitropack 2.13.6 缓存安全规则后的 3 个候选方案与决策标准；结论为 ① 保持现状（/robots.txt 验证边缘可用，/ 仍 DYNAMIC），②/③ 转 backlog「首页缓存与语言检测解耦」。
 
+- **[Backlog 双轴优先级决策](./2026-11-26-backlog-dual-axis-priority)**: issue #1098 的落地依据；记录与 4 维准入矩阵的分工、评分锚点取舍、候选表边界与阶段留痕方式。
 - **[文档规范压缩说明](./2026-11-23-docs-standards-compression)**: `documentation.md` / `planning.md` 回到候选行数线内的压缩理由、逐节映射与影响边界。
 - **[文档维护陷阱清单](./documentation-maintenance-traps)**: [文档规范 §5.4](../../standards/documentation.md#54-规划与治理维护陷阱) 的逐项展开，承接 marker 成对、锚点与相对链接深度、表格插入行、数字可复算等长期维护陷阱。
 

@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-07-27
+last_sync: 2026-11-26
 translation_tier: source-only
 source_origin: ../../../standards/planning.md
 ---

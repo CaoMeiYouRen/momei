@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-23
+last_sync: 2026-11-26
 translation_tier: summary-sync
 ---
 
@@ -303,3 +303,6 @@ Phase-archive Steps 3 / 4 / 8, the regression-record template and the §4.2 regr
 -   [Development Standards](./development.md)
 -   [Design Doc Index](../../../design/modules/index.md)
 -   [Governance & Special Design Index](../../../design/governance/index.md)
+
+> Sync note (2026-11-26): §3.5 **Backlog Dual-Axis Priority** added — the four-dimension matrix stays the admission test; a separate 1–5 importance / urgency scoring orders short-term backlog candidates (deferred pool + candidates awaiting intake). Quadrants (≥4/≥4 first, ≥4/≤3 schedule, ≤3/≥4 quick evaluation, ≤3/≤3 defer) only order work and never authorize a start. Stage registration records the scores as a snapshot; `todo.md` does not copy them. Long-term mainlines and upstream-tracking items are excluded. Full text remains Chinese-only.
+
