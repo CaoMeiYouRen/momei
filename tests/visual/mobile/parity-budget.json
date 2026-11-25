@@ -1,0 +1,113 @@
+{
+    "meta": {
+        "updatedAt": "2026-11-25",
+        "viewport": "390x844 (DPR 3, scale css)",
+        "pixelThreshold": 0.2,
+        "referenceDir": "tests/visual/mobile/__screenshots__/chromium-visual-mobile/reader.mobile-visual.test.ts",
+        "note": "移动视觉层基线自比对预算：逐路由一个可独立调整的槽位，当前统一按 reader 档 200px（严于桌面 parity reader 档 2000px，绝对值与桌面基线层默认一致）。仅使用绝对像素上限；比例阈值在 390×844 下恒不先触发，不入表以免制造双阈值假象。"
+    },
+    "tiers": {
+        "reader": {
+            "maxDiffPixels": 200,
+            "description": "面向读者 / 公开页：布局必须基本不变，极小容差。"
+        }
+    },
+    "entries": {
+        "mobile-home-light": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-home-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-posts-list-light": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-posts-list-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-post-detail-light": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-post-detail-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-archives-light": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-archives-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-categories-light": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-categories-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-tags-light": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-tags-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-friend-links-light": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-friend-links-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-about-light": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-about-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-submit-light": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-submit-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-login-light": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-login-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-register-light": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-register-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-user-settings-light": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-user-settings-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        }
+    }
+}

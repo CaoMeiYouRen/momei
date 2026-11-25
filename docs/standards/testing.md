@@ -318,6 +318,9 @@ pnpm run test:coverage
 
 - 基线层：`tests/visual/*.visual.test.ts` + `playwright.visual.config.ts`，对比仓库自提交的 `<name>.png`。
 - 移动基线层：`tests/visual/mobile/*.mobile-visual.test.ts` + `playwright.visual-mobile.config.ts`，`390×844`（DPR 3，`scale: 'css'` 按 1× CSS 像素比对）、chromium、覆盖 12 条 reader 路由 × 明暗两主题；命令 `pnpm test:visual:mobile` / `pnpm test:visual:mobile:update`，产物隔离到 `tests/visual/mobile/__screenshots__/<project>/` 与 `test-results/visual-mobile/`。
+    - 预算按路由分档于 `tests/visual/mobile/parity-budget.json`（reader 档 200px 绝对上限；未登记路由直接失败，不回退到更宽阈值）；比例阈值在 390×844 下恒不先触发，不入表；
+    - 每个用例落 `test-results/visual-mobile/report/<name>.json`（覆盖导航 / 就绪 / 截图断言全阶段）并打印 `[mobile-visual] 路由 | 主题 | 档位 | 预算 | 结果` 行；失败时同目录下的 `*-diff.png` / `*-actual.png` 即区域归因依据；
+    - CI 的 `Visual Regression` job 依次运行基线层、桌面 parity、移动门禁，三者均为阻断步骤，产物随 `visual-regression-artifacts` 上传；移动基线随仓库提交，CI 回执用于确认 runner 渲染与基线一致。
 - 门禁层：`tests/visual/parity/*.visual-parity.test.ts` + `playwright.visual-parity.config.ts`，对比 `<name>.reference.png`。
 - 分级：`reader`（面向读者 / 公开页）布局必须基本不变、极小容差；`admin`（面向管理员）容许一定偏差但需「看起来差不多」。口径声明于 `tests/visual/parity-budget.json` 的 `tiers`，逐 testName 覆盖于 `entries`。
 

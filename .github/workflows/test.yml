@@ -294,12 +294,16 @@ jobs:
   # ===============================================================
   #  Visual Regression (screenshot layer, migration §8.2)
   #  Independent Playwright config — does NOT touch e2e testMatch.
-  #  Two layers:
+  #  Three layers:
   #    1) baseline layer  : pnpm test:visual        (self-committed snapshots)
   #    2) parity gate     : pnpm test:visual:parity (current render vs CI reference,
   #                         tiered budget + allowlist)
-  #  参考态由 ubuntu runner 的 Refresh Visual Reference 工作流按当前 HEAD 复采，
-  #  CI 产物是门禁唯一判定依据；两层均作为阻断门禁，不再使用 continue-on-error。
+  #    3) mobile gate     : pnpm test:visual:mobile (390x844 / DPR 3 reader baseline,
+  #                         per-route budget in tests/visual/mobile/parity-budget.json)
+  #  桌面 parity 参考态由 ubuntu runner 的 Refresh Visual Reference 工作流按当前 HEAD 复采，
+  #  CI 产物是该层唯一判定依据；桌面基线层与移动门禁的基线随仓库提交（移动基线目前由本地
+  #  Linux + chromium 采集，CI 回执用于确认 runner 渲染与之一致）。
+  #  三层均作为阻断门禁，不使用 continue-on-error。
   #  重采命令：gh workflow run visual-reference-refresh.yml --ref master
   # ===============================================================
   visual:
@@ -308,7 +312,9 @@ jobs:
     runs-on: ubuntu-latest
     # 2026-11-03：B3 的 10 条待迁移路由（20 条用例）登记后 parity 单次约 10.4 分钟，
     # 叠加基线层（约 3 分钟）与双 server 启动，20 分钟余量不足，放宽到 30 分钟。
-    timeout-minutes: 30
+    # 2026-11-25：新增移动门禁（24 用例 + 第三次 webServer 启停，约 1.5 分钟），
+    # 为三层累计留足余量并避免 timeout 掩盖视觉差异，放宽到 40 分钟。
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v7
       - name: Setup pnpm
@@ -346,6 +352,14 @@ jobs:
           AUTH_SECRET: ${{ secrets.E2E_AUTH_SECRET || 'ci-e2e-test-secret-for-better-auth' }}
           BETTER_AUTH_SECRET: ${{ secrets.E2E_AUTH_SECRET || 'ci-e2e-test-secret-for-better-auth' }}
         run: pnpm test:visual:parity
+      - name: Run mobile visual gate
+        if: always()
+        env:
+          TEST_MODE: "true"
+          NUXT_PUBLIC_TEST_MODE: "true"
+          AUTH_SECRET: ${{ secrets.E2E_AUTH_SECRET || 'ci-e2e-test-secret-for-better-auth' }}
+          BETTER_AUTH_SECRET: ${{ secrets.E2E_AUTH_SECRET || 'ci-e2e-test-secret-for-better-auth' }}
+        run: pnpm test:visual:mobile
       - name: Upload visual diff artifacts
         if: always()
         uses: actions/upload-artifact@v7
@@ -356,6 +370,7 @@ jobs:
             playwright-report/visual/
             test-results/visual-parity/
             playwright-report/visual-parity/
+            test-results/visual-mobile/
             tests/visual/parity/reference-manifest.json
           retention-days: 7
           if-no-files-found: ignore
