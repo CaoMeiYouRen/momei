@@ -3,26 +3,39 @@ import { MOBILE_READING_FIXTURE_HTML } from '../helpers/mobile-reading-fixture'
 
 test.use({ ...devices['iPhone 13'] })
 
+
+/** 等客户端水合完成：ClientOnly 的搜索按钮从禁用态变为可用。 */
+async function waitForHydration(page: import('@playwright/test').Page) {
+    await page.waitForFunction(() => {
+        const button = document.querySelector('#search-btn')
+        return button !== null && !button.hasAttribute('disabled')
+    }, { timeout: 15000 })
+}
+
+/** 点击汉堡按钮直到抽屉真正打开（兼容 SSR 首屏未水合的点击丢失）。 */
+async function openMobileMenu(page: import('@playwright/test').Page) {
+    const menuButton = page.locator('#mobile-menu-btn')
+    const drawer = page.locator('.mobile-drawer')
+    await expect(async () => {
+        await menuButton.click()
+        await expect(drawer).toBeVisible({ timeout: 1000 })
+    }).toPass({ timeout: 15000 })
+    return drawer
+}
+
 test.describe('Responsive Design E2E Tests', () => {
     test('should show mobile menu on small screens', async ({ page }) => {
         await page.goto('/')
-        // 等待页面完全加载
-        await page.waitForLoadState('networkidle')
+        await waitForHydration(page)
 
         // 桌面端导航应隐藏
         const desktopNav = page.locator('.app-header__nav.desktop-only')
         await expect(desktopNav).not.toBeVisible()
 
         // 移动端菜单按钮
-        const menuBtn = page.locator('#mobile-menu-btn')
-        await expect(menuBtn).toBeVisible()
+        await expect(page.locator('#mobile-menu-btn')).toBeVisible()
 
-        // 点击按钮
-        await menuBtn.click()
-
-        // 抽屉菜单应可见 (PrimeVue Drawer 组件)
-        const drawer = page.locator('.mobile-drawer')
-        await expect(drawer).toBeVisible({ timeout: 10000 })
+        const drawer = await openMobileMenu(page)
 
         // 检查移动端导航链接 (Articles/文章)
         await expect(drawer.getByRole('link', { name: /Articles|文章/ })).toBeVisible()
@@ -85,15 +98,56 @@ test.describe('Responsive Design E2E Tests', () => {
         expect(box?.height ?? 0).toBeGreaterThanOrEqual(44)
     })
 
+
+    test('should close the mobile menu with Escape', async ({ page }) => {
+        await page.goto('/')
+        await waitForHydration(page)
+
+        const drawer = await openMobileMenu(page)
+        await page.keyboard.press('Escape')
+        await expect(drawer).toBeHidden()
+    })
+
+    test('should open search from the mobile menu, return results and close', async ({ page }) => {
+        await page.goto('/')
+        await waitForHydration(page)
+
+        const drawer = await openMobileMenu(page)
+        await drawer.locator('.mobile-nav-link').filter({ hasText: '搜索' }).first().click()
+
+        const searchDialog = page.locator('.app-search-dialog[role="dialog"]')
+        await expect(searchDialog).toBeVisible()
+
+        const input = searchDialog.locator('.app-search__input input, input.app-search__input').first()
+        await expect(input).toBeVisible()
+        await input.fill('Hello')
+
+        await expect(searchDialog.locator('.app-search__result-item').first()).toBeVisible({ timeout: 10000 })
+
+        await page.keyboard.press('Escape')
+        await expect(searchDialog).toBeHidden()
+    })
+
+    test('should expose the submit form entry on mobile', async ({ page }) => {
+        await page.goto('/submit')
+        await page.getByRole('heading', { name: '访客投稿', exact: true }).first().waitFor({ state: 'visible' })
+
+        await expect(page.locator('#title')).toBeVisible()
+        await expect(page.locator('#content')).toBeVisible()
+
+        const submitButton = page.locator('.submit-form button[type="submit"]').first()
+        await expect(submitButton).toBeVisible()
+        await submitButton.scrollIntoViewIfNeeded()
+        const box = await submitButton.boundingBox()
+        expect(box?.height ?? 0).toBeGreaterThan(0)
+    })
+
     test('should open, navigate and close the mobile table of contents', async ({ page }) => {
         await page.goto('/posts/hello-momei-test', { waitUntil: 'domcontentloaded' })
         await page.getByRole('heading', { name: 'Hello Momei Test', exact: true }).first().waitFor({ state: 'visible' })
 
-        /* 首屏 SSR 已渲染按钮，但水合完成前点击会被丢弃；以 ClientOnly 搜索按钮转为可用作为水合完成信号。 */
-        await page.waitForFunction(() => {
-            const button = document.querySelector('#search-btn')
-            return button !== null && !button.hasAttribute('disabled')
-        }, { timeout: 15000 })
+        /* 首屏 SSR 已渲染按钮，但水合完成前点击会被丢弃。 */
+        await waitForHydration(page)
 
         const trigger = page.locator('.post-detail__toc-trigger')
         await expect(trigger).toBeVisible()
