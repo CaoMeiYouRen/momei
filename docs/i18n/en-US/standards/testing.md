@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-23
+last_sync: 2026-11-26
 translation_tier: summary-sync
 ---
 
@@ -222,6 +222,8 @@ Fix tasks follow the "minimal reproduction test → targeted subset → batch fi
 > Sync note (2026-11-13): §7.2 now judges against a CI-recaptured reference baseline and both visual layers are blocking (the job-level `continue-on-error` was removed); `pnpm test:visual:reference -- --force-all` is the refresh entry.
 
 > Sync note (2026-11-15): §2.2 adds guard assertions that pin the call form after stripping comments (with a cross-reference to §7.3 discrimination checks); §2.3 clarifies that guard tests add files/tests but only new source files change the coverage denominator, and that `.vitest-cache` / `.vitest-cache-coverage` are separate caches; §7.3 adds the local E2E port override (`E2E_HOST` / `E2E_PORT` / `E2E_INSTALLATION_PORT`), the firefox navigation flake rule, and the admin-list click flake registration with its revocation condition.
+
+> Sync note (2026-11-26): §7.1 adds the mobile-visual pitfalls (`devices[...]` carries `defaultBrowserType: 'webkit'`, so projects must set `browserName: 'chromium'`; external fonts can hang `document.fonts.ready`, so the mobile layer blocks non-loopback requests) and extends the `*.png` whitelist to `tests/visual/mobile/__screenshots__`. §7.2 adds the mobile layer: 390×844 / DPR 3 / CSS-pixel scale, 12 reader routes × 2 themes, per-route budget in `tests/visual/mobile/parity-budget.json` (unregistered route fails rather than falling back), one report JSON plus an attribution line per case, and a blocking mobile gate in the CI visual job. Full text remains Chinese-only.
 
 > Sync note (2026-11-18): §7.3 replaces the "admin list click flake" registration with a binding waiting rule: `tests/helpers/ui-interaction.ts` provides `settleUi()` (drain microtasks + render flush), `clickWhenReady()` (fail loudly when the target is missing) and `expectEventually()` (bounded wait for the final state); optional-chained triggers and `waitForTimeout` are forbidden. Conclusion and evidence live in `docs/design/governance/2026-11-18-test-flake-waiting-and-networkidle.md`.
 
