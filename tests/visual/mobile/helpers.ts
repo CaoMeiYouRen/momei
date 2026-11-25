@@ -1,5 +1,8 @@
+import fs from 'node:fs'
+import path from 'node:path'
 import type { Page } from '@playwright/test'
 import { dynamicMask } from '../helpers/visual'
+import type { MobileVisualTier } from './budget'
 
 /**
  * 移动端视觉基线的公共辅助。
@@ -50,4 +53,38 @@ export function mobileMask(page: Page) {
         page.locator('.article-card__meta'),
         page.locator('.post-detail__meta'),
     ]
+}
+
+export interface MobileReportInput {
+    name: string
+    route: string
+    theme: string
+    tier: MobileVisualTier
+    budget: { maxDiffPixels: number }
+    status: 'pass' | 'fail'
+    outputDir: string
+    error?: string
+}
+
+const reportDir = path.join(process.cwd(), 'test-results', 'visual-mobile', 'report')
+
+/**
+ * 每个用例落一份机器可读报告，并打印一行固定格式的归因行。
+ *
+ * 失败时 Playwright 已把 `*-diff.png` / `*-actual.png` 写入 `outputDir`；报告里同时记录该目录，
+ * 使「哪个路由、哪套主题、预算多少、差异图在哪」无需翻 HTML 报告即可定位。
+ */
+export function writeMobileReport(input: MobileReportInput): void {
+    fs.mkdirSync(reportDir, { recursive: true })
+    const row = {
+        ...input,
+        timestamp: new Date().toISOString(),
+    }
+    fs.writeFileSync(path.join(reportDir, `${input.name}.json`), `${JSON.stringify(row, null, 2)}\n`)
+
+    console.info(
+        `[mobile-visual] ${input.name} | ${input.route} | ${input.theme} | ${input.tier}`
+        + ` | ${input.budget.maxDiffPixels}px`
+        + ` | ${input.status.toUpperCase()} | ${path.relative(process.cwd(), input.outputDir)}`,
+    )
 }
