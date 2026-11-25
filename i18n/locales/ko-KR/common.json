@@ -18,6 +18,7 @@
         "pinned": "고정",
         "views": "조회수",
         "word_count": "글자 수",
+        "table_region": "표, 가로 스크롤 가능",
         "minutes": "{min}분",
         "published_at": "게시일",
         "author": "작성자",

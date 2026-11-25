@@ -18,6 +18,7 @@
         "pinned": "Pinned",
         "views": "Views",
         "word_count": "Word Count",
+        "table_region": "Table, horizontally scrollable",
         "minutes": "{min} min",
         "published_at": "Published at",
         "author": "Author",

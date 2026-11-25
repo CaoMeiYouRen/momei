@@ -85,6 +85,19 @@
             mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E");
         }
     }
+
+    /* 粗指针 / 无 hover 设备（触屏）没有 hover 过程：复制按钮必须常显并达到 44px 触控尺寸。
+     * 必须写在 `.copy-code-button` 之后——同特异性下后声明者生效。 */
+    @media (hover: none), (pointer: coarse) {
+        .copy-code-wrapper {
+            opacity: 1;
+        }
+
+        .copy-code-button {
+            width: 44px;
+            height: 44px;
+        }
+    }
   }
 
   // Custom Containers (VitePress style)

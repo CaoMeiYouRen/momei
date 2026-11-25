@@ -1,4 +1,5 @@
-import { test, expect, devices } from '@playwright/test'
+import { devices, expect, test } from '@playwright/test'
+import { MOBILE_READING_FIXTURE_HTML } from '../helpers/mobile-reading-fixture'
 
 test.use({ ...devices['iPhone 13'] })
 
@@ -25,6 +26,63 @@ test.describe('Responsive Design E2E Tests', () => {
 
         // 检查移动端导航链接 (Articles/文章)
         await expect(drawer.getByRole('link', { name: /Articles|文章/ })).toBeVisible()
+    })
+
+    test('should keep article content inside the viewport on narrow screens', async ({ page }) => {
+        await page.goto('/posts/hello-momei-test', { waitUntil: 'domcontentloaded' })
+        await page.getByRole('heading', { name: 'Hello Momei Test', exact: true }).first().waitFor({ state: 'visible' })
+
+        /* 夹具挂在正文容器之外（复用 `.markdown-body` 样式）：正文由 v-html 渲染，
+         * 水合与阅读量自增都会重渲染并覆盖注入内容，挂在 Vue 管理节点内会造成假失败。
+         * 「表格包装 / 复制写入剪贴板」由 `components/article-content.test.ts` 与
+         * `utils/web/rendered-markdown.test.ts` 覆盖；这里验证窄屏 CSS 契约与触控可见性。 */
+        await page.evaluate((html) => {
+            document.querySelector('#reading-fixture-host')?.remove()
+            const host = document.createElement('div')
+            host.id = 'reading-fixture-host'
+            host.className = 'markdown-body'
+            host.style.padding = '0 1rem'
+            host.innerHTML = html
+            document.body.appendChild(host)
+        }, MOBILE_READING_FIXTURE_HTML)
+
+        const host = page.locator('#reading-fixture-host')
+        await expect(host).toBeVisible()
+
+        /* 覆盖验收区间 360–430px：宽表 / 长 URL / 长行内代码都不得撑破页面。 */
+        for (const width of [360, 390, 430]) {
+            await page.setViewportSize({ width, height: 800 })
+            const metrics = await page.evaluate(() => ({
+                innerWidth: window.innerWidth,
+                scrollWidth: document.documentElement.scrollWidth,
+            }))
+            expect(metrics.scrollWidth, `页面级横向滚动出现在 ${width}px`).toBeLessThanOrEqual(metrics.innerWidth)
+        }
+
+        const tableRegion = host.locator('.table-scroll')
+        await expect(tableRegion).toHaveAttribute('tabindex', '0')
+        await expect(tableRegion).toHaveAttribute('role', 'region')
+
+        const overflowX = await tableRegion.evaluate((element) => getComputedStyle(element).overflowX)
+        expect(['auto', 'scroll']).toContain(overflowX)
+
+        /* 键盘可达：聚焦容器后方向键应能横向浏览（不要求鼠标 / 触摸）。 */
+        await page.setViewportSize({ width: 360, height: 800 })
+        await tableRegion.focus()
+        for (let index = 0; index < 8; index++) {
+            await page.keyboard.press('ArrowRight')
+        }
+        await expect.poll(async () => tableRegion.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0)
+
+        /* 粗指针设备没有 hover 过程，复制按钮必须常显且达到触控尺寸。 */
+        const copyWrapper = host.locator('.copy-code-wrapper')
+        await expect(copyWrapper).toBeVisible()
+        expect(await copyWrapper.evaluate((element) => getComputedStyle(element).opacity)).toBe('1')
+
+        const copyButton = host.locator('.copy-code-button')
+        const box = await copyButton.boundingBox()
+        expect(box?.width ?? 0).toBeGreaterThanOrEqual(44)
+        expect(box?.height ?? 0).toBeGreaterThanOrEqual(44)
     })
 
     test.skip('should handle post reading on mobile', async ({ page }) => {

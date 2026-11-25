@@ -108,6 +108,14 @@
         "mobile-user-settings-dark": {
             "tier": "reader",
             "maxDiffPixels": 200
+        },
+        "mobile-post-rich-light": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-post-rich-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 200
         }
     }
 }

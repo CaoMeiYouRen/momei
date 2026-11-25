@@ -22,11 +22,13 @@
 </template>
 
 <script setup lang="ts">
-import { copyRenderedMarkdownCode, initRenderedMarkdownCodeGroups } from '@/utils/web/rendered-markdown'
+import { copyRenderedMarkdownCode, enhanceRenderedMarkdownTables, initRenderedMarkdownCodeGroups } from '@/utils/web/rendered-markdown'
 
 const props = defineProps<{
     content: string
 }>()
+
+const { t } = useI18n()
 
 const articleRef = ref<HTMLElement | null>(null)
 const lightboxVisible = ref(false)
@@ -68,11 +70,13 @@ const renderedContent = computed(() => sanitizeRenderedMarkdownHtml(md.render(pr
 
 onMounted(() => {
     initRenderedMarkdownCodeGroups(articleRef.value)
+    enhanceRenderedMarkdownTables(articleRef.value, { label: t('common.table_region') })
 })
 
 watch(() => props.content, () => {
     nextTick(() => {
         initRenderedMarkdownCodeGroups(articleRef.value)
+        enhanceRenderedMarkdownTables(articleRef.value, { label: t('common.table_region') })
     })
 })
 </script>
@@ -86,6 +90,9 @@ watch(() => props.content, () => {
     color: var(--caomei-color-text);
     font-size: 1.1rem;
     font-family: $font-sans;
+
+    /* 长 URL / 长行内代码在窄屏不撑破视口；正常中文与英文单词的断行行为不受影响。 */
+    overflow-wrap: anywhere;
 
     h1, h2, h3, h4, h5, h6 {
         margin-top: 2em;
@@ -152,6 +159,9 @@ watch(() => props.content, () => {
         font-family: $font-mono;
         font-size: 0.9em;
         color: var(--m-primary-600);
+
+        /* 长标识符 / 哈希串在窄屏允许任意断点换行，避免行内代码撑破容器。 */
+        overflow-wrap: anywhere;
     }
 
     pre {
@@ -203,6 +213,26 @@ watch(() => props.content, () => {
         th {
             background-color: var(--m-surface-50);
             font-weight: 600;
+        }
+    }
+
+    /* 宽表在窄屏横向滚动：容器可聚焦，键盘方向键即可浏览；不产生页面级横向滚动。 */
+    .table-scroll {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 1.5em 0;
+
+        &:focus-visible {
+            outline: 2px solid var(--m-primary-500);
+            outline-offset: 2px;
+            border-radius: $border-radius-sm;
+        }
+
+        table {
+            margin: 0;
+            min-width: max-content;
         }
     }
 
