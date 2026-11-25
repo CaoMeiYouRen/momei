@@ -34,7 +34,7 @@ interface RegistryEntry {
 }
 
 let tempRoot = ''
-let previousExitCode: number | string | undefined
+let previousExitCode: number | undefined
 
 function p(...segments: string[]) {
     return path.join(tempRoot, ...segments)
