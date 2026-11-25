@@ -174,7 +174,10 @@ function captureConsoleInfo() {
 
 beforeEach(async () => {
     tempRoot = await mkdtemp(path.join(tmpdir(), 'governance-branches-'))
-    previousExitCode = process.exitCode ?? undefined
+    /* `process.exitCode` 的类型随 @types/node 版本在 `number | undefined` 与
+     * `string | number | undefined` 之间漂移；显式归一化，避免本地 / CI 类型面分叉。 */
+    const currentExitCode = process.exitCode
+    previousExitCode = typeof currentExitCode === 'number' ? currentExitCode : undefined
     process.exitCode = undefined
 })
 
