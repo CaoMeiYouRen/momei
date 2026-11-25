@@ -93,9 +93,3 @@ export const MOBILE_READER_ROUTES: MobileReaderRoute[] = [
         stable: 'lenient',
     },
 ]
-
-/**
- * 阅读页夹具用例（不依赖种子文章内容）：注入宽表 / 长 URL / 长代码块后截图，
- * 为阅读页的溢出与复制按钮样式建立视觉守卫。
- */
-export const MOBILE_READING_FIXTURE_CASES = ['mobile-post-rich-light', 'mobile-post-rich-dark'] as const

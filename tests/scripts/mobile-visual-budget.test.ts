@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { getMobileBudgetEntry, readMobileBudget } from '../visual/mobile/budget'
-import { MOBILE_READER_ROUTES, MOBILE_READING_FIXTURE_CASES } from '../visual/mobile/reader.routes'
+import { MOBILE_READER_ROUTES } from '../visual/mobile/reader.routes'
 
 /**
  * 移动视觉预算的单元测试。
@@ -12,12 +12,11 @@ import { MOBILE_READER_ROUTES, MOBILE_READING_FIXTURE_CASES } from '../visual/mo
  */
 describe('移动视觉预算', () => {
     const budget = readMobileBudget()
-    const expectedNames = new Set([
-        ...MOBILE_READER_ROUTES.flatMap((route) => [`${route.name}-light`, `${route.name}-dark`]),
-        ...MOBILE_READING_FIXTURE_CASES,
-    ])
+    const expectedNames = new Set(
+        MOBILE_READER_ROUTES.flatMap((route) => [`${route.name}-light`, `${route.name}-dark`]),
+    )
 
-    it('12 条路由 × 明暗两主题 + 阅读夹具全部登记且无孤儿键', () => {
+    it('12 条路由 × 明暗两主题全部登记且无孤儿键', () => {
         expect(MOBILE_READER_ROUTES).toHaveLength(12)
         expect(new Set(Object.keys(budget.entries))).toEqual(expectedNames)
 
