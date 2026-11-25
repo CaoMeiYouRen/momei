@@ -282,7 +282,9 @@ pnpm run test:coverage
 |:---|:---|
 | `maxDiffPixels` 与 `maxDiffPixelRatio` 同时配置 | Playwright 取 `Math.min(absolute, ratio*w*h)`，有效阈值为两者取小；典型配置下绝对值更小即生效，比例项沦为误导性旋钮。细粒度灵敏度只用绝对像素上限。 |
 | 失败产物位置 | `-actual.png` / `-diff.png` 落在 `outputDir`（默认 `test-results/`），**不在** `snapshotPathTemplate` 指定的快照目录；针对快照目录写 `*-actual.png` 的 gitignore 规则是死规则。 |
-| 仓库全局 `*.png` 忽略 | 会连基线快照一起挡掉；新增基线前用 `git check-ignore -q <png>` 验证（看 exit code，不能只看 `-v` 输出）。本仓库 `.gitignore` 已放行 `tests/visual/__screenshots__/**/*.png`。 |
+| 仓库全局 `*.png` 忽略 | 会连基线快照一起挡掉；新增基线前用 `git check-ignore -q <png>` 验证（看 exit code，不能只看 `-v` 输出）。本仓库 `.gitignore` 已放行 `tests/visual/__screenshots__/**/*.png` 与 `tests/visual/mobile/__screenshots__/**/*.png`。 |
+| Playwright `devices[...]` 自带 `defaultBrowserType` | `devices['iPhone 13']` 等移动设备描述自带 `defaultBrowserType: 'webkit'`，展开进 project 后会让用例在 WebKit 运行；CI 只安装 chromium 时表现为「本地通过、CI 缺浏览器失败」。移动视口项目必须显式设置 `browserName: 'chromium'`。 |
+| 移动视口外部资源挂起 | 移动 UA 下第三方字体 / 统计资源可能长期不结束，`document.fonts.ready` 与截图前的字体等待都会卡死。移动视觉层显式 `page.route` 阻断非 loopback 请求，使本地与 CI 渲染条件一致；代价是外部字体不参与基线。 |
 | Vitest 收集面 | `include: ['./**/*.spec.ts', './**/*.test.ts']` 会收集任何新增目录下的 spec / test；新增 Playwright 专用目录必须同步加入 `vitest.shared.ts` 的 `exclude`，否则 `pnpm test` 会尝试用 Vitest 跑 Playwright spec。 |
 | `data-visual-mask` | 加遮蔽会改变基线像素（Playwright 用实心色块覆盖），必须重新生成该页基线；不要以为遮蔽零成本。 |
 | 运行期种子 | 种子用 `new Date()` 时，页面上任何时间展示都随运行漂移，必须整体遮蔽该单元格而非只遮蔽相对时间；判断「某动态值是否进入捕获区」要看遮蔽前后基线是否变化，不能只看 DOM 存在性。 |
@@ -315,6 +317,7 @@ pnpm run test:coverage
 **分层与分级口径**
 
 - 基线层：`tests/visual/*.visual.test.ts` + `playwright.visual.config.ts`，对比仓库自提交的 `<name>.png`。
+- 移动基线层：`tests/visual/mobile/*.mobile-visual.test.ts` + `playwright.visual-mobile.config.ts`，`390×844`（DPR 3，`scale: 'css'` 按 1× CSS 像素比对）、chromium、覆盖 12 条 reader 路由 × 明暗两主题；命令 `pnpm test:visual:mobile` / `pnpm test:visual:mobile:update`，产物隔离到 `tests/visual/mobile/__screenshots__/<project>/` 与 `test-results/visual-mobile/`。
 - 门禁层：`tests/visual/parity/*.visual-parity.test.ts` + `playwright.visual-parity.config.ts`，对比 `<name>.reference.png`。
 - 分级：`reader`（面向读者 / 公开页）布局必须基本不变、极小容差；`admin`（面向管理员）容许一定偏差但需「看起来差不多」。口径声明于 `tests/visual/parity-budget.json` 的 `tiers`，逐 testName 覆盖于 `entries`。
 
