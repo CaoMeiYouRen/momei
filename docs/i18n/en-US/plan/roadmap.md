@@ -513,3 +513,4 @@ This document outlines the development blueprint for the project. For specific t
 
 > [!NOTE]
 > Long-term backlog items are now maintained separately in the Chinese-only [backlog document](../../../plan/backlog.md). For the latest backlog priorities, promoted items, and deferred governance work, please follow that file together with the [Chinese roadmap](../../../plan/roadmap.md).
+- **Stage 85 has entered planning (2026-11-25)**: mobile access experience for public pages (admin excluded) — a 390×844 visual/parity gate for 10–12 reader routes plus mobile critical-path E2E; reading-page fixes (markdown table scrolling, touch-visible code copy, mobile TOC); shell and touch targets (drawer focus/scroll-lock, safe-area, `dvh`, ≥44px targets); form input experience (≥16px inputs, inputmode/autocomplete, keyboard-safe submit); and list density on narrow screens.
