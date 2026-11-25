@@ -10,6 +10,18 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径（迁移期，已随路由择库机制退役）：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；PrimeVue 卸载后由 `tests/modules/primevue-residual-guard.test.ts` 以全仓零残留口径替代。
 
+<!-- regression-window:start:periodic-regression:phase-close:2026-11-26 -->
+## 2026-11-26 第八十五阶段收口（人工回填）
+
+- 执行入口: 分项执行 `pnpm lint` / `typecheck` / `lint:css` / `lint-md` / `test:visual` / `test:visual:parity` / 移动视觉 `test:visual:mobile` / 移动 E2E（5 个 spec × chromium/firefox/webkit, workers=1）与 `docs:check:{planning-docs,line-count,links,i18n}`
+- 证据 artifact: `../../../artifacts/review-gate/2026-11-25-phase85-item{1..9}-*.md`、`../../../artifacts/review-gate/2026-11-25-phase85-shell-forms/touch-targets.json`
+- 结果摘要: **Pass**。lint 0 error（10 root + 3 cli 既有 warning）/ typecheck EXIT 0 / lint:css 0 error / lint-md 通过；移动视觉 **26/26**（24 路由 + 2 空态基线）、桌面视觉 **32/32**、parity **82/83**（`user-settings-dark` 3,199px / 0.247% 既有头像数据态，CI 裁决）；移动 E2E **42 passed**（14 用例 × 3 浏览器，workers=1）；`css-viewport-units` 守卫 4 passed（7 处 `dvh` 均有 `vh` 回退）；分页以 12 篇临时文章验证出现 / 44×44 / 点击切页 / URL 变化
+- 回归窗口: 7 个活动窗口 / 7 条记录（2026-11-18 ~ 2026-11-26），归档判定=窗口健康。
+- Review Gate: `Pass`（85.1–85.2 逐条 Gate；85.3/85.4/85.5 分区并行，R1 Reject → R2/R3 Pass；骨架屏基线登记 backlog 候选 #6）。
+- 未覆盖边界: 真机刘海 / 手势条、iOS 键盘遮挡与系统剪贴板未实测；骨架屏独立视觉基线转 backlog 候选 #6；本机 `user-settings-dark` parity 差异以 CI 为裁决。
+
+<!-- regression-window:end:periodic-regression:phase-close:2026-11-26 -->
+
 <!-- regression-window:start:periodic-regression:phase-close:2026-11-25 -->
 ## 2026-11-25 第八十四阶段收口（人工回填）
 

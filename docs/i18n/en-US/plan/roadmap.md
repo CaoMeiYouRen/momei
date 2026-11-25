@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-25
+last_sync: 2026-11-26
 translation_tier: summary-sync
 ---
 
@@ -513,4 +513,4 @@ This document outlines the development blueprint for the project. For specific t
 
 > [!NOTE]
 > Long-term backlog items are now maintained separately in the Chinese-only [backlog document](../../../plan/backlog.md). For the latest backlog priorities, promoted items, and deferred governance work, please follow that file together with the [Chinese roadmap](../../../plan/roadmap.md).
-- **Stage 85 has entered planning (2026-11-25)**: mobile access experience for public pages (admin excluded) — a 390×844 visual/parity gate for 10–12 reader routes plus mobile critical-path E2E; reading-page fixes (markdown table scrolling, touch-visible code copy, mobile TOC); shell and touch targets (drawer focus/scroll-lock, safe-area, `dvh`, ≥44px targets); form input experience (≥16px inputs, inputmode/autocomplete, keyboard-safe submit); and list density on narrow screens.
+- **Stage 85 has been audited and archived (2026-11-26)**: mobile access experience for public pages (admin excluded) — a 390×844 mobile baseline for 24 reader snapshots wired into CI with per-route budgets; reading-page fixes (markdown table scrolling, touch-visible code copy, mobile TOC drawer); shell and touch targets (drawer aria/focus/scroll-lock, safe-area, `vh`+`dvh`, ≥44px targets with hover fallbacks); form experience (16px inputs, inputmode/autocomplete/enterkeyhint, reachable submit, first-error focus); and list density at 360px plus pagination validated with 12 temporary posts. The skeleton visual baseline moved to backlog candidate #6 because TEST_MODE cannot hold a stable pending state. Visual 26/26 mobile, 32/32 desktop, parity 82/83 (known avatar data-state), mobile E2E 42 passed across three browsers.

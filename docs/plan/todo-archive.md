@@ -28,13 +28,25 @@
 
 ## 主窗口保留范围
 
-- 主文档当前保留第七十至第八十四阶段共 15 个近线归档块（`423` 行，`docs:check:line-count` 口径，低于 warning `500`，暂不迁出）；行数为唯一硬约束，归档块数量只作观察项。
+- 主文档当前保留第七十至第八十五阶段共 16 个近线归档块（约 `455` 行，`docs:check:line-count` 口径，低于 warning `500`，暂不迁出）；行数为唯一硬约束，归档块数量只作观察项。
 - 深度归档索引已改为 4 列表格（阶段 / 主题 / 归档文件 / 归档日期），倒序覆盖 14 个 todo 分片；新增分片必须同步更新本表。
 - 第六十五至第六十八阶段与第六十九阶段的完整待办归档正文分别见 [archive/todo-archive-phases-65-68.md](./archive/todo-archive-phases-65-68.md)、[archive/todo-archive-phases-69.md](./archive/todo-archive-phases-69.md)。
 - 第一至第六十四阶段的完整待办归档正文已迁入区间分片。
 - 后续若近线窗口再次膨胀，继续按 archive/index.md 的规则把更早阶段整体迁出。
 
 ---
+
+## 第八十五阶段：移动端访问体验优化（公开页，已审计归档）
+
+> **归档块模型**: v1
+
+-   **阶段名与时间**: 第八十五阶段 · 2026-11-25 ~ 2026-11-26
+-   **大条目清单与状态**: 1. 移动端视觉与回归门禁（3/3，[x]）；2. 阅读页移动体验（3/3，[x]）；3. 全局壳层与触控目标（3/3，[x]）；4. 表单与输入体验（3/3，[x]）；5. 列表与信息密度（2/2，[x]，骨架屏基线转 backlog 待上收候选 #6）
+-   **提交清单**: `09a084ad`（立项）；`0332b5c4`（85.1.1）；`8314acb5`（85.1.2）；`8b747dd1`（85.1.3）；`09e4f6c6`（85.2.1）；`ec6d2842`（85.2.2）；`36151d38`（85.2.3）；`f306ebc6`（85.3 / 85.4 / 85.5 收口）；修复 `6c7cadf5` / `635d9bcd`（typecheck）、`7b560794`（环境敏感基线移除）、`4c7811bd` / `4a33e8dc`（E2E 与规划修正）
+-   **质量门结果**: `pnpm lint` 0 error（10 root + 3 cli 既有 warning）、`lint:css` / `typecheck` / `lint-md` / `i18n:audit` 通过；移动视觉 **26/26**（24 路由 + 2 空态基线）、桌面视觉 **32/32**、parity **82/83**（仅 `user-settings-dark` 3,199px / 0.247% 既有头像数据态，CI 裁决）；移动 E2E 42 passed（14 用例 × chromium / firefox / webkit，workers=1）；`css-viewport-units` 守卫 4 passed（7 处 dvh 均有 vh 回退）；分页以 12 篇临时文章验证出现 / 44×44 / 点击切页 / URL 变化；`docs:check:{planning-docs,line-count,links,i18n}` 通过
+-   **Review Gate 结论与轮次**: 85.1.1 standard Pass（W1–W6 修复）；85.1.2 R1 Reject → R2 Pass；85.1.3 + 85.2.3 R1 Reject → R2 Reject → R3 Pass；85.2.1 Pass（W1–W3 修复）；85.2.2 Pass（W1–W7 修复）；85.3 / 85.4 / 85.5 分区并行：分区 A R1 Reject → R2 Reject → R3 Pass、分区 B R1 Reject → R2 Pass（骨架屏降级为 warning 并登记 backlog）
+-   **未覆盖边界**: ① 骨架屏独立视觉基线（TEST_MODE 无法稳定复现 pending 态）转 backlog 待上收候选 #6；② 真机刘海 / 手势条、iOS 键盘遮挡与系统剪贴板未实测，E2E 以视口收缩与 mock 剪贴板近似；③ 卡片「阅读更多」为 16px 高，因与标题 / 封面链接同目标而登记不放大；④ 本机 parity `user-settings-dark` 头像数据态差异以 CI 为裁决；⑤ 分页 E2E 会临时写入 12 篇文章，本地并行运行需 `--workers=1`
+-   **规划正文**: [roadmap 分片](./archive/roadmap-phases-85.md)
 
 ## 第八十四阶段：治理收尾与规则面/运行时缺陷收敛（已审计归档）
 
