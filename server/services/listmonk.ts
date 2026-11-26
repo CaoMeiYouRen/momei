@@ -74,7 +74,7 @@ function parseMapping(value: string | null | undefined) {
         return {} as Record<string, number[]>
     }
 
-    const parsed = JSON.parse(value) as Record<string, number[] | number | string>
+    const parsed = JSON.parse(value) as Record<string, (number | string)[] | number | string>
     return Object.fromEntries(Object.entries(parsed).map(([key, rawValue]) => {
         if (Array.isArray(rawValue)) {
             return [key, [...new Set(rawValue.map((item) => Number(item)).filter((item) => Number.isInteger(item) && item > 0))]]

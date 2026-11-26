@@ -63,7 +63,7 @@ function isAuthoritativeAgreement(agreement: AgreementEntity, mainLanguage: stri
         return false
     }
 
-    return Boolean(agreement.isAuthoritativeVersion || agreement.isMainVersion)
+    return agreement.isAuthoritativeVersion || agreement.isMainVersion
 }
 
 function isReferenceTranslation(agreement: AgreementEntity, mainLanguage: string) {

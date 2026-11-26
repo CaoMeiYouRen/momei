@@ -18,7 +18,7 @@ export function useLocaleMessageModules(options: {
     watch(
         () => ({
             locale: locale.value,
-            enabled: options.enabled === undefined ? true : Boolean(unref(options.enabled)),
+            enabled: options.enabled === undefined ? true : unref(options.enabled),
             modulesKey: resolveModules(options.modules).join('|'),
         }),
         async ({ locale: currentLocale, enabled }) => {

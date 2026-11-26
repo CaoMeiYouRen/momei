@@ -506,7 +506,7 @@ export async function buildRuntimeContext() {
 
     const entityMaps = buildEntityMaps(posts, categories, tags)
     const defaultSeeds = buildDefaultSeeds(entityMaps)
-    const siteUrl = String(settings[SettingKey.SITE_URL] || '')
+    const siteUrl = settings[SettingKey.SITE_URL] || ''
     const managedDomains = new Set<string>()
 
     for (const candidate of [siteUrl, storageContext.assetPublicBaseUrl, storageContext.driverBaseUrl]) {

@@ -91,7 +91,7 @@ function normalizeDistributionTimestamp(value: string | Date | null | undefined)
         return null
     }
 
-    const normalized = value instanceof Date ? value.toISOString() : String(value)
+    const normalized = value instanceof Date ? value.toISOString() : value
     return Number.isNaN(Date.parse(normalized)) ? null : normalized
 }
 

@@ -183,7 +183,7 @@ export const useTheme = () => {
             if (!color || color === 'null' || color === 'undefined') {
                 return fallback
             }
-            const c = String(color).trim()
+            const c = color.trim()
             if (!c || c === 'null' || c === 'undefined') {
                 return fallback
             }

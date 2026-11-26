@@ -50,7 +50,7 @@ export const DEFAULT_AI_COST_FACTORS: AICostFactors = {
 }
 
 function normalizeCurrencyCode(currency: string | null | undefined, fallback: string) {
-    const normalized = String(currency || '').trim().toUpperCase()
+    const normalized = (currency || '').trim().toUpperCase()
     return normalized || fallback
 }
 
@@ -70,7 +70,7 @@ export function normalizeAICostFactors(rawFactors?: Partial<AICostFactors> | nul
 
     return {
         currencyCode,
-        currencySymbol: String(rawFactors?.currencySymbol || DEFAULT_AI_COST_FACTORS.currencySymbol).trim() || DEFAULT_AI_COST_FACTORS.currencySymbol,
+        currencySymbol: (rawFactors?.currencySymbol || DEFAULT_AI_COST_FACTORS.currencySymbol).trim() || DEFAULT_AI_COST_FACTORS.currencySymbol,
         quotaUnitPrice: Math.max(0, toNumber(rawFactors?.quotaUnitPrice, DEFAULT_AI_COST_FACTORS.quotaUnitPrice)),
         exchangeRates: normalizedExchangeRates,
         providerCurrencies: Object.fromEntries(

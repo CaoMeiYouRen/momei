@@ -73,7 +73,7 @@ export async function verifyCaptcha(token?: string, remoteip?: string) {
             },
         })
 
-        return !!result.success
+        return result.success
     } catch (error) {
         console.error(`Captcha verification failed for ${provider}:`, error)
         return false

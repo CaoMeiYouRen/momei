@@ -326,7 +326,7 @@ export async function getInstallationStatus(): Promise<InstallationStatus> {
 
     const isNodeVersionSafe = nodeMajorVersion >= minNodeVersion
     const osInfo = `${os.type()} ${os.release()} (${os.arch()})`
-    const databaseType = String(dataSource?.options.type || 'unknown')
+    const databaseType: string = dataSource?.options.type || 'unknown'
     let databaseVersion = 'Unknown'
     const runtime = detectInstallationRuntime()
 

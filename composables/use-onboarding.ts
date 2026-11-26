@@ -53,7 +53,7 @@ export const useOnboarding = () => {
     const { t } = useI18n()
     const route = useRoute()
     const config = useRuntimeConfig()
-    const isTestMode = computed(() => Boolean(config.public.testMode))
+    const isTestMode = computed(() => config.public.testMode)
 
     const createDriver = (driverFactory: DemoTourDriverFactory) => driverFactory({
         showProgress: true,

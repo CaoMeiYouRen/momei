@@ -94,12 +94,13 @@ export class ContentAuditService extends AIBaseService {
             }
         }
 
-        const suggestions = Array.isArray(parsed.suggestions)
-            ? parsed.suggestions
-                .map((item) => String(item).trim())
-                .filter(Boolean)
-                .slice(0, 5)
-            : []
+        // AI 返回的 JSON 只是静态断言，运行时仍可能混入非字符串项；只保留字符串建议，避免整次审计 500。
+        const rawSuggestions: unknown[] = Array.isArray(parsed.suggestions) ? parsed.suggestions : []
+        const suggestions = rawSuggestions
+            .filter((item): item is string => typeof item === 'string')
+            .map((item) => item.trim())
+            .filter(Boolean)
+            .slice(0, 5)
 
         return {
             score: Math.max(0, Math.min(100, parsed.readabilityScore || 50)),

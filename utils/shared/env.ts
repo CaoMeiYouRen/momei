@@ -187,9 +187,8 @@ export const EMAIL_SINGLE_USER_DAILY_LIMIT = Number(
     process.env.EMAIL_SINGLE_USER_DAILY_LIMIT || 5,
 )
 // 限流时间窗口
-export const EMAIL_LIMIT_WINDOW = Number(
-    normalizeDurationSeconds(process.env.EMAIL_LIMIT_WINDOW, 24 * 60 * 60, { min: 1 }),
-)
+export const EMAIL_LIMIT_WINDOW = normalizeDurationSeconds(
+    process.env.EMAIL_LIMIT_WINDOW, 24 * 60 * 60, { min: 1 })
 // @settingKey 邮件验证码有效时间（秒）
 export const EMAIL_EXPIRES_IN = Number(process.env.EMAIL_EXPIRES_IN || 300)
 
@@ -251,9 +250,8 @@ export const MAX_AUDIO_UPLOAD_SIZE_TEXT =
     process.env.NUXT_PUBLIC_MAX_AUDIO_UPLOAD_SIZE || '100MiB'
 
 // 上传文件限流时间窗口
-export const UPLOAD_LIMIT_WINDOW = Number(
-    normalizeDurationSeconds(process.env.UPLOAD_LIMIT_WINDOW, 24 * 60 * 60, { min: 1 }),
-)
+export const UPLOAD_LIMIT_WINDOW = normalizeDurationSeconds(
+    process.env.UPLOAD_LIMIT_WINDOW, 24 * 60 * 60, { min: 1 })
 // 文件上传每日限制
 export const UPLOAD_DAILY_LIMIT = Number(process.env.UPLOAD_DAILY_LIMIT || 100)
 // 单个用户每日上传文件限制
@@ -326,7 +324,7 @@ export const AI_TEXT_TASK_CONCURRENCY = Number(
 
 // AI 重任务超时（用于 TTS / ASR / 图片生成等耗时任务），支持 ms 风格字符串，例如 5m、300s
 export const AI_HEAVY_TASK_TIMEOUT = process.env.AI_HEAVY_TASK_TIMEOUT || '5m'
-const parsedAIHeavyTaskTimeout = Number(ms(AI_HEAVY_TASK_TIMEOUT as StringValue))
+const parsedAIHeavyTaskTimeout = ms(AI_HEAVY_TASK_TIMEOUT as StringValue)
 export const AI_HEAVY_TASK_TIMEOUT_MS = Number.isFinite(parsedAIHeavyTaskTimeout) && parsedAIHeavyTaskTimeout > 0
     ? parsedAIHeavyTaskTimeout
     : ms('5m')

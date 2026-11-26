@@ -19,7 +19,6 @@ const enableI18nLint = process.env.ESLINT_I18N === 'true'
 const testFiles = ['**/**/*.test.*', '**/**/*.spec.*']
 const tsFiles = ['**/*.{ts,tsx,mts,cts}']
 const serverTsFiles = ['server/**/*.{ts,tsx,mts,cts}']
-const settingsApiTsFiles = ['server/api/settings/**/*.{ts,tsx,mts,cts}']
 
 const lineRuleOverrides = [
     createRuleOverride({
@@ -82,11 +81,12 @@ const strictTsRuleOverrides = [
         },
     }),
     createRuleOverride({
-        // settings API 先按窄边界收紧冗余类型转换，避免直接外溢到全仓服务层与 composable。
-        files: settingsApiTsFiles,
-        ignores: RUNTIME_TS_IGNORES,
+        // ESLint 严格规则第八批：生产 TS 的 no-unnecessary-type-conversion 42 处 / 27 文件清零并升 error；
+        // typed 规则只覆盖 .ts，测试 / 脚本 / 迁移 API 维持豁免。
+        files: tsFiles,
+        ignores: [...PRODUCTION_TYPED_TS_IGNORES],
         rules: {
-            '@typescript-eslint/no-unnecessary-type-conversion': [1],
+            '@typescript-eslint/no-unnecessary-type-conversion': [2],
         },
     }),
     createRuleOverride({

@@ -320,7 +320,7 @@ export async function previewEmailTemplate(options: {
                 headerIcon: content.headerIcon,
                 message: content.message,
                 verificationCode: '123456',
-                expiresIn: Number(params.expiresIn),
+                expiresIn: params.expiresIn,
                 securityTip: content.securityTip ?? '',
             }, {
                 title: content.title,
@@ -338,7 +338,7 @@ export async function previewEmailTemplate(options: {
             const result = await emailTemplateEngine.generateSimpleMessageTemplate({
                 headerIcon: content.headerIcon,
                 message: `${content.message}<br/><br/><strong>${params.action}</strong>`,
-                extraInfo: plainTextToHtml(String(params.details)),
+                extraInfo: plainTextToHtml(params.details),
             }, {
                 title: content.title,
                 preheader: content.preheader,
@@ -354,16 +354,16 @@ export async function previewEmailTemplate(options: {
         case 'marketing': {
             const result = await emailTemplateEngine.generateMarketingEmailTemplate({
                 headerIcon: content.headerIcon,
-                message: plainTextToHtml(String(params.summary)),
-                articleTitle: String(params.title),
+                message: plainTextToHtml(params.summary),
+                articleTitle: params.title,
                 authorLabel: content.authorLabel ?? '',
-                authorName: String(params.authorName),
+                authorName: params.authorName,
                 categoryLabel: content.categoryLabel ?? '',
-                categoryName: String(params.categoryName),
+                categoryName: params.categoryName,
                 dateLabel: content.dateLabel ?? '',
-                publishDate: String(params.publishDate),
+                publishDate: params.publishDate,
                 buttonText: content.buttonText ?? '',
-                actionUrl: String(params.actionUrl),
+                actionUrl: params.actionUrl,
             }, {
                 title: content.title,
                 preheader: content.preheader,

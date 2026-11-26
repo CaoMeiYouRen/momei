@@ -220,7 +220,7 @@ function formatInstallationLocalizedFieldValue(
     }
 
     if (resolveInstallationLocalizedSiteFieldMeta(fieldKey).valueType === 'localized-string-list') {
-        return serializeLocalizedStringList(Array.isArray(value) ? value : normalizeLocalizedStringList(String(value ?? '')))
+        return serializeLocalizedStringList(Array.isArray(value) ? value : normalizeLocalizedStringList(value ?? ''))
     }
 
     return typeof value === 'string' ? value : ''

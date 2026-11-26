@@ -38,7 +38,7 @@ export interface NotificationDeliveryLogFilters {
 }
 
 function toIsoString(value: Date | string) {
-    return value instanceof Date ? value.toISOString() : String(value)
+    return value instanceof Date ? value.toISOString() : value
 }
 
 function mapNotificationDeliveryLogItem(

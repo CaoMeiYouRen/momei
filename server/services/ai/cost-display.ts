@@ -12,7 +12,7 @@ import type { AICostFactors, AIUsageSnapshot } from '@/types/ai'
 
 export async function getAICostFactors(): Promise<AICostFactors> {
     const rawValue = await getSetting(SettingKey.AI_COST_FACTORS, JSON.stringify(DEFAULT_AI_COST_FACTORS))
-    const parsedValue = parseMaybeJson<Record<string, unknown> | null>(String(rawValue || ''), null)
+    const parsedValue = parseMaybeJson<Record<string, unknown> | null>(rawValue || '', null)
     const validation = aiCostFactorsSchema.safeParse(parsedValue)
 
     if (!validation.success) {
@@ -51,7 +51,7 @@ export async function estimateAICostBreakdown(options: {
     })
 
     return {
-        providerCost: Number(options.providerCost || 0),
+        providerCost: options.providerCost || 0,
         providerCurrency,
         displayCost,
         costDisplay: {

@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
 
     const csvContent = [
         `\ufeff${header.join(',')}`, // Add BOM for Excel UTF-8 support
-        ...rows.map((row) => row.map((val) => `"${String(val).replace(/"/g, '""')}"`).join(',')),
+        ...rows.map((row) => row.map((val) => `"${val.replace(/"/g, '""')}"`).join(',')),
     ].join('\r\n')
 
     setHeaders(event, {

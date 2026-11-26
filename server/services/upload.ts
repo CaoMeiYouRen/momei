@@ -113,7 +113,7 @@ function normalizePrefix(prefix?: string) {
  * 从 UploadSettings 中安全提取字符串值。
  */
 function getSettingValue(settings: UploadSettings, key: SettingKey, fallback = '') {
-    return String(settings[key] || fallback)
+    return settings[key] || fallback
 }
 
 /**
@@ -327,7 +327,7 @@ export function resolveUploadSizeLimit(type: UploadType, settings: UploadSetting
 }
 
 function parseAllowedFileTypes(settings: UploadSettings) {
-    return splitAndNormalizeStringList(String(settings[SettingKey.ALLOWED_FILE_TYPES] || ''), {
+    return splitAndNormalizeStringList(settings[SettingKey.ALLOWED_FILE_TYPES] || '', {
         delimiters: /[\n,]/,
         lowercase: true,
     })

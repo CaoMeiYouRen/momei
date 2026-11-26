@@ -149,10 +149,10 @@ export const getUtcDateParts = (date: string | Date | number | null | undefined)
  * @returns HH:mm:ss 格式的字符串
  */
 export const secondsToDuration = (seconds?: number | null) => {
-    if (!seconds || isNaN(Number(seconds))) {
+    if (!seconds || Number.isNaN(seconds)) {
         return '00:00:00'
     }
-    const dur = dayjs.duration(Number(seconds), 'seconds')
+    const dur = dayjs.duration(seconds, 'seconds')
     const hours = Math.floor(dur.asHours())
     const mins = dur.minutes()
     const secs = dur.seconds()

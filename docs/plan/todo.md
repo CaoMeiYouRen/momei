@@ -21,7 +21,7 @@
 
 | 大条目 | 小条目 | 状态 | 提交 | 审计 | 容量（计划→实际） |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| 86.1 质量滚动治理 | 1/4 | 进行中 | 待提交 | — | 4 → 1 commits |
+| 86.1 质量滚动治理 | 2/4 | 进行中 | 待提交 | — | 4 → 2 commits |
 | 86.2 依赖与合并治理 | 2/3 | 进行中 | 待提交 | — | 3 → 2 commits |
 | 86.3 移动端收尾 | 0/3 | 未开始 | 待提交 | — | 3 → 0 commits |
 | 86.4 性能与包体 | 0/2 | 未开始 | 待提交 | — | 2 → 0 commits |
@@ -36,7 +36,7 @@
         - 验收: 三组模块 statements 均 ≥80%；同源 statements ≥88.4%（+0.5pp）；干净全量 `test:coverage` EXIT 0；不放宽覆盖率阈值。
         - 交付物: 测试用例、coverage 证据 `artifacts/coverage/2026-11-26-phase86-item1/`。
         - 依赖: 85 阶段基线；组件 stub 模式。
-    - [ ] **86.1.2 静态规则债第七批（P1）**
+    - [x] **86.1.2 静态规则债第七批（P1）**
         - 目标: 承接 backlog 指定的下一候选 `no-unnecessary-type-conversion`（41 命中 / 26 文件），清零命中并在生产 TS 升 `error`。
         - 验收: `no-unnecessary-type-conversion` 0 命中并升 `error`，inventory 0 命中 / 0 显式豁免 / effectiveSeverity 2；无新增 error；issue #262 回写；不使用 `ts-ignore` / `any` 逃逸。
         - 交付物: 代码修正、ESLint 配置、inventory 证据、issue 回写。

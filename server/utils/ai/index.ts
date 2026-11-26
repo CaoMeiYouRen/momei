@@ -155,7 +155,7 @@ export async function getAIProvider(categoryOrConfig: AICategory | Partial<AICon
         })
     }
 
-    const providerName = String(finalConfig.provider)
+    const providerName = finalConfig.provider
     const needsApiKey = !(
         (category === 'asr' && providerName === 'volcengine')
         || (category === 'tts' && providerName === 'volcengine')

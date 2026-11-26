@@ -174,6 +174,13 @@ export const ESLINT_DEBT_RULE_SLICES = [
     {
         files: ['**/*.{ts,tsx,mts,cts}'],
         ignores: [...PRODUCTION_TYPED_TS_IGNORES],
+        rationale: 'ESLint 严格规则第八批：生产 TS 的 no-unnecessary-type-conversion 42 处 / 27 文件清零并升 error；typed 规则只覆盖 .ts，测试 / 脚本 / 迁移 API 维持豁免。',
+        ruleId: '@typescript-eslint/no-unnecessary-type-conversion',
+        scope: 'no-unnecessary-type-conversion',
+    },
+    {
+        files: ['**/*.{ts,tsx,mts,cts}'],
+        ignores: [...PRODUCTION_TYPED_TS_IGNORES],
         rationale: 'ESLint 严格规则第七批：生产 TS 的 no-unsafe-argument 50 处 / 21 文件清零并升 error；typed 规则只覆盖 .ts，测试 / 脚本 / 迁移 API 维持豁免。',
         ruleId: '@typescript-eslint/no-unsafe-argument',
         scope: 'no-unsafe-argument',

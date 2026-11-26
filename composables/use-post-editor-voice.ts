@@ -126,10 +126,8 @@ async function setupVoiceAudioPipeline(context: {
         return
     }
 
-    const canUseAudioWorklet = Boolean(
-        context.audioContext.audioWorklet
-        && typeof AudioWorkletNode !== 'undefined',
-    )
+    const canUseAudioWorklet = context.audioContext.audioWorklet
+        && typeof AudioWorkletNode !== 'undefined'
 
     if (canUseAudioWorklet) {
         await context.audioContext.audioWorklet.addModule('/worklets/pcm-capture-processor.js')
@@ -346,11 +344,9 @@ export function usePostEditorVoice(options: UsePostEditorVoiceOptions = {}) {
 
     // 初始化时从 localStorage 读取模式，并检查云端配置
     if (import.meta.client) {
-        hasRecordingSupport.value = Boolean(
-            navigator.mediaDevices
+        hasRecordingSupport.value = navigator.mediaDevices
             && typeof navigator.mediaDevices.getUserMedia === 'function'
-            && typeof MediaRecorder !== 'undefined',
-        )
+            && typeof MediaRecorder !== 'undefined'
 
         const savedMode = localStorage.getItem('momei_voice_mode') as VoiceTranscriptionMode
         const validModes: VoiceTranscriptionMode[] = ['web-speech', 'cloud-batch', 'cloud-stream']

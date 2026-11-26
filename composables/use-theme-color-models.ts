@@ -93,7 +93,7 @@ export function createThemeColorPickerModel<K extends ThemePreviewColorSettingKe
             if (!val) {
                 return ''
             }
-            const normalized = String(val).trim()
+            const normalized = val.trim()
             return normalized.startsWith('#') ? normalized : `#${normalized}`
         },
         set: (newVal: string) => {

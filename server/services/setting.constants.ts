@@ -405,11 +405,9 @@ export function isLegacyOnlySettingKey(key: string) {
 
 export function isSettingEnvLocked(key: string) {
     const { value } = resolveSettingEnvEntry(key)
-    return Boolean(
-        isInternalOnlySettingKey(key)
+    return isInternalOnlySettingKey(key)
         || value !== undefined
-        || FORCED_ENV_LOCKED_KEYS.includes(key),
-    )
+        || FORCED_ENV_LOCKED_KEYS.includes(key)
 }
 
 export function getSettingEffectiveSource(key: string): SettingEffectiveSource {

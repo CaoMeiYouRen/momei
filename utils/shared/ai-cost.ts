@@ -8,8 +8,8 @@ export const DEFAULT_AI_COST_DISPLAY: AICostDisplay = {
 }
 
 export function normalizeAICostDisplay(raw?: Partial<AICostDisplay> | null): AICostDisplay {
-    const currencyCode = String(raw?.currencyCode || DEFAULT_AI_COST_DISPLAY.currencyCode).trim().toUpperCase() || DEFAULT_AI_COST_DISPLAY.currencyCode
-    const currencySymbol = String(raw?.currencySymbol || DEFAULT_AI_COST_DISPLAY.currencySymbol).trim() || DEFAULT_AI_COST_DISPLAY.currencySymbol
+    const currencyCode = (raw?.currencyCode || DEFAULT_AI_COST_DISPLAY.currencyCode).trim().toUpperCase() || DEFAULT_AI_COST_DISPLAY.currencyCode
+    const currencySymbol = (raw?.currencySymbol || DEFAULT_AI_COST_DISPLAY.currencySymbol).trim() || DEFAULT_AI_COST_DISPLAY.currencySymbol
 
     return {
         currencyCode,

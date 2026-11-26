@@ -727,7 +727,7 @@ export const setSettings = async (settings: Record<string, unknown>, auditContex
             setting = settingRepo.create({
                 key,
                 value: nextValue,
-                description: String(extraDescription ?? ''),
+                description: extraDescription ?? '',
                 level: nextLevel,
                 maskType: nextMaskType,
             })

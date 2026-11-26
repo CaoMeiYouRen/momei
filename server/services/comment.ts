@@ -259,7 +259,7 @@ export const commentService = {
             SettingKey.COMMENT_INTERVAL,
         ])
 
-        const blacklistedKeywords = String(settings[SettingKey.BLACKLISTED_KEYWORDS] || '')
+        const blacklistedKeywords = (settings[SettingKey.BLACKLISTED_KEYWORDS] || '')
             .split(/[,，\n]/)
             .map((k) => k.trim())
             .filter(Boolean)
