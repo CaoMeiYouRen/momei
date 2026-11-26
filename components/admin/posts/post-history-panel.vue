@@ -426,7 +426,7 @@ watch(compareTarget, () => {
         max-height: 40vh;
         overflow-y: auto;
         border: 1px solid var(--m-surface-200);
-        font-size: 0.85rem;
+        font-size: var(--m-font-size-sm-tight);
         white-space: pre-wrap;
         word-break: break-all;
     }
@@ -577,7 +577,7 @@ watch(compareTarget, () => {
 
     &__time {
         font-weight: 600;
-        font-size: 0.95rem;
+        font-size: var(--m-font-size-sm-relaxed);
         color: var(--caomei-color-text);
     }
 

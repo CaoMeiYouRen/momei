@@ -33,7 +33,7 @@
 }
 
 .audit-section-title {
-    font-size: 0.95rem;
+    font-size: var(--m-font-size-sm-relaxed);
     font-weight: 600;
     margin-bottom: 0.5rem;
 }
@@ -49,12 +49,12 @@
 }
 
 .audit-detail-label {
-    font-size: 0.85rem;
+    font-size: var(--m-font-size-sm-tight);
     color: var(--caomei-color-text);
 }
 
 .audit-detail-score {
-    font-size: 0.85rem;
+    font-size: var(--m-font-size-sm-tight);
     font-weight: 600;
     color: var(--caomei-color-text-muted);
 }
@@ -71,7 +71,7 @@
 .audit-suggestions {
     margin: 0;
     padding-left: 1.25rem;
-    font-size: 0.85rem;
+    font-size: var(--m-font-size-sm-tight);
     line-height: 1.6;
 }
 

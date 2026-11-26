@@ -376,7 +376,7 @@ const formatAlertDetail = (alert: AIUsageAlert) => {
     box-shadow: 0 4px 15px rgb(0 0 0 / 0.05);
 
     .card-title {
-        font-size: 1.1rem;
+        font-size: var(--m-font-size-md-wide);
         font-weight: 600;
     }
 }

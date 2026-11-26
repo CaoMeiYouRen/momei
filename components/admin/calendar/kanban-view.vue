@@ -189,7 +189,7 @@ function onDragEnd() {
     }
 
     &__card-title {
-        font-size: 0.85rem;
+        font-size: var(--m-font-size-sm-tight);
         font-weight: 500;
         margin-bottom: 0.3rem;
         line-height: 1.3;
