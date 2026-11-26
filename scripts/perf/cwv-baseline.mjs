@@ -159,9 +159,8 @@ function startProdServer(host, port) {
 // ── lhci CLI 封装 ─────────────────────────────────────
 
 function resolveLhciBin() {
-    const cliPath = path.resolve(
-        'node_modules/.pnpm/@lhci+cli@0.15.1/node_modules/@lhci/cli/src/cli.js',
-    )
+    // 通过 pnpm 的顶层软链解析，避免把 @lhci/cli 版本号硬编码进脚本。
+    const cliPath = path.resolve('node_modules/@lhci/cli/src/cli.js')
     return `node ${cliPath}`
 }
 
