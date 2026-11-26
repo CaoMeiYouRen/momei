@@ -38,8 +38,8 @@ describe('MDI 图标子集', () => {
             }
         }
 
-        const missing = [...used].filter((className) => !subset.includes(`.${className}::before`))
-        expect(missing).toEqual([])
+        const defined = new Set([...subset.matchAll(/\.(mdi-[a-z0-9-]+)::before/gu)].map((match) => match[1]))
+        expect([...used].sort()).toEqual([...defined].sort())
         expect(subset).toContain('@font-face')
         expect(subset).toContain('.mdi::before')
     })

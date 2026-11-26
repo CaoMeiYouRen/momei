@@ -5,7 +5,7 @@
 ## 1. 结论
 
 - `keyCss` 由 **60.49KiB gzip** 降至 **10.92KiB gzip**，节省 **49.57KiB**（≥2KB 验收线），预算 62KB 未放宽；gzip 为构建产物实测值。
-- 瘦身来源：首屏全局加载的 `@mdi/font/css/materialdesignicons.css`（418KB 原始 / 53.9KB gzip）替换为只含 10 个实际使用图标的子集（1.5KB 原始 / 0.7KB gzip）。
+- 瘦身来源：首屏全局加载的 `@mdi/font/css/materialdesignicons.css`（418KB 原始，bundle 贡献约 50.3KiB gzip）替换为只含 10 个实际使用图标的子集（1.5KB 原始 / 0.7KB gzip）。
 - `coreEntryJs` / `maxAsyncChunkJs` / `prIncrementJs` 保持预算内，未做无归因改动。
 
 ## 2. 前后对比
@@ -34,9 +34,9 @@
 
 | 文件 | gzip | 说明 |
 | :--- | ---: | :--- |
-| `HMaNixZe.js` | 56.1KB | Vite 依赖 preload 映射表，条目数由路由/异步 chunk 决定；压缩后仍属高熵数据，删减需重构构建策略，风险大于收益 |
-| `BggP3Q6G.js` | 50.8KB | Vue 运行时 |
-| `NPhoOW1a.js` | 23.2KB | Nuxt app / 路由运行时 |
+| 依赖 preload 映射 | 56.1KiB | Vite 依赖 preload 映射表，条目数由路由/异步 chunk 决定；压缩后仍属高熵数据，删减需重构构建策略，风险大于收益 |
+| Vue 运行时块 | 50.8KiB | Vue 运行时 |
+| Nuxt 运行时块 | 23.2KiB | Nuxt app / 路由运行时 |
 | 其余 | — | 应用 composables 与第三方依赖 |
 
 ### 3.3 maxAsyncChunkJs（未处理）
@@ -45,9 +45,9 @@
 
 ## 4. 实施
 
-- 新增 `styles/mdi-subset.css`：保留 `@font-face`（仍指向 `@mdi/font` 字体文件，Vite 正常哈希产出 woff2/woff/ttf）与 `.mdi` 基础类、10 个图标映射：facebook / github / google / instagram / linkedin / patreon / stack-overflow / twitch / twitter / youtube。
+- 新增 `styles/mdi-subset.css`：保留 `@font-face`（仅 woff2，Vite 正常哈希产出）与 `.mdi` 基础类、10 个图标映射：facebook / github / google / instagram / linkedin / patreon / stack-overflow / twitch / twitter / youtube。
 - `nuxt.config.ts` 的 `css` 数组由全量 CSS 改为子集文件。
-- 新增 `tests/scripts/mdi-subset.test.ts`：扫描 `components` / `pages` / `utils` 中的 `mdi-*` 类，任何未收录图标都会让测试失败，防止后续动态类静默缺字形。
+- 新增 `tests/scripts/mdi-subset.test.ts`：扫描 `components` / `composables` / `layouts` / `pages` / `plugins` / `server` / `utils` 的静态 `mdi-*` 类，并与 `@mdi/font` 全量 CSS 的 codepoint 逐项比对；未收录或字形漂移都会让测试失败。
 
 ## 5. 验证
 
@@ -63,7 +63,7 @@
 
 - 未处理 `coreEntryJs` 的 preload 映射与 Vue/Nuxt 运行时：属框架产物，拆分或外置会改变加载语义，实测无可归因的 ≥2KB 安全削减。
 - 未处理最大异步 chunk（Sentry 含 Replay）：移除会损失会话回放，未在本条执行。
-- MDI 子集只覆盖当前源码静态引用的 10 个图标。文章正文支持 `html: true` 且保留 `span/a/div/p` 的 class，作者在已发布内容里写入任意 `mdi-*` 时会静默缺字形；后台配置若允许任意类名同理。守卫测试只扫描 `components/pages/layouts/utils/composables` 的静态字面量，不覆盖 DB 内容与动态拼接。
+- MDI 子集只覆盖当前源码静态引用的 10 个图标。文章正文支持 `html: true` 且保留 `span/a/div/p` 的 class，作者在已发布内容里写入任意 `mdi-*` 时会静默缺字形；后台配置若允许任意类名同理。守卫测试只扫描上述七个目录的静态字面量，不覆盖 `app.vue` / `error.vue` / `packages`、DB 内容与动态拼接。
 - 字体文件本身未子集化：woff2 约 403KB 仍按需下载；本条只削减 CSS 体积。
 - 未放宽预算、未修改 `.github/perf/bundle-baseline.json`。
 
