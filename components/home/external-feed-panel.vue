@@ -220,7 +220,7 @@ withDefaults(defineProps<{
 
     &__item-title {
         margin: $spacing-md 0 0.75rem;
-        font-size: 1.1rem;
+        font-size: var(--m-font-size-md-wide);
         line-height: 1.5;
         overflow-wrap: anywhere;
     }

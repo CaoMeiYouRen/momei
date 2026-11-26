@@ -474,7 +474,7 @@ onMounted(() => {
         }
 
         .stat-value {
-            font-size: 1.1rem;
+            font-size: var(--m-font-size-md-wide);
             font-weight: 500;
 
             code {

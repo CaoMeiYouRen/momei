@@ -410,7 +410,7 @@ const handleDelete = async () => {
         }
 
         &__email {
-            font-size: 0.85rem;
+            font-size: var(--m-font-size-sm-tight);
             color: var(--caomei-color-text-muted);
         }
     }

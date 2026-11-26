@@ -219,7 +219,7 @@ function formatMonthName(month: number) {
 
             .post-summary {
               color: var(--caomei-color-text-muted);
-              font-size: 0.95rem;
+              font-size: var(--m-font-size-sm-relaxed);
             }
           }
         }

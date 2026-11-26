@@ -512,7 +512,7 @@ const handleSubmit = async () => {
 
     &__eyebrow {
         margin: 0 0 0.5rem;
-        font-size: 0.85rem;
+        font-size: var(--m-font-size-sm-tight);
         letter-spacing: 0.12em;
         text-transform: uppercase;
         opacity: 0.72;
@@ -556,7 +556,7 @@ const handleSubmit = async () => {
         background: var(--m-surface-50);
         color: var(--caomei-color-text-muted);
         line-height: 1.6;
-        font-size: 0.95rem;
+        font-size: var(--m-font-size-sm-relaxed);
     }
 
     &__group-header {
@@ -632,7 +632,7 @@ const handleSubmit = async () => {
 
     &__card-title {
         margin: 0;
-        font-size: 1.1rem;
+        font-size: var(--m-font-size-md-wide);
     }
 
     &__card-url {
@@ -663,7 +663,7 @@ const handleSubmit = async () => {
 
     &__health-time {
         color: var(--caomei-color-text-muted);
-        font-size: 0.85rem;
+        font-size: var(--m-font-size-sm-tight);
     }
 
     &__card-actions {
