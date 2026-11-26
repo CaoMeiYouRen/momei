@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { getMobileBudgetEntry, readMobileBudget } from '../visual/mobile/budget'
-import { MOBILE_LIST_STATE_CASES, MOBILE_READER_ROUTES } from '../visual/mobile/reader.routes'
+import { MOBILE_LIST_STATE_CASES, MOBILE_READER_ROUTES, MOBILE_SKELETON_CASES } from '../visual/mobile/reader.routes'
 
 /**
  * 移动视觉预算的单元测试。
@@ -15,6 +15,7 @@ describe('移动视觉预算', () => {
     const expectedNames = new Set([
         ...MOBILE_READER_ROUTES.flatMap((route) => [`${route.name}-light`, `${route.name}-dark`]),
         ...MOBILE_LIST_STATE_CASES,
+        ...MOBILE_SKELETON_CASES,
     ])
 
     it('12 条路由 × 明暗两主题全部登记且无孤儿键', () => {
