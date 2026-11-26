@@ -87,14 +87,14 @@ const licenseUrl = computed(() => {
     border-left: 0.25rem solid var(--caomei-color-primary);
     background-color: var(--m-surface-50);
     border-radius: $border-radius-md;
-    font-size: 0.95rem;
+    font-size: var(--m-font-size-sm-relaxed);
     line-height: 1.6;
 
     &__title {
         font-weight: 700;
         margin-bottom: $spacing-md;
         color: var(--caomei-color-primary);
-        font-size: 1.1rem;
+        font-size: var(--m-font-size-md-wide);
         border-bottom: 1px solid var(--m-surface-200);
         padding-bottom: $spacing-xs;
     }

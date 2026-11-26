@@ -386,7 +386,7 @@ watch([
         padding: 0;
         color: inherit;
         font-family: $font-mono;
-        font-size: 0.85rem;
+        font-size: var(--m-font-size-sm-tight);
       }
     }
 

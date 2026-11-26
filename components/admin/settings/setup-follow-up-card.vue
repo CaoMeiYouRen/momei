@@ -163,7 +163,7 @@ const suggestedTabs: Array<{
         }
 
         strong {
-            font-size: 0.95rem;
+            font-size: var(--m-font-size-sm-relaxed);
             color: var(--caomei-color-text);
         }
 

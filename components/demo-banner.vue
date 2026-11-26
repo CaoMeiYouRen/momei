@@ -263,7 +263,7 @@ const openDemoPath = (path: string, stage: DemoTourStage) => {
 
     &__icon {
         color: $demo-banner-icon;
-        font-size: 1.1rem;
+        font-size: var(--m-font-size-md-wide);
     }
 
     &__title {

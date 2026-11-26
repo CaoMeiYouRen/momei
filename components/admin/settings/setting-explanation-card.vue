@@ -112,7 +112,7 @@ defineProps<{
     }
 
     &__priority-value {
-        font-size: 0.95rem;
+        font-size: var(--m-font-size-sm-relaxed);
     }
 
     &__stats {

@@ -149,7 +149,7 @@ const resolvedMessage = computed(() => {
     }
 
     &__lock {
-        font-size: 0.85rem;
+        font-size: var(--m-font-size-sm-tight);
         color: var(--m-orange-500);
     }
 
