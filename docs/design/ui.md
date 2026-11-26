@@ -45,7 +45,7 @@
 -   **中文字体**: 优先使用系统默认的无衬线字体，如 `PingFang SC`, `Microsoft YaHei`，确保跨平台清晰度。可考虑引入开源衬线字体 (如 `Noto Serif SC`) 用于文章正文，营造文学感。
 -   **英文字体**: `Inter` 或 `Roboto`，保持现代感。
 -   **代码字体**: `Fira Code` 或 `JetBrains Mono`。
--   **字号字阶**: 统一用 `--m-font-size-{xs,sm,sm-tight,sm-relaxed,md,md-wide,lg,xl,2xl,3xl,4xl}`（`0.75/0.875/0.85/0.95/1/1.1/1.125/1.25/1.5/1.875/2.25rem`），与 `$font-size-*` 逐档等值；新增样式直接消费 token，不再写字面量；补充档位与保留理由见 [非字阶字号评估与 token 化](./governance/2026-11-27-font-size-tokenization.md)。分桶口径与试点范围见 [字号治理 §2](./governance/2026-11-13-font-size-scale-pilot.md#2-字阶)；非字阶取值清单与归一评估见 [字号归一评估](./governance/2026-11-15-font-size-normalization-evaluation.md)。
+-   **字号字阶**: 统一用 `--m-font-size-{xs,sm,sm-tight,sm-relaxed,md,md-wide,lg,xl,2xl,3xl,4xl}`（`0.75/0.875/0.85/0.95/1/1.1/1.125/1.25/1.5/1.875/2.25rem`），其中 8 档与 `$font-size-*` 逐档等值，3 个补充档位为纯 CSS token（无 SCSS 对应变量）；新增样式直接消费 token，不再写字面量；补充档位与保留理由见 [非字阶字号评估与 token 化](./governance/2026-11-27-font-size-tokenization.md)。分桶口径与试点范围见 [字号治理 §2](./governance/2026-11-13-font-size-scale-pilot.md#2-字阶)；历史非字阶取值清单与归一评估见 [字号归一评估](./governance/2026-11-15-font-size-normalization-evaluation.md)。
 
 ### 2.4 暗色模式 (Dark Mode) 与 主题覆盖 (Theme Overrides)
 
