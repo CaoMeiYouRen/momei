@@ -236,7 +236,7 @@ export default defineNuxtConfig({
     },
     css: [
         'normalize.css/normalize.css',
-        '@mdi/font/css/materialdesignicons.css',
+        '@/styles/mdi-subset.css',
         '@/styles/iconfont/iconfont.css',
         '@/styles/main.scss',
     ],
