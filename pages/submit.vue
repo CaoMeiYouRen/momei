@@ -287,7 +287,7 @@ const handleSubmit = async () => {
 
     &__subtitle {
         color: var(--caomei-color-text-muted);
-        font-size: 1.1rem;
+        font-size: var(--m-font-size-md-wide);
     }
 }
 
@@ -308,7 +308,7 @@ const handleSubmit = async () => {
 
         label {
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: var(--m-font-size-sm-relaxed);
         }
     }
 
@@ -324,7 +324,7 @@ const handleSubmit = async () => {
 
     &__help {
         color: var(--caomei-color-text-muted);
-        font-size: 0.85rem;
+        font-size: var(--m-font-size-sm-tight);
     }
 
     &__captcha {
@@ -342,7 +342,7 @@ const handleSubmit = async () => {
 /* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
 :deep(.submit-btn) {
     padding: 0.75rem 3rem;
-    font-size: 1.1rem;
+    font-size: var(--m-font-size-md-wide);
     font-weight: 700;
     border-radius: 2rem;
 }

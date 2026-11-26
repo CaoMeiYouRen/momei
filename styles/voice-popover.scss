@@ -15,7 +15,7 @@
 
     &__title {
         font-weight: 600;
-        font-size: 0.95rem;
+        font-size: var(--m-font-size-sm-relaxed);
         display: flex;
         align-items: center;
         gap: 0.5rem;

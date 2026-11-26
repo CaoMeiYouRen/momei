@@ -518,7 +518,7 @@ const handleDatabaseNext = () => {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    font-size: 1.1rem;
+                    font-size: var(--m-font-size-md-wide);
                     font-weight: 500;
                     margin-bottom: 0.5rem;
                 }
