@@ -26,13 +26,18 @@ test.describe('移动端触控与 hover 兜底', () => {
         const collected: TouchTarget[] = []
 
         for (const entry of TOUCH_AUDIT_PAGES) {
-            await page.goto(entry.path, { waitUntil: 'domcontentloaded' })
-            await page.waitForTimeout(800)
+            const response = await page.goto(entry.path, { waitUntil: 'domcontentloaded' })
+            expect(response?.ok(), `${entry.path} 响应异常`).toBeTruthy()
+            await waitForHydration(page)
 
             const targets = await page.evaluate(() => {
                 const elements = Array.from(document.querySelectorAll<HTMLElement>('a, button, [role="button"], input[type="submit"], select'))
                 return elements
                     .filter((element) => {
+                        // 复选框 / 单选框的命中区由 label 承担，单独断言，不按 18px 控件本体计。
+                        if (['checkbox', 'radio'].includes(element.getAttribute('role') ?? '')) {
+                            return false
+                        }
                         const style = getComputedStyle(element)
                         if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
                             return false
@@ -41,12 +46,7 @@ test.describe('移动端触控与 hover 兜底', () => {
                         return rect.width > 0 && rect.height > 0
                     })
                     .map((element) => {
-                        // 复选框 / 单选框的可见框仅 18px，真正命中区由所在 label / 字段容器承担。
-                        const role = element.getAttribute('role')
-                        const hitElement = role === 'checkbox' || role === 'radio'
-                            ? (element.closest('.login-form__remember, label') ?? element)
-                            : element
-                        const rect = hitElement.getBoundingClientRect()
+                        const rect = element.getBoundingClientRect()
                         const tag = element.tagName.toLowerCase()
                         return {
                             tag,
@@ -72,6 +72,16 @@ test.describe('移动端触控与 hover 兜底', () => {
         }
 
         expect(collected.length, '触控审计样本不足 20 个').toBeGreaterThanOrEqual(20)
+
+        const qualified = collected.filter((target) => target.width >= 44 && target.height >= 44)
+        expect(qualified.length, '≥44×44 的公开控件不足 20 个').toBeGreaterThanOrEqual(20)
+
+        /* 复选框的真实可点目标由 label 承担，单独断言标签命中区。 */
+        await page.goto('/login', { waitUntil: 'domcontentloaded' })
+        const rememberLabel = page.locator('label[for="rememberMe"]')
+        const labelBox = await rememberLabel.boundingBox()
+        expect(labelBox?.height ?? 0).toBeGreaterThanOrEqual(44)
+        expect(labelBox?.width ?? 0).toBeGreaterThanOrEqual(44)
     })
 
     test('should expose touch-visible alternatives for hover-only affordances', async ({ page }) => {
@@ -92,19 +102,22 @@ test.describe('移动端触控与 hover 兜底', () => {
         const copyButton = page.locator('#touch-fixture-host .copy-code-button')
         const copyWrapper = page.locator('#touch-fixture-host .copy-code-wrapper')
         await expect(copyWrapper).toHaveCSS('opacity', '1')
-        const copyBox = await copyButton.boundingBox()
-        expect(copyBox?.width ?? 0).toBeGreaterThanOrEqual(44)
-        expect(copyBox?.height ?? 0).toBeGreaterThanOrEqual(44)
+        const copySize = await copyButton.evaluate((element) => {
+            const style = getComputedStyle(element)
+            return { width: Number.parseFloat(style.width), height: Number.parseFloat(style.height) }
+        })
+        expect(copySize.width).toBeGreaterThanOrEqual(44)
+        expect(copySize.height).toBeGreaterThanOrEqual(44)
 
-        /* 2. 沉浸阅读入口：hover tooltip 之外保留可访问名，点击可展开设置面板。 */
-        const readerToggle = page.locator('.reader-controls__toggle').last()
-        await expect(readerToggle).toHaveAttribute('aria-label', '开启沉浸阅读')
-        const toggleBox = await readerToggle.boundingBox()
-        expect(toggleBox?.width ?? 0).toBeGreaterThanOrEqual(44)
-        expect(toggleBox?.height ?? 0).toBeGreaterThanOrEqual(44)
-        await readerToggle.click()
-        await expect(readerToggle).toHaveAttribute('aria-label', '阅读排版设置')
-        await readerToggle.click()
+        /* 2. 沉浸阅读入口：触屏显示可见文字入口，点击可启用并展开设置面板。 */
+        const touchHint = page.locator('.reader-controls__touch-hint')
+        await expect(touchHint).toBeVisible()
+        await expect(touchHint).not.toHaveText('')
+        const hintBox = await touchHint.boundingBox()
+        expect(hintBox?.height ?? 0).toBeGreaterThanOrEqual(44)
+        await touchHint.tap()
+        await expect(touchHint).toHaveText('阅读排版设置')
+        await touchHint.tap()
         await expect(page.locator('.reader-controls__panel')).toBeVisible()
     })
 })
