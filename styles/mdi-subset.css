@@ -1,0 +1,62 @@
+/* Material Design Icons 子集：仅保留项目实际引用的品牌图标（见 brand-icons / commercial / auth 页面）。
+ * 全量 materialdesignicons.css 为 418KB（含数千个未使用图标），会进入首屏 keyCss；
+ * 这里只保留 @font-face 与 10 个图标的字形映射，字体文件仍由 @mdi/font 提供。 */
+@font-face {
+    font-family: "Material Design Icons";
+
+    /* 现代浏览器统一使用 woff2；woff / ttf 不再产出（图标页仍按需下载 woff2）。 */
+    src: url("@mdi/font/fonts/materialdesignicons-webfont.woff2?v=7.4.47") format("woff2");
+    font-weight: normal;
+    font-style: normal;
+}
+
+.mdi::before,
+.mdi-set {
+    display: inline-block;
+    font: normal normal normal 24px/1 "Material Design Icons";
+    font-size: inherit;
+    text-rendering: auto;
+    line-height: inherit;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.mdi-facebook::before {
+    content: "\F020C";
+}
+
+.mdi-github::before {
+    content: "\F02A4";
+}
+
+.mdi-google::before {
+    content: "\F02AD";
+}
+
+.mdi-instagram::before {
+    content: "\F02FE";
+}
+
+.mdi-linkedin::before {
+    content: "\F033B";
+}
+
+.mdi-patreon::before {
+    content: "\F0882";
+}
+
+.mdi-stack-overflow::before {
+    content: "\F04CC";
+}
+
+.mdi-twitch::before {
+    content: "\F0543";
+}
+
+.mdi-twitter::before {
+    content: "\F0544";
+}
+
+.mdi-youtube::before {
+    content: "\F05C3";
+}
