@@ -358,7 +358,7 @@ const hasRankingData = computed(() => Boolean(
     }
 
     &__filter-label {
-        font-size: 0.85rem;
+        font-size: var(--m-font-size-sm-tight);
         color: var(--caomei-color-text-muted);
     }
 
@@ -382,7 +382,7 @@ const hasRankingData = computed(() => Boolean(
         gap: $spacing-sm;
         flex-wrap: wrap;
         color: var(--caomei-color-text-muted);
-        font-size: 0.85rem;
+        font-size: var(--m-font-size-sm-tight);
     }
 
     &__panel {
@@ -418,7 +418,7 @@ const hasRankingData = computed(() => Boolean(
     }
 
     &__trend-subtitle {
-        font-size: 0.95rem;
+        font-size: var(--m-font-size-sm-relaxed);
         color: var(--caomei-color-text-muted);
         margin-top: $spacing-sm;
     }

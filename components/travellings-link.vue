@@ -147,7 +147,7 @@ const isVisible = computed(() => {
         }
 
         .travellings-link__title {
-            font-size: 0.95rem;
+            font-size: var(--m-font-size-sm-relaxed);
             font-weight: 600;
         }
     }
@@ -172,7 +172,7 @@ const isVisible = computed(() => {
         }
 
         .travellings-link__title {
-            font-size: 0.95rem;
+            font-size: var(--m-font-size-sm-relaxed);
         }
     }
 }

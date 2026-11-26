@@ -195,7 +195,7 @@ useHead({
 
         h2 {
             margin: 0;
-            font-size: 1.1rem;
+            font-size: var(--m-font-size-md-wide);
         }
 
         p {
