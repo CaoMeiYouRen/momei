@@ -267,6 +267,12 @@ $color-white: var(--caomei-color-bg);
     }
   }
 
+  @media (hover: none), (pointer: coarse) {
+    .hero__btn {
+      min-height: 44px;
+    }
+  }
+
   &__btn {
     display: inline-block;
     background-color: $color-ink;

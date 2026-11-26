@@ -184,6 +184,12 @@ function formatMonthName(month: number) {
   }
 
   .month-item {
+    @media (hover: none), (pointer: coarse) {
+      .month-toggle {
+        min-height: 44px;
+      }
+    }
+
     .month-toggle {
       display: flex;
       justify-content: space-between;

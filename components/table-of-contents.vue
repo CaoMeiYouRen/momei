@@ -160,4 +160,12 @@ const scrollToHeading = (id: string) => {
         }
     }
 }
+
+@media (hover: none), (pointer: coarse) {
+    .toc__link {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+}
 </style>

@@ -400,6 +400,7 @@ definePageMeta({
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        min-height: 44px;
         font-size: var(--m-font-size-sm);
 
         label {

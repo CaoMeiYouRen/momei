@@ -578,6 +578,12 @@ html:root.dark {
             bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
             z-index: 5;
         }
+
+        /* 下拉选择与提交按钮统一 44px 触控高度（含 friend-links 的分类选择）。 */
+        select,
+        :is(.caomei-select, .login-form__submit-btn, .register-form__submit-btn, .submit-btn, .settings-form__submit-btn) {
+            min-height: 44px;
+        }
     }
 }
 

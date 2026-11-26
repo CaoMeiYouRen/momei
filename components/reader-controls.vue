@@ -183,4 +183,11 @@ onUnmounted(() => {
 
 <style lang="scss">
 @use "@/styles/reader" as *;
+
+@media (hover: none), (pointer: coarse) {
+    .reader-controls .reader-controls__toggle {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
 </style>
