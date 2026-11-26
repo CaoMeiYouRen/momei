@@ -27,6 +27,7 @@
 - **[Mergify 合并策略与 merge queue 采用评估](./2026-10-12-mergify-merge-queue-adoption-evaluation)**: 调研与改动方案（未授权开工），结论仍留在 backlog。
 - **[Dependabot major 升级自动合并门禁](./2026-11-26-dependabot-major-merge-guard)**: 以检测脚本 + `Dependabot Major Guard` 检查 + `semver-major` 标签阻止 major 升级自动合并，minor / patch 维持原节奏；含回滚边界。
 - **[发布前安全门禁 dismissed 与 fail-closed 对齐](./2026-11-03-release-security-gate-dismissed-fail-closed)**: `security:alerts` 的 dismissed high+ 与数据源缺口判定口径，规范正文见 [安全开发规范 §5.3](../../standards/security.md)。
+- **[非字阶字号评估与 token 化](./2026-11-27-font-size-tokenization)**: 3 个高频非字阶字号抽为等值 token（+50 条，覆盖率 59.57% → 70.43%），其余 102 条按分组理由保留。
 - **[CWV 基线采集与周回归接入](./2026-11-26-cwv-baseline-and-weekly-regression)**：5 条公开路由的 LCP / CLS / TBT 双跑基线与 `regression-weekly` warning 接入；含 lhci 路径与 Chrome flags 修复、环境差异边界。
 - **[质量门阈值重定标](./2026-11-05-quality-gate-recalibration)**: 首屏包体、重复代码 clone 数与 E2E 环境性失败的重定标依据（用户确认选项 A）。
 - **[Node 26 运行时基线评估与单点化](./2026-11-14-node-26-runtime-baseline)**: `.nvmrc` 为唯一版本声明，Dockerfile / workflows 为其副本。
