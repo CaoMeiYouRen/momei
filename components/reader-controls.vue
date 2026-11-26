@@ -109,6 +109,14 @@
                     </template>
                 </CaomeiButton>
             </AppTooltip>
+
+            <button
+                type="button"
+                class="reader-controls__touch-hint"
+                @click="handleToggle"
+            >
+                {{ settings.active ? $t('components.reader.settings_title') : $t('components.reader.mode_enter') }}
+            </button>
         </div>
     </div>
 </template>
@@ -184,10 +192,28 @@ onUnmounted(() => {
 <style lang="scss">
 @use "@/styles/reader" as *;
 
+.reader-controls__touch-hint {
+    display: none;
+}
+
 @media (hover: none), (pointer: coarse) {
     .reader-controls .reader-controls__toggle {
         min-width: 44px;
         min-height: 44px;
     }
+
+    /* 触屏没有 hover tooltip：提供可见、可点击的文字入口作为替代。 */
+    .reader-controls__touch-hint {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        padding: 0 0.75rem;
+        border: 1px solid var(--caomei-color-border);
+        border-radius: 999px;
+        background: var(--caomei-color-bg);
+        color: var(--caomei-color-text);
+        font-size: var(--m-font-size-sm);
+    }
 }
+
 </style>

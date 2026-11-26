@@ -400,11 +400,23 @@ definePageMeta({
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        min-height: 44px;
         font-size: var(--m-font-size-sm);
 
         label {
+            display: flex;
+            align-items: center;
             line-height: 1.5;
+        }
+    }
+
+    @media (hover: none), (pointer: coarse) {
+        &__remember {
+            min-height: 44px;
+
+            label {
+                min-width: 44px;
+                min-height: 44px;
+            }
         }
     }
 
