@@ -659,7 +659,7 @@ watch(
         @media (width >= 1024px) and (width < 1360px) {
             gap: $spacing-sm;
             margin-right: $spacing-sm;
-            font-size: 0.95rem;
+            font-size: var(--m-font-size-sm-relaxed);
         }
     }
 

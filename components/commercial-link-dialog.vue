@@ -192,7 +192,7 @@ defineEmits<{ save: [], 'update:visible': [visible: boolean] }>()
         gap: $spacing-sm;
 
         i {
-            font-size: 1.1rem;
+            font-size: var(--m-font-size-md-wide);
         }
     }
 

@@ -88,7 +88,7 @@ watch(() => props.content, () => {
 .markdown-body {
     line-height: 1.8;
     color: var(--caomei-color-text);
-    font-size: 1.1rem;
+    font-size: var(--m-font-size-md-wide);
     font-family: $font-sans;
 
     /* 长 URL / 长行内代码在窄屏不撑破视口；正常中文与英文单词的断行行为不受影响。 */
