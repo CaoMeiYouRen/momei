@@ -126,6 +126,16 @@ jobs:
         if: always()
         run: pnpm run build
 
+      # CWV 基线以 warning 面接入：5 条公开路由的 LCP / CLS / TBT，
+      # 失败不阻断周回归，仅提供趋势数据；TEST_MODE 让无安装态也能渲染 /tags。
+      - name: CWV baseline (warning)
+        if: always()
+        continue-on-error: true
+        env:
+          TEST_MODE: "true"
+          NUXT_PUBLIC_TEST_MODE: "true"
+        run: pnpm run test:perf:cwv -- --mode=prod --runs=3
+
       - name: CSS lint
         if: always()
         run: pnpm run lint:css
@@ -148,6 +158,15 @@ jobs:
           path: |
             artifacts/review-gate/*-weekly-regression.*
             artifacts/review-gate/*-weekly.*
+          if-no-files-found: warn
+
+      # CWV 基线单独成 artifact，避免多路径合并把既有周回归证据的目录根上移。
+      - name: Upload CWV baseline
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cwv-baseline-${{ github.run_id }}
+          path: .lighthouseci/cwv-baseline.json
           if-no-files-found: warn
 
       - name: Upload coverage to Codecov

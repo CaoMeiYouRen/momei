@@ -158,15 +158,14 @@ function startProdServer(host, port) {
 
 // ── lhci CLI 封装 ─────────────────────────────────────
 
-function resolveLhciBin() {
+function resolveLhciCliPath() {
     // 通过 pnpm 的顶层软链解析，避免把 @lhci/cli 版本号硬编码进脚本。
-    const cliPath = path.resolve('node_modules/@lhci/cli/src/cli.js')
-    return `node ${cliPath}`
+    return path.resolve('node_modules/@lhci/cli/src/cli.js')
 }
 
 async function runLhciCollect(url, { host, port, runs, workDir, formFactor = 'desktop' }) {
     const fullUrl = `http://${host}:${port}${url}`
-    const lhciBin = resolveLhciBin()
+    const lhciCliPath = resolveLhciCliPath()
 
     return new Promise((resolve, reject) => {
         const isMobile = formFactor === 'mobile'
@@ -174,7 +173,7 @@ async function runLhciCollect(url, { host, port, runs, workDir, formFactor = 'de
             'collect',
             `--url=${fullUrl}`,
             `--numberOfRuns=${runs}`,
-            '--settings.chromeFlags=--headless=new --no-sandbox --disable-gpu',
+            '--settings.chromeFlags=--headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage',
             `--settings.formFactor=${formFactor}`,
             '--settings.screenEmulation.disabled=true',
             `--settings.throttling.cpuSlowdownMultiplier=${isMobile ? 4 : 1}`,
@@ -182,13 +181,14 @@ async function runLhciCollect(url, { host, port, runs, workDir, formFactor = 'de
 
         if (isMobile) {
             args.push('--settings.throttling.rttMs=150')
-            args.push('--settings.throttling.throughputKbps=1.6 * 1024')
+            args.push(`--settings.throttling.throughputKbps=${1.6 * 1024}`)
         }
 
-        const child = spawn(lhciBin, args, {
+        // 数组传参 + 不同 shell：chromeFlags 中的空格天然成组，也避免路径 / URL 被 shell 二次解释。
+        const child = spawn(process.execPath, [lhciCliPath, ...args], {
             cwd: workDir,
             stdio: ['ignore', 'pipe', 'pipe'],
-            shell: true,
+            shell: false,
         })
 
         let stdout = ''
@@ -427,6 +427,12 @@ async function main() {
                 port: args.port,
                 runsPerUrl: args.runs,
                 cwvThresholds: CWV_THRESHOLDS,
+                node: process.version,
+                platform: process.platform,
+                arch: process.arch,
+                chromePath: process.env.CHROME_PATH ?? null,
+                testMode: process.env.TEST_MODE === 'true',
+                commit: process.env.GITHUB_SHA ?? null,
             },
             pages: results,
             summary: {},
@@ -468,6 +474,13 @@ async function main() {
         }
 
         console.info(`\nBaseline report written to: ${args.output}`)
+
+        const erroredPages = Object.values(report.summary).filter((summary) => summary.error)
+        if (erroredPages.length === Object.keys(report.summary).length) {
+            // 全部路由失败通常意味着 Chrome / 服务不可用；以非零退出暴露，避免 warning 步骤长期静默为空。
+            console.error('[cwv-baseline] all target pages failed; exiting with status 1')
+            process.exitCode = 1
+        }
     } finally {
         server.process.kill('SIGTERM')
         setTimeout(() => {
