@@ -23,6 +23,8 @@
                     <CaomeiInput
                         id="nickname"
                         v-model="form.authorName"
+                        autocomplete="nickname"
+                        enterkeyhint="next"
                         :placeholder="$t('comments.nickname_placeholder')"
                         required
                     />
@@ -33,6 +35,9 @@
                         id="email"
                         v-model="form.authorEmail"
                         type="email"
+                        autocomplete="email"
+                        inputmode="email"
+                        enterkeyhint="next"
                         :placeholder="$t('comments.email_placeholder')"
                         required
                     />
@@ -43,6 +48,9 @@
                         id="website"
                         v-model="form.authorUrl"
                         type="url"
+                        autocomplete="url"
+                        inputmode="url"
+                        enterkeyhint="next"
                         :placeholder="$t('comments.website_placeholder')"
                     />
                 </div>
@@ -51,6 +59,7 @@
             <div class="comment-form__content">
                 <CaomeiTextarea
                     v-model="form.content"
+                    enterkeyhint="enter"
                     :placeholder="user ? $t('comments.content_placeholder_logged_in') : $t('comments.content_placeholder_guest')"
                     :rows="4"
                     required
@@ -64,6 +73,7 @@
                 </p>
                 <CaomeiButton
                     type="submit"
+                    class="comment-form__submit"
                     :loading="submitting"
                 >
                     <template #icon>
@@ -173,6 +183,21 @@ const handleSubmit = async () => {
 <style lang="scss" scoped>
 @use "@/styles/variables" as *;
 @use "@/styles/mixins" as *;
+
+/* 公开评论框的移动端可用性：输入字号 ≥16px 防止 iOS 聚焦缩放，提交按钮补足触控高度。 */
+@media (width <= 768px), (pointer: coarse) {
+    .comment-form {
+        :deep(input),
+        :deep(textarea) {
+            font-size: 16px;
+        }
+
+        /* 子组件根节点带自己的 scope id，需通过 :deep 命中。 */
+        :deep(.comment-form__submit) {
+            min-height: 44px;
+        }
+    }
+}
 
 .comment-form {
   @include card-base($spacing-lg);

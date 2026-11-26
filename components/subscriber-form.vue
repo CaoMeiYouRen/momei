@@ -12,6 +12,8 @@
                 <CaomeiInput
                     v-model="email"
                     type="email"
+                    autocomplete="email"
+                    enterkeyhint="send"
                     :placeholder="$t('components.subscriber_form.placeholder')"
                     required
                     class="subscriber-form__field subscriber-form__input"
@@ -151,6 +153,18 @@ const handleSubmit = async () => {
 
     &__message {
         animation: slide-in $transition-base;
+    }
+
+    /* 公开订阅表单：移动端输入字号 ≥16px，提交按钮补足触控高度。 */
+    @media (width <= 768px), (pointer: coarse) {
+        :deep(input:not([type="checkbox"], [type="radio"])),
+        :deep(textarea) {
+            font-size: 16px;
+        }
+
+        :deep(.subscriber-form__submit) {
+            min-height: 44px;
+        }
     }
 }
 

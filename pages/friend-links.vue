@@ -1,5 +1,5 @@
 <template>
-    <div class="links-page">
+    <div class="links-page public-form">
         <div class="links-page__container">
             <header class="links-page__hero">
                 <p class="links-page__eyebrow">
@@ -127,6 +127,8 @@
                                 <CaomeiInput
                                     id="name"
                                     v-model="form.name"
+                                    autocomplete="organization"
+                                    enterkeyhint="next"
                                 />
                             </div>
                             <div class="links-page__field">
@@ -134,6 +136,8 @@
                                 <CaomeiInput
                                     id="url"
                                     v-model="form.url"
+                                    autocomplete="url"
+                                    enterkeyhint="next"
                                 />
                             </div>
                             <div class="links-page__field">
@@ -161,6 +165,8 @@
                                 <CaomeiInput
                                     id="rssUrl"
                                     v-model="form.rssUrl"
+                                    autocomplete="url"
+                                    enterkeyhint="next"
                                 />
                             </div>
                             <div class="links-page__field">
@@ -168,6 +174,8 @@
                                 <CaomeiInput
                                     id="contactName"
                                     v-model="form.contactName"
+                                    autocomplete="name"
+                                    enterkeyhint="next"
                                 />
                             </div>
                             <div class="links-page__field">
@@ -176,6 +184,8 @@
                                     id="contactEmail"
                                     v-model="form.contactEmail"
                                     type="email"
+                                    autocomplete="email"
+                                    enterkeyhint="next"
                                 />
                             </div>
                             <div class="links-page__field">
@@ -203,6 +213,8 @@
                             <CaomeiInput
                                 id="reciprocalUrl"
                                 v-model="form.reciprocalUrl"
+                                autocomplete="url"
+                                enterkeyhint="next"
                             />
                         </div>
 
@@ -211,6 +223,7 @@
                             <CaomeiTextarea
                                 id="description"
                                 v-model="form.description"
+                                enterkeyhint="enter"
                                 :rows="4"
                             />
                         </div>
@@ -220,6 +233,7 @@
                             <CaomeiTextarea
                                 id="message"
                                 v-model="form.message"
+                                enterkeyhint="enter"
                                 :rows="4"
                             />
                         </div>
@@ -231,6 +245,7 @@
                         <div class="links-page__actions">
                             <CaomeiButton
                                 type="submit"
+                                class="links-page__submit"
                                 :loading="submitting"
                             >
                                 {{ submitting ? tt('common.submitting') : tt('pages.links.form.submit') }}
@@ -758,5 +773,11 @@ const handleSubmit = async () => {
     }
 
     &__feed-site { font-weight: 500; }
+}
+
+@media (width <= 768px), (pointer: coarse) {
+    .links-page :deep(.links-page__submit) {
+        min-height: 44px;
+    }
 }
 </style>
