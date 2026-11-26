@@ -164,6 +164,7 @@ export default defineNuxtConfig({
             '/register',
             '/forgot-password',
             '/reset-password',
+            '/__visual/**',
         ],
         sources: ['/api/_sitemap-urls'],
     },
