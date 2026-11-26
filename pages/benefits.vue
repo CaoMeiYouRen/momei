@@ -163,6 +163,8 @@
                             id="benefits-name"
                             v-model="form.name"
                             type="text"
+                            autocomplete="name"
+                            enterkeyhint="next"
                             class="cta-form__input"
                             :placeholder="$t('pages.enhanced_pack.cta_form.name_placeholder')"
                             required
@@ -178,6 +180,8 @@
                             id="benefits-email"
                             v-model="form.email"
                             type="email"
+                            autocomplete="email"
+                            enterkeyhint="send"
                             class="cta-form__input"
                             :placeholder="$t('pages.enhanced_pack.cta_form.email_placeholder')"
                             required
@@ -740,6 +744,7 @@ $color-white: var(--caomei-color-bg);
     &__btn {
         padding: $spacing-sm * 1.5 $spacing-xl;
         background-color: $color-plum;
+        min-height: 44px;
         color: #fff;
         border: 0;
         border-radius: $border-radius-sm;
