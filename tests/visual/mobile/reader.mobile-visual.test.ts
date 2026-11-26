@@ -64,6 +64,40 @@ test.describe('移动端公开页视觉基线', () => {
 /**
  * 列表页空态基线（骨架屏基线转 backlog #6：Nuxt 路由导航等待数据完成，TEST_MODE 下无法稳定捕获 pending 态）。
  */
+test.describe('移动端列表骨架屏', () => {
+    for (const theme of VISUAL_THEMES) {
+        const name = `mobile-posts-skeleton-${theme}`
+
+        test(name, async ({ page }, testInfo) => {
+            const entry = getMobileBudgetEntry(name, budgetFile)
+            const report = { name, route: '/__visual/posts-skeleton', theme, tier: entry.tier, budget: { maxDiffPixels: entry.maxDiffPixels }, outputDir: testInfo.outputDir }
+
+            try {
+                await applyTheme(page, theme)
+                await blockExternalRequests(page)
+                /* 真实 `/posts` 的客户端 pending 被 Nuxt suspense 收敛；用 TEST_MODE 专用挂载页冻结骨架屏外观。 */
+                await page.goto('/__visual/posts-skeleton', { waitUntil: 'domcontentloaded' })
+                await page.getByRole('heading', { name: '文章列表', exact: true }).first().waitFor({ state: 'visible' })
+                await expect(page.locator('.posts-page__skeleton').first()).toBeVisible()
+
+                await expect(page).toHaveScreenshot(`${name}.png`, {
+                    mask: mobileMask(page),
+                    maxDiffPixels: entry.maxDiffPixels,
+                    threshold: budgetFile.meta.pixelThreshold,
+                })
+                writeMobileReport({ ...report, status: 'pass' })
+            } catch (error) {
+                writeMobileReport({
+                    ...report,
+                    status: 'fail',
+                    error: error instanceof Error ? error.message.slice(0, 2000) : String(error),
+                })
+                throw error
+            }
+        })
+    }
+})
+
 test.describe('移动端列表数据态', () => {
     for (const theme of VISUAL_THEMES) {
         const emptyName = `mobile-posts-empty-${theme}`

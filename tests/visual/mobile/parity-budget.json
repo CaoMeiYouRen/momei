@@ -1,6 +1,6 @@
 {
     "meta": {
-        "updatedAt": "2026-11-25",
+        "updatedAt": "2026-11-27",
         "viewport": "390x844 (DPR 3, scale css)",
         "pixelThreshold": 0.2,
         "referenceDir": "tests/visual/mobile/__screenshots__/chromium-visual-mobile/reader.mobile-visual.test.ts",
@@ -114,6 +114,14 @@
             "maxDiffPixels": 200
         },
         "mobile-posts-empty-dark": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-posts-skeleton-light": {
+            "tier": "reader",
+            "maxDiffPixels": 200
+        },
+        "mobile-posts-skeleton-dark": {
             "tier": "reader",
             "maxDiffPixels": 200
         }
