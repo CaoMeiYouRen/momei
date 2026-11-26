@@ -94,8 +94,14 @@ export const MOBILE_READER_ROUTES: MobileReaderRoute[] = [
     },
 ]
 
-/** 列表空态的独立视觉基线；骨架屏见 backlog #6。 */
+/** 列表空态的独立视觉基线。 */
 export const MOBILE_LIST_STATE_CASES = [
     'mobile-posts-empty-light',
     'mobile-posts-empty-dark',
+] as const
+
+/** 列表骨架屏的独立视觉基线（TEST_MODE 专用挂载页，不依赖真实 pending）。 */
+export const MOBILE_SKELETON_CASES = [
+    'mobile-posts-skeleton-light',
+    'mobile-posts-skeleton-dark',
 ] as const
