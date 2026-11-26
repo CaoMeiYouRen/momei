@@ -202,7 +202,7 @@ onUnmounted(() => {
     }
 
     .countdown {
-        font-size: 1.1rem;
+        font-size: var(--m-font-size-md-wide);
         color: var(--primary-color);
         font-weight: 500;
         margin: 1rem 0;
