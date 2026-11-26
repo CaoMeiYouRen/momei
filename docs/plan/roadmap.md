@@ -78,7 +78,7 @@
     - **优先级**: P2（用户指定纳入）。
     - **范围**: `.github/mergify.yml`、`.github/dependabot.yml`、新增 major 检测脚本 / workflow、`docs/design/governance/2026-10-12-mergify-merge-queue-adoption-evaluation.md`。
     - **验收标准**:
-        - 86.2.1：major 版本升级不再命中自动合并（标签 / 条件 + 检测脚本单测通过）；minor / patch 自动合并保持现状；文档写明回滚方式。**Kill-switch**: 检测脚本误伤（把 minor / patch 判为 major）>1 次即回退为「仅标签告警 + 人工合并」，不阻断正常依赖 PR。
+        - 86.2.1：major 版本升级不再命中自动合并（标签 / 条件 + 检测脚本单测通过）；minor / patch 自动合并保持现状；文档写明回滚方式。**Kill-switch**: 检测脚本误伤（把 minor / patch 判为 major）>1 次即回退为「仅标签告警 + 人工合并」，不阻断正常依赖 PR；Dependabot 触发 token 只读时，标签改为维护者按需手工添加，其余依赖 PR 恢复自动合并。
         - 86.2.2：在测试仓库完成 merge queue 6 项验证并出结论（采用 / 不采用 / 分步）；未完成验证时不得修改生产 `merge_method`。**Kill-switch**: 无法访问测试仓库或套餐不覆盖时，只落 86.2.1 与评估报告；queue 退回需重新登记 backlog（含双轴评分与本次验证结论），不得直接复用已归档编号。
         - 86.2.3：依赖台账与安全门禁复核：6 条 `dependency-risk-allowlist` 的 `reviewBy` 均在期内，`security:audit-deps` 与 `security:alerts` 通过并留证据；Dependabot open 状态与 major PR 盘点写入报告。
     - **不做什么**: 不升级任何 major 依赖；不改分支保护策略；不用 GitHub 原生 merge queue 替代（无 batch / `conflict_resolvers`）。

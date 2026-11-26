@@ -106,7 +106,7 @@ git worktree add ../momei-feature-search feature/search-improvements
 
 - 无论来源，PR 都必须审查，并给出保留开放 / 关闭 / 合并的明确结论与依据。
 - 仅可信提交者的 PR 允许合并；合并前要求 CI 通过、无冲突、非 draft。
-- `dependabot[bot]` / `dependabot-preview[bot]` 的依赖升级 PR 在命中 [`.github/mergify.yml`](../../.github/mergify.yml) 规则（`Test` 通过 + `dependencies` label + 受信作者）时走 Mergify 自动合并，依赖升级引入的风险由 CI 门禁承担。
+- `dependabot[bot]` / `dependabot-preview[bot]` 的依赖升级 PR 在命中 [`.github/mergify.yml`](../../.github/mergify.yml) 规则（`Test` 与 `Dependabot Major Guard` 通过 + `dependencies` label + 受信作者 + 无 `semver-major` 标签）时走 Mergify 自动合并，依赖升级引入的风险由 CI 门禁承担；major 升级按 [major 自动合并门禁](../design/governance/2026-11-26-dependabot-major-merge-guard.md) 转人工复核。
 - 未命中 Mergify 规则的机器人 PR（含 `dependfix[bot]` 及其余机器人）按常规 PR 审查、修复（rebase / 锁文件重解析）后合并。
 - 对可信提交者的 PR，允许为解决冲突或修正明显错误做简单修改后合并；复杂修改回到常规流程（短生命周期分支 + 审查 + CI）。
 - 不可信来源 PR 的改动不得以直接 cherry-pick / 重新提交的方式绕过合并门槛；需由可信提交者重新提交并重走 review。

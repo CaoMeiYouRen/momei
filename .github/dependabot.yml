@@ -10,12 +10,20 @@ updates:
     groups:
       # Nuxt 官方 ESLint 适配包是同一条配置链，宜锁步升级。
       nuxt-eslint:
+        # major 单独成 PR，保证标题保留 `from x.y.z to a.b.c`，由 major 门禁拦截。
+        update-types:
+          - minor
+          - patch
         patterns:
           - "@nuxt/eslint"
           - "@nuxt/eslint-config"
 
       # Nuxt 测试运行时与 test-utils 需要匹配同一套测试适配层。
       nuxt-testing:
+        # major 单独成 PR，保证标题保留 `from x.y.z to a.b.c`，由 major 门禁拦截。
+        update-types:
+          - minor
+          - patch
         patterns:
           - "@nuxt/test-utils"
           - "vitest-environment-nuxt"
@@ -25,6 +33,10 @@ updates:
       # 在 nuxt prepare 阶段导入到缺失的符号（如 4.6.x 已不再导出 bundlerDiagnostics），
       # 直接导致 postinstall 失败。必须锁步升级，故归入同一分组。
       nuxt-runtime:
+        # major 单独成 PR，保证标题保留 `from x.y.z to a.b.c`，由 major 门禁拦截。
+        update-types:
+          - minor
+          - patch
         patterns:
           - "nuxt"
           - "@nuxt/kit"
@@ -33,12 +45,20 @@ updates:
 
       # VueUse Nuxt 模块直接包裹 VueUse core，升级时适合一起验证。
       vueuse:
+        # major 单独成 PR，保证标题保留 `from x.y.z to a.b.c`，由 major 门禁拦截。
+        update-types:
+          - minor
+          - patch
         patterns:
           - "@vueuse/core"
           - "@vueuse/nuxt"
 
       # TypeScript、vue-tsc 与 typescript-eslint 共享 TS 版本兼容窗口。
       typescript-checking:
+        # major 单独成 PR，保证标题保留 `from x.y.z to a.b.c`，由 major 门禁拦截。
+        update-types:
+          - minor
+          - patch
         patterns:
           - "typescript"
           - "vue-tsc"
@@ -46,6 +66,10 @@ updates:
 
       # Vitest、覆盖率插件与 happy-dom 属于同一测试执行栈。
       vitest-stack:
+        # major 单独成 PR，保证标题保留 `from x.y.z to a.b.c`，由 major 门禁拦截。
+        update-types:
+          - minor
+          - patch
         patterns:
           - "vitest"
           - "@vitest/*"
@@ -58,6 +82,10 @@ updates:
       # 必须锁步升级。@intlify/eslint-plugin-vue-i18n 同样是这条发布线的一部分，跟
       # eslint 主线节拍不同步，所以从 eslint-stack 拆出来并入此处。
       intlify-stack:
+        # major 单独成 PR，保证标题保留 `from x.y.z to a.b.c`，由 major 门禁拦截。
+        update-types:
+          - minor
+          - patch
         patterns:
           - "vue-i18n"
           - "@intlify/core"
@@ -76,6 +104,10 @@ updates:
       # ESLint 主包、配置和核心插件存在直接 peer 约束。
       # 注：@intlify/eslint-plugin-vue-i18n 跟随 intlify 主线发版，已移入 intlify-stack。
       eslint-stack:
+        # major 单独成 PR，保证标题保留 `from x.y.z to a.b.c`，由 major 门禁拦截。
+        update-types:
+          - minor
+          - patch
         patterns:
           - "eslint"
           - "eslint-plugin-vue"
@@ -83,12 +115,20 @@ updates:
 
       # Stylelint 主包与配置包保持小粒度同步升级即可。
       stylelint-stack:
+        # major 单独成 PR，保证标题保留 `from x.y.z to a.b.c`，由 major 门禁拦截。
+        update-types:
+          - minor
+          - patch
         patterns:
           - "stylelint"
           - "stylelint-config-cmyr"
 
       # Better Auth 主包、扩展包与本地化包存在直接集成关系。
       better-auth:
+        # major 单独成 PR，保证标题保留 `from x.y.z to a.b.c`，由 major 门禁拦截。
+        update-types:
+          - minor
+          - patch
         patterns:
           - "better-auth"
           - "@better-auth/*"
@@ -96,6 +136,10 @@ updates:
 
       # markdown-it 主包及其插件共享解析器扩展接口。
       markdown-it:
+        # major 单独成 PR，保证标题保留 `from x.y.z to a.b.c`，由 major 门禁拦截。
+        update-types:
+          - minor
+          - patch
         patterns:
           - "markdown-it"
           - "markdown-it-anchor"
@@ -107,6 +151,10 @@ updates:
 
       # Katex 只与 markdown-it-texmath 这条数学渲染链直接耦合。
       markdown-math:
+        # major 单独成 PR，保证标题保留 `from x.y.z to a.b.c`，由 major 门禁拦截。
+        update-types:
+          - minor
+          - patch
         patterns:
           - "markdown-it-texmath"
           - "katex"
@@ -114,6 +162,10 @@ updates:
 
       # 邮件发送器与 MJML 模板编译链会一起参与邮件生成与投递。
       email-stack:
+        # major 单独成 PR，保证标题保留 `from x.y.z to a.b.c`，由 major 门禁拦截。
+        update-types:
+          - minor
+          - patch
         patterns:
           - "nodemailer"
           - "@types/nodemailer"
@@ -122,6 +174,10 @@ updates:
 
       # Playwright 三件套需要锁步升级，避免 runner、core 与 test API 版本错位。
       playwright:
+        # major 单独成 PR，保证标题保留 `from x.y.z to a.b.c`，由 major 门禁拦截。
+        update-types:
+          - minor
+          - patch
         patterns:
           - "playwright"
           - "playwright-core"
@@ -129,6 +185,10 @@ updates:
 
       # AWS S3 客户端与 presigner 共享 smithy 类型，拆开升级容易直接报错。
       aws-sdk-s3:
+        # major 单独成 PR，保证标题保留 `from x.y.z to a.b.c`，由 major 门禁拦截。
+        update-types:
+          - minor
+          - patch
         patterns:
           - "@aws-sdk/client-s3"
           - "@aws-sdk/s3-request-presigner"

@@ -1,0 +1,73 @@
+name: Dependabot Major Guard
+
+on:
+  pull_request:
+    types: [opened, reopened, edited, synchronize]
+
+# `issues` / `pull-requests` 写权限仅对非 Dependabot 作者生效；
+# Dependabot 触发的 `pull_request` 运行 token 为只读，标签层是 best-effort，
+# 阻断判定只依赖检查状态。
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: dependabot-major-guard-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  guard:
+    name: Dependabot Major Guard
+    runs-on: ubuntu-latest
+    steps:
+      # `pull_request` 让检查挂在 PR head 上，Mergify 的 check-success 才能读取；
+      # 只检出基线分支并执行基线脚本，不执行 PR 代码。
+      - name: Checkout base branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          persist-credentials: false
+
+      - name: Detect semantic version bump
+        id: detect
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          set -euo pipefail
+          bump="$(node scripts/ci/detect-semver-major.mjs)"
+          echo "::notice::Dependabot version bump classified as ${bump} for \"${PR_TITLE}\""
+          echo "bump=${bump}" >> "$GITHUB_OUTPUT"
+          if [ "$PR_AUTHOR" = "dependabot[bot]" ] || [ "$PR_AUTHOR" = "dependabot-preview[bot]" ]; then
+            echo "is_bot=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_bot=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Dependabot 触发的工作流 token 多为只读，标签写入可能失败；
+      # 标签只做人工可见性，真正阻断由下方检查失败承担。
+      - name: Apply semver-major label
+        if: steps.detect.outputs.is_bot == 'true' && steps.detect.outputs.bump == 'major'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh label create semver-major --description "Dependabot major version upgrade" --color B60205 --force \
+            && gh pr edit "$PR_NUMBER" --add-label semver-major \
+            || echo "::warning::semver-major label update failed; the guard check remains authoritative."
+
+      - name: Remove stale semver-major label
+        if: steps.detect.outputs.is_bot == 'true' && steps.detect.outputs.bump != 'major'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: gh pr edit "$PR_NUMBER" --remove-label semver-major || echo "::warning::semver-major label removal failed; no blocking effect."
+
+      - name: Block automatic merge for major upgrades
+        if: steps.detect.outputs.is_bot == 'true' && steps.detect.outputs.bump == 'major'
+        run: |
+          echo "::error::Dependabot major upgrade detected; automatic merge is disabled."
+          exit 1

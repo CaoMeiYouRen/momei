@@ -2,6 +2,10 @@ pull_request_rules:
   - name: automatic merge for Dependabot pull requests
     conditions:
       - check-success=Test
+      # major 升级由 Dependabot Major Guard 检查阻断，并为 PR 打上 semver-major 标签；
+      # 两个条件同时保留，避免标签写入失败时仍被自动合并。
+      - check-success=Dependabot Major Guard
+      - -label=semver-major
       - author~=^dependabot(|-preview)\[bot\]$
       - label=dependencies
     actions:

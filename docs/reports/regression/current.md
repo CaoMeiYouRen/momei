@@ -10,6 +10,18 @@
 - 超出当前窗口的历史记录应整体迁移到 [archive/index.md](./archive/index.md) 下的模块或日期分片。
 - 「在册族开口标签」统计口径（迁移期，已随路由择库机制退役）：剥离注释后按守卫的标签边界规则（`<Name` 后必须是空白 / `/` / `>`）计数**开口标签处数**，括号内给出不同的**组件名个数**；PrimeVue 卸载后由 `tests/modules/primevue-residual-guard.test.ts` 以全仓零残留口径替代。
 
+<!-- regression-window:start:workflow-precheck:test:2026-11-26 -->
+## 2026-11-26 workflow pre-check（test，自动回填）
+
+- 执行入口: `pnpm run ci:precheck -- --profile=test`
+- 证据 artifact: `../../../artifacts/review-gate/2026-11-26-ci-precheck-test.md` / `../../../artifacts/review-gate/2026-11-26-ci-precheck-test.json`
+- 结果摘要: `Pass`；blocker=0，warning=0。
+- 已执行验证: test critical files=PASS，test environment=PASS，security:validate-overrides=PASS，security:audit-deps=PASS，AI governance check=PASS
+- Review Gate: `Pass` / `none`；主要问题=无。
+- 未覆盖边界: 真实发布凭据链路仍以 GitHub Actions runtime 为准。
+
+<!-- regression-window:end:workflow-precheck:test:2026-11-26 -->
+
 <!-- regression-window:start:periodic-regression:phase-close:2026-11-26 -->
 ## 2026-11-26 第八十五阶段收口（人工回填）
 

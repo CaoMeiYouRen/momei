@@ -22,7 +22,7 @@
 | 大条目 | 小条目 | 状态 | 提交 | 审计 | 容量（计划→实际） |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | 86.1 质量滚动治理 | 1/4 | 进行中 | 待提交 | — | 4 → 1 commits |
-| 86.2 依赖与合并治理 | 1/3 | 进行中 | 待提交 | — | 3 → 1 commits |
+| 86.2 依赖与合并治理 | 2/3 | 进行中 | 待提交 | — | 3 → 2 commits |
 | 86.3 移动端收尾 | 0/3 | 未开始 | 待提交 | — | 3 → 0 commits |
 | 86.4 性能与包体 | 0/2 | 未开始 | 待提交 | — | 2 → 0 commits |
 
@@ -53,11 +53,12 @@
         - 依赖: 字号 inventory 与视觉门禁。**Kill-switch**: parity 新增失败 >2000px 或 >2 条用例即停止该组，见 roadmap §86.1.4。
 
 - [ ] **86.2 依赖与合并治理（P2）**
-    - [ ] **86.2.1 major 升级自动合并门禁（P1）**
+    - [x] **86.2.1 major 升级自动合并门禁（P1）**
         - 目标: 识别 major 版本升级（PR 标题 `from x.y.z to A.B.C`）并阻止自动合并，minor / patch 保持现状。
         - 验收: 检测脚本单测覆盖 major / minor / patch 与预发布版本；Mergify 条件排除 `semver-major` 标签；文档写明回滚方式。
         - 交付物: 脚本、workflow / Mergify / dependabot 配置、单测、文档。
         - 依赖: 现有 Mergify 规则与 CI 预检。**Kill-switch**: 误伤 minor/patch >1 次即回退为「仅标签告警 + 人工合并」，见 roadmap §86.2.1。
+        - 上线观察: 下一个 Dependabot 周期核对 `Dependabot Major Guard` 是否出现在 PR head commit、minor/patch 是否按原节奏自动合并；检查未出现或 PR 停摆超过 1 个周期即执行 kill-switch，并在 `artifacts/review-gate/` 留痕。
     - [ ] **86.2.2 merge queue 可行性验证（P2）**
         - 目标: 在测试仓库闭环详细方案 §7 的 6 项验证，给出采用 / 不采用 / 分步结论。
         - 验收: 6 项验证逐条有结论；未验证前不修改生产 `merge_method`；结论落治理文档。
