@@ -482,7 +482,7 @@ onMounted(() => {
 
     &__recipient-secondary {
         color: var(--caomei-color-text-muted);
-        font-size: 0.85rem;
+        font-size: var(--m-font-size-sm-tight);
         overflow-wrap: anywhere;
     }
 

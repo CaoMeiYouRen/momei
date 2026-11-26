@@ -296,7 +296,7 @@ defineExpose({ refresh })
         display: flex;
         align-items: center;
         gap: $spacing-sm;
-        font-size: 0.95rem;
+        font-size: var(--m-font-size-sm-relaxed);
         color: var(--caomei-color-text-muted);
         margin-top: $spacing-sm;
     }

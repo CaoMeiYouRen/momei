@@ -63,7 +63,7 @@ const emit = defineEmits<{
         gap: 0.2rem;
 
         strong {
-            font-size: 0.95rem;
+            font-size: var(--m-font-size-sm-relaxed);
         }
 
         p {

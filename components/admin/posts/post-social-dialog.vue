@@ -185,7 +185,7 @@ async function handleCopy() {
         gap: $spacing-sm;
 
         i {
-            font-size: 1.1rem;
+            font-size: var(--m-font-size-md-wide);
         }
     }
 }

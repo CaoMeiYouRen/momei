@@ -732,7 +732,7 @@ defineExpose({
     }
 
     &__item-icon {
-        font-size: 1.1rem;
+        font-size: var(--m-font-size-md-wide);
         margin-top: 0.125rem;
         color: var(--caomei-color-primary);
     }
