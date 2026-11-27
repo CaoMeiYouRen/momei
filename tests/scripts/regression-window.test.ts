@@ -101,7 +101,7 @@ describe('regression-window 既有块更新', () => {
 })
 
 describe('regression-window 当前窗口顺序', () => {
-    it('current.md 的 managed blocks 必须顺次排列，且 11-19 在 11-18 之前', () => {
+    it('current.md 的 managed blocks 必须顺次排列，且新窗口位于旧窗口之前', () => {
         const content = readFileSync(resolve(process.cwd(), 'docs/reports/regression/current.md'), 'utf8')
         const markers = markerOrder(content)
         let open = false
@@ -117,8 +117,11 @@ describe('regression-window 当前窗口顺序', () => {
         }
 
         expect(open).toBe(false)
-        expect(markers.findIndex((marker) => marker.includes('2026-11-19')))
-            .toBeLessThan(markers.findIndex((marker) => marker.includes('2026-11-18')))
+        const newestIndex = markers.findIndex((marker) => marker.includes('2026-11-27'))
+        const oldestIndex = markers.findIndex((marker) => marker.includes('2026-11-22'))
+        expect(newestIndex).toBeGreaterThanOrEqual(0)
+        expect(oldestIndex).toBeGreaterThanOrEqual(0)
+        expect(newestIndex).toBeLessThan(oldestIndex)
     })
 })
 
