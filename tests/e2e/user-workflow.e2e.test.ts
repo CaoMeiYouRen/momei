@@ -23,7 +23,7 @@ async function submitForm(page: Page, submitButtonSelector: string) {
     const submitButton = page.locator(submitButtonSelector)
     await expect(submitButton).toBeVisible()
     await expect(submitButton).toBeEnabled()
-    await page.locator('.register-form__fields').evaluate((element) => {
+    await page.locator('[data-testid="auth-entry-form"]').evaluate((element) => {
         (element as HTMLFormElement).requestSubmit()
     })
 }

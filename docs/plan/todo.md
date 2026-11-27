@@ -30,7 +30,7 @@
 
 > 阶段规划、验收标准、kill-switch 与回滚边界见 [项目计划](./roadmap.md#第八十六阶段质量依赖移动与性能四线收口进行中)。小条目默认独立提交、独立审计；强耦合时才合并批次并写明理由。
 
-- [ ] **86.1 质量滚动治理（P1）**
+- [x] **86.1 质量滚动治理（P1）**
     - [x] **86.1.1 覆盖率第二十六批（P1）**
         - 目标: `packages/mcp-server/src/tools/**`（3 文件 / 0–23%）、analytics 插件（3 文件 / 8–57%）、admin 设置组件（3 文件 / 14–22%）补测至 statements ≥80%。
         - 验收: 三组模块 statements 均 ≥80%；同源 statements ≥88.4%（+0.5pp）；干净全量 `test:coverage` EXIT 0；不放宽覆盖率阈值。
@@ -53,7 +53,7 @@
         - 交付物: 字号 inventory 前后对比、分组报告、样式改动。
         - 依赖: 字号 inventory 与视觉门禁。**Kill-switch**: parity 新增失败 >2000px 或 >2 条用例即停止该组，见 roadmap §86.1.4。
 
-- [ ] **86.2 依赖与合并治理（P2）**
+- [x] **86.2 依赖与合并治理（P2）**
     - [x] **86.2.1 major 升级自动合并门禁（P1）**
         - 目标: 识别 major 版本升级（PR 标题 `from x.y.z to A.B.C`）并阻止自动合并，minor / patch 保持现状。
         - 验收: 检测脚本单测覆盖 major / minor / patch 与预发布版本；Mergify 条件排除 `semver-major` 标签；文档写明回滚方式。

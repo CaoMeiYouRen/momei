@@ -10,7 +10,7 @@ test.describe('移动端表单体验', () => {
         await waitForHydration(page)
 
         const email = page.locator('#email')
-        const password = page.locator('.login-form .caomei-password input').first()
+        const password = page.locator('.login-form__field .caomei-password input').first()
 
         const emailMetrics = await email.evaluate((element) => {
             const style = getComputedStyle(element)

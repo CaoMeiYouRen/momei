@@ -16,7 +16,7 @@
                 </div>
             </template>
 
-            <div :class="['auth-entry__body', formClass]">
+            <div class="auth-entry__body">
                 <div v-if="hasSocialLogin" class="auth-entry__social">
                     <CaomeiButton
                         v-if="socialProviders.github"
@@ -48,14 +48,18 @@
                     {{ $t('pages.login.or_continue_with_email') }}
                 </CaomeiDivider>
 
-                <form class="auth-entry__fields" @submit.prevent="$emit('submit')">
+                <form
+                    class="auth-entry__fields"
+                    data-testid="auth-entry-form"
+                    @submit.prevent="$emit('submit')"
+                >
                     <slot />
 
                     <CaomeiButton
                         type="submit"
                         :label="$t(submitLabel)"
                         :loading="loading"
-                        :class="submitClass"
+                        :class="['auth-entry__submit', submitClass]"
                     >
                         {{ $t(submitLabel) }}
                     </CaomeiButton>
@@ -77,7 +81,6 @@ const props = defineProps<{
     titleKey: string
     submitLabel: string
     submitClass: string
-    formClass: string
     loading: boolean
     callbackUrl: string
 }>()

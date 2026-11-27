@@ -3,7 +3,6 @@
         page-class="register-page"
         title-key="pages.register.title"
         submit-label="pages.register.submit"
-        form-class="register-form"
         submit-class="register-form__submit-btn"
         :loading="loading"
         :callback-url="localePath('/')"
@@ -167,8 +166,6 @@ import { registerSchema } from '@/utils/schemas/auth'
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const toast = useToast()
-/* 可用性由服务端在请求期判定（`plugins/social-providers.server.ts`），随 payload 传到客户端；
- * 不能用构建期固化的 public 配置。与 `lib/auth.ts` 共用同一解析函数（详见 pages/login.vue 的说明）。 */
 const loading = ref(false)
 const captchaToken = ref('')
 const captchaRef = ref<any>(null)
@@ -289,20 +286,6 @@ definePageMeta({
 }
 
 .register-card {
-    @extend %auth-card;
-
-    &__header {
-        @extend %auth-card-header;
-    }
-
-    &__logo {
-        @extend %auth-card-logo;
-    }
-
-    &__title {
-        @extend %auth-card-title;
-    }
-
     &__footer {
         @extend %auth-card-footer;
     }
@@ -313,28 +296,12 @@ definePageMeta({
 }
 
 .register-form {
-    @extend %auth-form;
-
-    &__social {
-        @extend %auth-form-social;
-    }
-
-    &__fields {
-        @extend %auth-form-fields;
-    }
-
     &__field {
         @extend %auth-form-field;
     }
 
     &__input {
         @extend %auth-form-input;
-    }
-
-    /* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
-    :deep(.register-form__submit-btn) {
-        width: 100%;
-        margin-top: 0.5rem;
     }
 
     &__agreement {

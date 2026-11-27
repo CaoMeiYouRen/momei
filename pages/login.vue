@@ -3,7 +3,6 @@
         page-class="login-page"
         title-key="pages.login.title"
         submit-label="pages.login.submit"
-        form-class="login-form"
         submit-class="login-form__submit-btn"
         :loading="loading"
         :callback-url="redirectTarget"
@@ -157,9 +156,6 @@ useHead({
 })
 
 const toast = useToast()
-/* 可用性由服务端在请求期判定（`plugins/social-providers.server.ts`），随 payload 传到客户端；
- * 不能用构建期固化的 public 配置（生产环境非 NUXT_ 变量不参与运行期注入）。
- * 与 `lib/auth.ts` 共用同一解析函数，保证「按钮可见 = 服务端已启用」。 */
 const loading = ref(false)
 const captchaToken = ref('')
 const captchaRef = ref<any>(null)
@@ -272,20 +268,6 @@ definePageMeta({
 }
 
 .login-card {
-    @extend %auth-card;
-
-    &__header {
-        @extend %auth-card-header;
-    }
-
-    &__logo {
-        @extend %auth-card-logo;
-    }
-
-    &__title {
-        @extend %auth-card-title;
-    }
-
     &__footer {
         @extend %auth-card-footer;
     }
@@ -296,16 +278,6 @@ definePageMeta({
 }
 
 .login-form {
-    @extend %auth-form;
-
-    &__social {
-        @extend %auth-form-social;
-    }
-
-    &__fields {
-        @extend %auth-form-fields;
-    }
-
     &__field {
         @extend %auth-form-field;
     }
@@ -358,11 +330,6 @@ definePageMeta({
     }
 
     /* caomei-ui 1.4.0：Button 为 fragment root，父级 scoped 选择器需 `:deep()`。 */
-    :deep(.login-form__submit-btn) {
-        width: 100%;
-        margin-top: 0.5rem;
-    }
-
     &__legal-notice {
         font-size: var(--m-font-size-xs);
         color: var(--caomei-color-text-muted);

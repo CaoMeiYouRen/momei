@@ -65,12 +65,15 @@ describe('runtimeConfig 环境变量注入口径', () => {
         ).not.toMatch(/^\s*socialProviders\s*:/mu)
     })
 
-    it('登录 / 注册页只读取请求期状态，不再读取 public.socialProviders', async () => {
+    it('登录 / 注册页通过共享 shell 读取请求期状态，不再读取 public.socialProviders', async () => {
+        const socialSource = await readProjectFile('composables/use-auth-social-login.ts')
+        expect(socialSource, '共享 composable 应读取服务端注入的 useState').toMatch(/useState<[^>]*>\s*\(\s*['"]auth-social-providers['"]/u)
+
         for (const page of ['pages/login.vue', 'pages/register.vue']) {
             const source = await readProjectFile(page)
 
             expect(source, `${page} 不应读取构建期固化的 public.socialProviders`).not.toMatch(/public\.socialProviders/u)
-            expect(source, `${page} 应读取服务端注入的 useState`).toMatch(/useState<[^>]*>\s*\(\s*['"]auth-social-providers['"]/u)
+            expect(source, `${page} 应通过共享认证 shell 读取社交状态`).toMatch(/<AuthEntryShell/u)
         }
     })
 
