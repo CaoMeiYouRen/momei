@@ -1,6 +1,6 @@
 ---
 source_branch: master
-last_sync: 2026-11-26
+last_sync: 2026-11-27
 ---
 
 # 墨梅專案路線圖
@@ -115,4 +115,4 @@ last_sync: 2026-11-26
 - **第八十三階段已審計歸檔（2026-11-24）**：規則面收口與文檔／覆蓋率滾動治理——`.vue` 的 `no-non-null-assertion`（10 處 / 3 檔案）清零並以 `NO_NON_NULL_ASSERTION_FILES` 共通常數把規則面擴到 `.vue`（inventory 0 命中 / 0 例外）；`documentation.md` 362 → **284** 行、`planning.md` 395 → **363** 行（25 條陷阱表移入治理文檔）；覆蓋率第二十四批把 `check-duplicate-code` 71.20% → 96.74%、`audit-comment-drift` 76.89% → 88.00%、`audit-field-copy` 78.48% → 99.16%（同源 statements **87.58%**，+0.305pp）；字號歸一第六批 A 完成 8 檔案 14 處替換（剩餘 `28 → 16`、token 55.97%），3,338 個元素計算樣式 0 差異。
 - **第八十四階段已審計歸檔（2026-11-25）**：字號歸一第六批 B 把等值字面量清零（token 253 → **274 / 59.96%**），並先修正 inventory `stripComments` 盲區、對帳 token +4 / scale +1；`docs/guide/deploy.md` 壓到腳本口徑 **243** 行（候選 profile 0 warning）並同步四鏡像；結構複用把重複率 **0.34% → 0.31%**（37 / 545）；覆蓋率第二十五批三模組 **93.10% / 87.10% / 98.10%**、同源 statements **87.58% → 87.92%**（+0.34pp，6,177 tests 乾淨全量）；`no-unsafe-argument` 50 處 → **0** 並在生產 TS 升 `error`，移除誤導性的 `**/migration-*.ts` 豁免；i18n ALS 缺陷經三案比較後依 kill-switch 僅移除無效注入（真正修復轉 backlog #5）。
 - **第八十五階段已完成稽核並歸檔（2026-11-26）**：公開頁（不含 admin）行動存取體驗——24 張 reader 快照的 390×844 行動基線接入 CI（逐路由預算）、閱讀頁改善（Markdown 表格橫向捲動、觸控可見的程式碼複製、行動目錄抽屜）、殼層與觸控目標（抽屜 aria／焦點／捲動鎖定、安全區、`vh`+`dvh`、≥44px 與 hover 替代）、表單（16px 輸入、inputmode/autocomplete/enterkeyhint、送出可達、首個錯誤聚焦）、360px 列表密度與 12 篇臨時文章驗證分頁。骨架屏視覺基線因 TEST_MODE 無法穩定重現，轉 backlog 待上收候選 #6。行動視覺 26/26、桌面 32/32、parity 82/83（既有頭像差異）、行動 E2E 42 passed（三瀏覽器）。
-- **第八十六階段已立項（2026-11-26）**：使用者指定的四線（A+B+C+D）——品質滾動治理（覆蓋率第 26 批、靜態規則債第 7 批、認證頁結構重用、非字階字號評估）、依賴與合併治理（major 升級自動合併門檻、merge queue 可行性、依賴台帳）、行動端收尾（骨架屏基線、評論框 16px、觸控／hover 第二批）、效能與包體（CWV 基線節奏、包體餘量）。容量 4 大 / 12 小；B 為使用者確認的確認檔（Alignment 4→5），C/D 為 Score > 1.5 的直接准入。
+- **第八十六階段已審計歸檔（2026-11-27）**：品質、依賴、行動與效能收口。覆蓋率第二十六批把三組模組提升至 100% / 98.98% / 97.38%，同源 statements 達 **88.59%**；靜態規則第七批清零 `no-unnecessary-type-conversion` 42 處 / 27 檔案並升 `error`；三個高頻非字階字號改為等值 token（+50，覆蓋率 59.57% → **70.43%**）；新增 Dependabot major 門禁（檢查 + `semver-major` 標籤 + 分組 `update-types: [minor, patch]`），並複核依賴台帳與兩道安全門禁；行動端新增 28 個基線（骨架屏專用掛載）、公開表單 16px / 屬性 / 44px、7 路由觸控審計與 2 條 hover-only 替代；CWV 完成 5 路由雙跑（LCP 波動 ≤0.14%）並接入 weekly warning；MDI CSS 子集化至 10 個圖示，`keyCss` 60.49 → **10.92KiB** gzip，預算未放寬。12 條中 10 條完成；認證頁共用骨架因桌面 parity 超預算而取消（duplicate 維持 0.30%），merge queue 驗證改為 Dependabot 觀察，均依使用者決定。

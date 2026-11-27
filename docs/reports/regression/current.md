@@ -22,6 +22,18 @@
 
 <!-- regression-window:end:workflow-precheck:test:2026-11-26 -->
 
+<!-- regression-window:start:periodic-regression:phase-close:2026-11-27 -->
+## 2026-11-27 第八十六阶段收口（人工回填）
+
+- 执行入口: 分项执行 `pnpm lint` / `lint:css` / `typecheck` / `lint-md` / `test:perf:budget:strict` / 干净全量 `test:coverage`，以及 PR #1112 / #1113 的 Test、Unit、Coverage、E2E、Visual Regression（桌面基线 + parity + 移动）
+- 证据 artifact: `../../../artifacts/review-gate/2026-11-2{6,7}-phase86-*`、`../../../artifacts/coverage/2026-11-26-phase86-item1/`
+- 结果摘要: **Pass**。lint 0 error（10 root + 3 cli 既有 warning）/ typecheck EXIT 0 / lint:css 0 error / lint-md 通过；干净全量 coverage EXIT 0（660 文件 / 6,262 tests + 1 skipped，同源 statements **88.59%**）；`test:perf:budget:strict` Pass（keyCss **10.92 / 62KiB**、coreEntryJs 294.43 / 335、maxAsync 93.18 / 130、prIncrement 13.80 / 20）；移动视觉 28/28、桌面视觉 32/32、parity 绿；E2E 三浏览器通过
+- 回归窗口: 活动窗口按 `regression-window` 统计，2026-11-27 收口记录已写入
+- Review Gate: `Pass`（86.1.1 R1→R2；86.1.2 三分区；86.1.4 R1→R2；86.2.1 R1→R2→R3；86.2.3；86.3.2 R1→R2→R3；86.3.3 R1→R2；86.4.1；86.4.2 R1→R2）
+- 未覆盖边界: 86.1.3 认证页共享骨架按用户决定取消（duplicate 0.30%）；86.2.2 merge queue 转 Dependabot 触发观察；CWV 为 TEST_MODE + Chromium 本机基线；MDI 子集不覆盖文章正文 / 后台注入的任意 `mdi-*`
+
+<!-- regression-window:end:periodic-regression:phase-close:2026-11-27 -->
+
 <!-- regression-window:start:periodic-regression:phase-close:2026-11-26 -->
 ## 2026-11-26 第八十五阶段收口（人工回填）
 
@@ -83,44 +95,3 @@
 - Review Gate: `Pass`（standard 档）；上游 API 差分 0 个 prop / 导出移除，19 个新组件均为 `Caomei*` 前缀，无本地同名冲突。
 - 未覆盖边界: 受控列可见性 / 顺序 / 宽度、固定表头、`selectAllScope`、列宽拖拽、`allowEmptyValue` 与新组件族未采纳；悬停态内建提示未纳入静态基线；全量 E2E 未重跑，CI 为最终裁决。
 <!-- regression-window:end:maintenance:caomei-ui-upgrade:2026-11-22 -->
-
-<!-- regression-window:start:periodic-regression:phase-close:2026-11-21 -->
-## 2026-11-21 阶段收口前周期性回归（自动回填）
-
-- 执行入口: `E2E_PORT=3101 E2E_INSTALLATION_PORT=3102 pnpm regression:phase-close`
-- 证据 artifact: `../../../artifacts/review-gate/2026-11-21-phase-close-regression.md` / `../../../artifacts/review-gate/2026-11-21-phase-close-regression.json`；映射说明 `../../../artifacts/review-gate/2026-11-21-phase81-close.md`
-- 结果摘要: 本机首跑 `test:coverage` 被 2 个既有并发 flake 阻断（`components/app-header.test.ts` drawer 点击、`pages/admin/comments/index.test.ts` 筛选后 fetch 次数）；两文件孤立复跑 24/24 通过。CI Test run `44869703295` 的 Coverage job 通过，作为最终裁决。
-- 已执行验证: test:coverage=CI PASS（本地 `--retry=2` 全量 640 passed / 1 skipped）；release:check=11/11 PASS；docs:check:i18n / line-count PASS；test:perf:budget:strict PASS；duplicate-code:check:strict PASS；review-gate:generate:check PASS
-- 回归窗口: 52 行 / 3 条，归档判定=窗口健康。
-- Review Gate: `Pass`（本机 flake 已逐例证伪，CI 兜底）。
-- 未覆盖边界: 本机 `user-settings-dark` parity 头像差异为本机 TEST_MODE 数据态（CI 83/83），不登记 allowlist；ALS 注入失效为既有缺陷，登记 backlog 国际化主线。
-
-<!-- regression-window:end:periodic-regression:phase-close:2026-11-21 -->
-
-<!-- regression-window:start:periodic-regression:phase-close:2026-11-19 -->
-## 2026-11-19 阶段收口前周期性回归（自动回填）
-
-- 执行入口: `pnpm regression:phase-close`
-- 证据 artifact: `../../../artifacts/review-gate/2026-11-19-phase-close-regression.md` / `../../../artifacts/review-gate/2026-11-19-phase-close-regression.json`
-- 结果摘要: `Pass`；blocker=0，warning=0。
-- 已执行验证: test:coverage=PASS，release:check:full=PASS，docs:check:i18n=PASS，docs:check:line-count=PASS，test:perf:budget:strict=PASS，duplicate-code:check:strict=PASS，review-gate:generate:check=PASS
-- 回归窗口: 46 行 / 2 条，归档判定=窗口健康。
-- Review Gate: `Pass` / `none`；主要问题=无。
-- 本机运行记录: 第 1 次在 `test:e2e` 被 webkit 管理端导航层 flake（`Frame load interrupted`）与本阶段新增 E2E 的菜单点击时序阻断；第 2 次在 `test (Vitest)` 被 `pages/admin/posts/index.test.ts`「翻译徽标点击」的「点击后立即断言」flake 阻断；第 3 次 `Pass`。前者已给菜单点击加有界重试，后者按第七十九阶段口径补 `settleUi`（该文件连跑 3 次 24/24 通过）。
-- 未覆盖边界: 本机 `user-settings-dark` parity 仍有 1 条头像兜底数据态差异（CI 通过，已在偏差处置表登记）；边缘 `cf-cache-status` 未在仓库内验证。
-
-<!-- regression-window:end:periodic-regression:phase-close:2026-11-19 -->
-
-<!-- regression-window:start:periodic-regression:phase-close:2026-11-18 -->
-
-## 2026-11-18 阶段收口前周期性回归（自动回填）
-
-- 执行入口: `pnpm regression:phase-close`
-- 证据 artifact: `../../../artifacts/review-gate/2026-11-18-phase-close-regression.md` / `../../../artifacts/review-gate/2026-11-18-phase-close-regression.json`
-- 结果摘要: `Pass`；blocker=0，warning=0。
-- 已执行验证: test:coverage=PASS，release:check:full=PASS，docs:check:i18n=PASS，docs:check:line-count=PASS，test:perf:budget:strict=PASS，duplicate-code:check:strict=PASS，review-gate:generate:check=PASS
-- 回归窗口: 39 行 / 3 条，归档判定=窗口健康。
-- Review Gate: `Pass` / `none`；主要问题=无。
-- 未覆盖边界: 无新增未覆盖边界。
-
-<!-- regression-window:end:periodic-regression:phase-close:2026-11-18 -->

@@ -36,6 +36,18 @@
 
 ---
 
+## 第八十六阶段：质量、依赖、移动与性能四线收口（已审计归档）
+
+> **归档块模型**: v1
+
+-   **阶段名与时间**: 第八十六阶段 · 2026-11-26 ~ 2026-11-27
+-   **大条目清单与状态**: 1. 质量滚动治理（3 完成 + 1 取消：[x] 覆盖率第二十六批 / [x] 静态规则债第七批 / [x] 非字阶字号 token 化 / [-] 认证页结构复用，用户决定暂停）；2. 依赖与合并治理（2 完成 + 1 取消：[x] major 合并门禁 / [x] 依赖台账复核 / [-] merge queue 验证转 Dependabot 观察）；3. 移动端收尾（3/3，[x]）；4. 性能与包体（2/2，[x]）
+-   **提交清单**: `f89ec106`（立项）；`b55c31be`（86.1.1）；`fde8a167`（86.1.2）；`ba6c712e` / `a32dbc67` / `7bbab4d3` / `97198023` / `9fcba326`（86.1.4 五批）、`b4ed2cd5` / `03f7806f`（口径修正）；`70658724`（86.2.1）；`4ad478db`（86.2.3）；`d103f10e` / `ddc6e33f` / `d17f4ed7`（86.3.1）；`e07990c6` / `a54c8541` 与 PR #1112（86.3.2）；`0685cf3f` / `ab02573c` / `7c00a5cb`（86.3.3）；`abd882cb`（86.4.1）；`e2aa8b19`（lhci 路径修复）；`76d08b7c` / `2cbc0f43`（86.4.2）；`00853bfe`（大条目勾选）；PR #1113（86.1.4 / 86.3.3 / 86.4.2）
+-   **质量门结果**: `pnpm lint` 0 error（root 10 + cli 3 既有 warning）、`lint:css` / `typecheck` / `lint-md` 通过；干净全量 `test:coverage` EXIT 0（660 文件 / 6,262 tests + 1 skipped，同源 statements **88.59%**）；`test:perf:budget:strict` Pass（keyCss **10.92 / 62KiB**、coreEntryJs 294.43 / 335、maxAsync 93.18 / 130、prIncrement 13.80 / 20，预算未放宽）；`governance:inventory:eslint-rules` 对 `no-unnecessary-type-conversion` 0 命中 / 0 豁免 / effectiveSeverity 2；字号 inventory token **324/460 = 70.43%**（86.4.2 后 461 条复算 70.28%）；duplicate-code **0.29% → 保持 0.30%**（认证页重构回退）；PR #1112 / #1113 的 Test、Unit、Coverage、E2E、Visual Regression（桌面 + parity + 移动）全绿；master CI run `45886329307` 成功
+-   **Review Gate 结论与轮次**: 86.1.1 R1 Reject → R2 Pass；86.1.2 三分区 Pass + 主审 Pass（W-1 修复）；86.1.4 components Pass、pages/styles R1 Reject → R2 Pass；86.2.1 R1 Reject → R2 Reject → R3 Pass；86.2.3 Pass；86.3.2 R1 Reject → R2 Reject → R3 Pass；86.3.3 R1 Reject → R2 Pass；86.4.1 Pass；86.4.2 R1 Reject → R2 Pass；归档文档见本块
+-   **未覆盖边界**: ① 86.1.3 认证页共享骨架未合入，duplicate 保持 0.30%，后续需独立复用批次并接受桌面 parity 参考态更新；② 86.2.2 merge queue 未验证，等待 Dependabot 触发观察；③ CWV 为本机 TEST_MODE + Chromium 基线，CI weekly 首次运行后回填趋势；④ MDI 子集不覆盖文章正文 / 后台配置注入的任意 `mdi-*`；⑤ `user-settings-dark` parity 本机既有头像数据态差异以 CI 为裁决
+-   **规划正文**: [roadmap 分片](./archive/roadmap-phases-86.md)
+
 ## 第八十五阶段：移动端访问体验优化（公开页，已审计归档）
 
 > **归档块模型**: v1
