@@ -1,219 +1,160 @@
 <template>
-    <div class="public-form register-page">
-        <CaomeiCard class="register-card">
-            <template #title>
-                <div class="register-card__header">
-                    <img
-                        src="/logo.png"
-                        alt="Momei Logo"
-                        class="register-card__logo"
-                        width="56"
-                        height="56"
-                    >
-                    <h1 class="register-card__title">
-                        {{ $t("pages.register.title") }}
-                    </h1>
-                </div>
-            </template>
-            <div class="register-form">
-                <div
-                    v-if="hasSocialLogin"
-                    class="register-form__social"
+    <AuthEntryShell
+        page-class="register-page"
+        title-key="pages.register.title"
+        submit-label="pages.register.submit"
+        form-class="register-form"
+        submit-class="register-form__submit-btn"
+        :loading="loading"
+        :callback-url="localePath('/')"
+        @submit="handleRegister"
+    >
+        <div class="register-form__field">
+            <label for="name">{{
+                $t("common.nickname")
+            }}</label>
+            <CaomeiInput
+                id="name"
+                v-model="form.name"
+                type="text"
+                autocomplete="nickname"
+                enterkeyhint="next"
+                :invalid="!!errors.name"
+                class="register-form__input"
+            />
+            <CaomeiMessage
+                v-if="errors.name"
+                tone="danger"
+                size="sm"
+                variant="simple"
+            >
+                {{ errors.name }}
+            </CaomeiMessage>
+        </div>
+
+        <div class="register-form__field">
+            <label for="email">{{
+                $t("common.email")
+            }}</label>
+            <CaomeiInput
+                id="email"
+                v-model="form.email"
+                type="email"
+                inputmode="email"
+                autocomplete="email"
+                enterkeyhint="next"
+                :invalid="!!errors.email"
+                class="register-form__input"
+            />
+            <CaomeiMessage
+                v-if="errors.email"
+                tone="danger"
+                size="sm"
+                variant="simple"
+            >
+                {{ errors.email }}
+            </CaomeiMessage>
+        </div>
+
+        <div class="register-form__field">
+            <label for="password">{{
+                $t("common.password")
+            }}</label>
+            <CaomeiPassword
+                id="password"
+                v-model="form.password"
+                autocomplete="new-password"
+                enterkeyhint="next"
+                :feedback="true"
+                :invalid="!!errors.password"
+            />
+            <CaomeiMessage
+                v-if="errors.password"
+                tone="danger"
+                size="sm"
+                variant="simple"
+            >
+                {{ errors.password }}
+            </CaomeiMessage>
+        </div>
+
+        <div class="register-form__field">
+            <label for="confirmPassword">{{
+                $t("pages.register.confirm_password")
+            }}</label>
+            <CaomeiPassword
+                id="confirmPassword"
+                v-model="form.confirmPassword"
+                autocomplete="new-password"
+                enterkeyhint="submit"
+                :feedback="false"
+                :invalid="!!errors.confirmPassword"
+            />
+            <CaomeiMessage
+                v-if="errors.confirmPassword"
+                tone="danger"
+                size="sm"
+                variant="simple"
+            >
+                {{ errors.confirmPassword }}
+            </CaomeiMessage>
+        </div>
+
+        <div class="register-form__agreement">
+            <CaomeiCheckbox
+                id="agreed"
+                v-model="form.agreed"
+                :invalid="!!errors.agreed"
+            />
+            <label
+                for="agreed"
+                class="register-form__agreement-label"
+            >
+                <i18n-t keypath="legal.agreement_checkbox">
+                    <template #agreement>
+                        <NuxtLink
+                            :to="localePath('/user-agreement')"
+                            target="_blank"
+                            class="legal-link"
+                        >
+                            {{ $t("legal.user_agreement") }}
+                        </NuxtLink>
+                    </template>
+                    <template #privacy>
+                        <NuxtLink
+                            :to="localePath('/privacy-policy')"
+                            target="_blank"
+                            class="legal-link"
+                        >
+                            {{ $t("legal.privacy_policy") }}
+                        </NuxtLink>
+                    </template>
+                </i18n-t>
+            </label>
+        </div>
+        <CaomeiMessage
+            v-if="errors.agreed"
+            tone="danger"
+            size="sm"
+            variant="simple"
+        >
+            {{ errors.agreed }}
+        </CaomeiMessage>
+
+        <app-captcha ref="captchaRef" v-model="captchaToken" />
+
+        <template #footer>
+            <div class="register-card__footer">
+                <NuxtLink
+                    :to="localePath('/login')"
+                    class="register-card__login-link"
+                    @click.prevent="handleLoginNavigation"
                 >
-                    <CaomeiButton
-                        v-if="socialProviders.github"
-                        variant="secondary"
-                        :label="$t('pages.login.github_login')"
-                        class="github-btn social-btn"
-                        @click="handleGithubLogin"
-                    >
-                        <template #icon>
-                            <i class="mdi mdi-github" aria-hidden="true" />
-                        </template>
-                        {{ $t('pages.login.github_login') }}
-                    </CaomeiButton>
-                    <CaomeiButton
-                        v-if="socialProviders.google"
-                        variant="secondary"
-                        :label="$t('pages.login.google_login')"
-                        class="google-btn social-btn"
-                        @click="handleGoogleLogin"
-                    >
-                        <template #icon>
-                            <i class="mdi mdi-google" aria-hidden="true" />
-                        </template>
-                        {{ $t('pages.login.google_login') }}
-                    </CaomeiButton>
-                </div>
-
-                <CaomeiDivider
-                    v-if="hasSocialLogin"
-                    align="center"
-                >
-                    {{ $t("pages.login.or_continue_with_email") }}
-                </CaomeiDivider>
-
-                <form
-                    class="register-form__fields"
-                    @submit.prevent="handleRegister"
-                >
-                    <div class="register-form__field">
-                        <label for="name">{{
-                            $t("common.nickname")
-                        }}</label>
-                        <CaomeiInput
-                            id="name"
-                            v-model="form.name"
-                            type="text"
-                            autocomplete="nickname"
-                            enterkeyhint="next"
-                            :invalid="!!errors.name"
-                            class="register-form__input"
-                        />
-                        <CaomeiMessage
-                            v-if="errors.name"
-                            tone="danger"
-                            size="sm"
-                            variant="simple"
-                        >
-                            {{ errors.name }}
-                        </CaomeiMessage>
-                    </div>
-
-                    <div class="register-form__field">
-                        <label for="email">{{
-                            $t("common.email")
-                        }}</label>
-                        <CaomeiInput
-                            id="email"
-                            v-model="form.email"
-                            type="email"
-                            inputmode="email"
-                            autocomplete="email"
-                            enterkeyhint="next"
-                            :invalid="!!errors.email"
-                            class="register-form__input"
-                        />
-                        <CaomeiMessage
-                            v-if="errors.email"
-                            tone="danger"
-                            size="sm"
-                            variant="simple"
-                        >
-                            {{ errors.email }}
-                        </CaomeiMessage>
-                    </div>
-
-                    <div class="register-form__field">
-                        <label for="password">{{
-                            $t("common.password")
-                        }}</label>
-                        <CaomeiPassword
-                            id="password"
-                            v-model="form.password"
-                            autocomplete="new-password"
-                            enterkeyhint="next"
-                            :feedback="true"
-                            :invalid="!!errors.password"
-                        />
-                        <CaomeiMessage
-                            v-if="errors.password"
-                            tone="danger"
-                            size="sm"
-                            variant="simple"
-                        >
-                            {{ errors.password }}
-                        </CaomeiMessage>
-                    </div>
-
-                    <div class="register-form__field">
-                        <label for="confirmPassword">{{
-                            $t("pages.register.confirm_password")
-                        }}</label>
-                        <CaomeiPassword
-                            id="confirmPassword"
-                            v-model="form.confirmPassword"
-                            autocomplete="new-password"
-                            enterkeyhint="submit"
-                            :feedback="false"
-                            :invalid="!!errors.confirmPassword"
-                        />
-                        <CaomeiMessage
-                            v-if="errors.confirmPassword"
-                            tone="danger"
-                            size="sm"
-                            variant="simple"
-                        >
-                            {{ errors.confirmPassword }}
-                        </CaomeiMessage>
-                    </div>
-
-                    <div class="register-form__agreement">
-                        <CaomeiCheckbox
-                            id="agreed"
-                            v-model="form.agreed"
-                            :invalid="!!errors.agreed"
-                        />
-                        <label
-                            for="agreed"
-                            class="register-form__agreement-label"
-                        >
-                            <i18n-t keypath="legal.agreement_checkbox">
-                                <template #agreement>
-                                    <NuxtLink
-                                        :to="localePath('/user-agreement')"
-                                        target="_blank"
-                                        class="legal-link"
-                                    >
-                                        {{ $t("legal.user_agreement") }}
-                                    </NuxtLink>
-                                </template>
-                                <template #privacy>
-                                    <NuxtLink
-                                        :to="localePath('/privacy-policy')"
-                                        target="_blank"
-                                        class="legal-link"
-                                    >
-                                        {{ $t("legal.privacy_policy") }}
-                                    </NuxtLink>
-                                </template>
-                            </i18n-t>
-                        </label>
-                    </div>
-                    <CaomeiMessage
-                        v-if="errors.agreed"
-                        tone="danger"
-                        size="sm"
-                        variant="simple"
-                    >
-                        {{ errors.agreed }}
-                    </CaomeiMessage>
-
-                    <app-captcha ref="captchaRef" v-model="captchaToken" />
-
-                    <CaomeiButton
-                        type="submit"
-                        :label="$t('pages.register.submit')"
-                        :loading="loading"
-                        class="register-form__submit-btn"
-                    >
-                        {{ $t('pages.register.submit') }}
-                    </CaomeiButton>
-                </form>
+                    {{ $t("pages.register.have_account") }}
+                </NuxtLink>
             </div>
-            <template #footer>
-                <div class="register-card__footer">
-                    <NuxtLink
-                        :to="localePath('/login')"
-                        class="register-card__login-link"
-                        @click.prevent="handleLoginNavigation"
-                    >
-                        {{ $t("pages.register.have_account") }}
-                    </NuxtLink>
-                </div>
-            </template>
-        </CaomeiCard>
-    </div>
+        </template>
+    </AuthEntryShell>
 </template>
 
 <script setup lang="ts">
@@ -222,18 +163,15 @@ import { z } from 'zod'
 import { invalidateAuthSessionState, refreshAuthSession } from '@/composables/use-auth-session'
 import { authClient } from '@/lib/auth-client'
 import { registerSchema } from '@/utils/schemas/auth'
-import { DEFAULT_SOCIAL_PROVIDER_AVAILABILITY, type SocialProviderAvailability } from '@/utils/shared/social-providers'
 
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const toast = useToast()
 /* 可用性由服务端在请求期判定（`plugins/social-providers.server.ts`），随 payload 传到客户端；
  * 不能用构建期固化的 public 配置。与 `lib/auth.ts` 共用同一解析函数（详见 pages/login.vue 的说明）。 */
-const socialProviders = useState<SocialProviderAvailability>('auth-social-providers', () => ({ ...DEFAULT_SOCIAL_PROVIDER_AVAILABILITY }))
 const loading = ref(false)
 const captchaToken = ref('')
 const captchaRef = ref<any>(null)
-const hasSocialLogin = computed(() => socialProviders.value.github || socialProviders.value.google)
 const form = ref({
     name: '',
     email: '',
@@ -248,20 +186,6 @@ const errors = ref({
     confirmPassword: '',
     agreed: '',
 })
-
-const handleGithubLogin = async () => {
-    await authClient.signIn.social({
-        provider: 'github',
-        callbackURL: localePath('/'),
-    })
-}
-
-const handleGoogleLogin = async () => {
-    await authClient.signIn.social({
-        provider: 'google',
-        callbackURL: localePath('/'),
-    })
-}
 
 const handleLoginNavigation = () => {
     return navigateTo(localePath('/login'))
